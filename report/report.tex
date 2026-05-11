@@ -1,0 +1,71 @@
+\documentclass{article}
+\usepackage[italian]{babel}
+\usepackage{array}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{pdfpages}
+\usepackage{xcolor}
+\usepackage{subfigure}
+\usepackage{amsmath}
+\usepackage{relsize}
+\usepackage{amsfonts}
+\usepackage{array}
+\usepackage{subcaption}
+\usepackage{graphicx}
+\hypersetup{hidelinks}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{cmap}
+
+\begin{document}
+
+    \begin{titlepage}
+        \centering
+        \vspace*{0.5cm}
+
+        \includegraphics[width=0.35\textwidth]{img/uniud_logo.pdf}\\[1cm]
+
+        {\LARGE \textsc{Università degli Studi di Udine}}\\[0.3cm]
+        {\large Dipartimento di Scienze Matematiche, Informatiche e Fisiche}\\[1.5cm]
+
+        \rule{\linewidth}{0.4mm} \\[0.8cm]
+        {\Huge \textbf{Progetto di Basi di Dati e Laboratorio}}\\[0.8cm]
+        \rule{\linewidth}{0.4mm} \\[2cm]
+
+        \begin{minipage}[t]{0.45\textwidth}
+            \begin{flushleft} \large
+                \emph{Docenti:}\\[0.2cm]
+                \textbf{Prof. Luca Geatti}\\
+                \textbf{Prof. Nicola Saccomanno}
+            \end{flushleft}
+        \end{minipage}
+        \hfill
+        \begin{minipage}[t]{0.5\textwidth}
+            \begin{flushright} \large
+                \emph{Autori:}\\[0.2cm]
+                \textbf{Davide Cossidente}\\ \href{mailto:166898@spes.uniud.it}{\normalsize 166898@spes.uniud.it}\\[0.2cm]
+                \textbf{Carlo Malocco}\\ \href{mailto:152255@spes.uniud.it}{\normalsize 152255@spes.uniud.it}\\[0.2cm]
+                \textbf{Alessio Nicodemo}\\ \href{mailto:166972@spes.uniud.it}{\normalsize 166972@spes.uniud.it}\\[0.2cm]
+                \textbf{Luca Zorzi}\\ \href{mailto:167341@spes.uniud.it}{\normalsize 167341@spes.uniud.it}
+            \end{flushright}
+        \end{minipage}
+
+        \vfill
+
+        {\large \textbf{Anno Accademico 2025--2026}}
+        \vspace*{1cm}
+    \end{titlepage}
+    \tableofcontents
+    \newpage
+
+    \input{sections/1_introduction}
+    \input{sections/2_requirements_analysis}
+    \input{sections/3_glossary}
+    \input{sections/4_conceptual_design}
+    \input{sections/5_schema_restructuring}
+    \input{sections/6_logical_design}
+    \input{sections/7_normalization}
+    \input{sections/8_physical_design}
+    \input{sections/9_queries}
+
+\end{document}

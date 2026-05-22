@@ -1,1 +1,182 @@
 \section{Progettazione Logica}
+
+\subsection{Tabella dei volumi}
+
+Per valutare i costi delle operazioni, per effettuare una corretta analisi delle ridondanze e quindi per effettuare una corretta ristrutturazione dello schema E-R, si rende necessaria una tabella dei volumi in cui per ogni oggetto stimiamo la sua quantità media presente nella base di dati a metà del suo ciclo di vita.
+
+\begin{table}[h]
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{|l|c|r|}
+        \hline
+        \textbf{Concetto} & \textbf{Tipo} & \textbf{Volume} \\
+        \hline
+        DIPARTIMENTO & E & 3 \\
+        \hline
+        CORSO LAUREA & E & 10 \\
+        \hline
+        DOCENTE & E & 80 \\
+        \hline
+        CORSO & E & 150 \\
+        \hline
+        EDIZIONE & E & 300 \\
+        \hline
+        LEZIONE & E & 6.000 \\
+        \hline
+        STUDENTE & E & 2.000 \\
+        \hline
+        ESAME & E & 30.000 \\
+        \hline
+        è affiliato ad & R & 80 \\
+        \hline
+        è iscritto & R & 2.000 \\
+        \hline
+        nel piano di studio & R & 40.000 \\
+        \hline
+        sostiene & R & 30.000 \\
+        \hline
+        prevede & R & 30.000 \\
+        \hline
+        prerequisito & R & 50 \\
+        \hline
+        può insegnare & R & 240 \\
+        \hline
+        è erogato in & R & 300 \\
+        \hline
+        tiene & R & 350 \\
+        \hline
+        si compone di & R & 6.000 \\
+        \hline
+    \end{tabular}
+    \caption{Tabella dei volumi}
+    \label{tab:volumi}
+\end{table}
+
+La tabella dei volumi (Tabella \ref{tab:volumi}) è stata ricavata effettuando alcune stime realistiche basate su una facoltà universitaria di medie dimensioni valutata a metà del suo ciclo di vita operativo. 
+
+Si è ipotizzata la presenza di 3 Dipartimenti che gestiscono complessivamente 10 Corsi di Laurea. Il bacino d'utenza costante è stimato in 2.000 Studenti attivi, supportati da un corpo accademico di 80 Docenti. L'offerta formativa si compone di 150 Corsi. 
+
+I volumi delle relazioni e delle entità operative sono stati ricavati tramite i seguenti calcoli proporzionali:
+\begin{itemize}
+    \item \textbf{EDIZIONE e LEZIONE}: Considerando un tracciamento storico pari a circa due anni accademici all'interno della base di dati operativa, i 150 corsi generano 300 istanze di Edizione. Assumendo una media di 20 appuntamenti in aula per singola edizione, si ottengono 6.000 istanze per l'entità Lezione e per l'omonima relazione \textit{Associa}.
+    \item \textbf{PIANO STUDIO e Inserisce}: Si stimano 2.500 Piani di Studio (considerando i 2.000 studenti attivi più eventuali bozze o piani storicizzati non ancora rimossi). Poiché un piano di studi triennale prevede mediamente l'inserimento di 20 corsi, la relazione \textit{Inserisce} conterà circa $2.500 \cdot 20 = 50.000$ tuple.
+    \item \textbf{ESAME, Sostiene e Presenta}: Valutando gli studenti a metà del loro percorso accademico, si ipotizza che ciascuno abbia superato e verbalizzato in media 15 esami. Di conseguenza, l'entità Esame e le relazioni che la legano a Studente e Corso generano $2.000 \cdot 15 = 30.000$ istanze.
+    \item \textbf{Abilitato}: Ipotizzando che ogni docente sia abilitato a insegnare in media 3 corsi differenti, si ottengono $80 \cdot 3 = 240$ tuple.
+\end{itemize}
+
+Per quanto riguarda le operazioni scelte per l'analisi delle ridondanze, le frequenze annue sono state calcolate per:
+\begin{itemize}
+    \item \textbf{Task 1 (Calcolo crediti acquisiti)}: Trattandosi di un'operazione interattiva effettuata regolarmente dagli studenti (es. controllo del libretto online prima e durante le sessioni), si stima un utilizzo medio di 50 volte l'anno per studente, portando il totale a $2.000 \cdot 50 = 100.000$ esecuzioni annue.
+    \item \textbf{Task 2 (Registrazione esame)}: Assumendo che uno studente medio sostenga e superi 6 esami in un anno solare, l'operazione di inserimento a sistema avverrà $2.000 \cdot 6 = 12.000$ volte all'anno.
+\end{itemize}
+
+\subsection{Analisi delle ridondanze}
+\subsubsection{Accessi in assenza della ridondanza}
+
+\paragraph{Task 1:} In assenza dell'attributo ridondante, per calcolare il numero di crediti acquisiti da uno studente è necessario individuare tutti gli esami che ha superato e sommare i crediti dei relativi corsi. Sapendo dalla tabella dei volumi che ci sono $30.000$ istanze nella relazione \textit{sostiene} e $2.000$ in \textit{STUDENTE}, in media uno studente ha sostenuto 15 esami. 
+Dovremo quindi effettuare 15 accessi in lettura alla relazione \textit{sostiene}, 15 accessi in lettura alla relazione \textit{prevede} (per risalire al corso associato a ciascun esame) e 15 accessi in lettura all'entità \textit{CORSO} per ricavarne i crediti. Il Task 1 richiede quindi 45 operazioni di lettura. Avvenendo $100.000$ volte all'anno, il costo complessivo è di:
+$$45 \cdot 100.000 = 4.500.000 \text{ accessi in lettura all'anno}$$
+
+\begin{table}[h]
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{|l|c|c|c|}
+        \hline
+        \textbf{Oggetto} & \textbf{Tipo} & \textbf{Accessi} & \textbf{Tipologia Accessi} \\
+        \hline
+        sostiene & R & 15 & R \\
+        \hline
+        prevede & R & 15 & R \\
+        \hline
+        CORSO & E & 15 & R \\
+        \hline
+    \end{tabular}
+    \caption{Accessi Task 1 in assenza di ridondanza}
+\end{table}
+
+\paragraph{Task 2:} La registrazione di un nuovo esame superato richiede l'inserimento di una nuova istanza nell'entità \textit{ESAME} e la creazione dei relativi legami nelle relazioni \textit{sostiene} e \textit{prevede}. Questa operazione comporta 3 scritture. Dato che il task si ripete $12.000$ volte all'anno, abbiamo un costo corrispondente a:
+$$3 \cdot 12.000 = 36.000 \text{ scritture all'anno}$$
+
+\begin{table}[h]
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{|l|c|c|c|}
+        \hline
+        \textbf{Oggetto} & \textbf{Tipo} & \textbf{Accessi} & \textbf{Tipologia Accessi} \\
+        \hline
+        ESAME & E & 1 & W \\
+        \hline
+        sostiene & R & 1 & W \\
+        \hline
+        prevede & R & 1 & W \\
+        \hline
+    \end{tabular}
+    \caption{Accessi Task 2 in assenza di ridondanza}
+\end{table}
+
+\vspace{0.5cm}
+\subsubsection{Accessi in presenza della ridondanza}
+
+\paragraph{Task 1:} Dato uno studente, per ottenere i suoi crediti totali è sufficiente accedere alla sua istanza all'interno dell'entità \textit{STUDENTE} e leggere il valore dell'attributo ridondante. Questo richiede una sola operazione di lettura, per cui il costo complessivo annuo è di:
+$$1 \cdot 100.000 = 100.000 \text{ accessi in lettura all'anno}$$
+
+\begin{table}[h]
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{|l|c|c|c|}
+        \hline
+        \textbf{Oggetto} & \textbf{Tipo} & \textbf{Accessi} & \textbf{Tipologia Accessi} \\
+        \hline
+        STUDENTE & E & 1 & R \\
+        \hline
+    \end{tabular}
+    \caption{Accessi Task 1 in presenza di ridondanza}
+\end{table}
+
+\paragraph{Task 2} In presenza della ridondanza, la registrazione di un esame si aggrava. Oltre alle 3 scritture calcolate nel caso precedente, è ora necessario effettuare 1 lettura nell'entità \textit{CORSO} (per scoprire quanti crediti vale l'esame appena superato) e 1 ulteriore scrittura nell'entità \textit{STUDENTE} (per aggiornare il valore totale dell'attributo ridondante). Il task prevede quindi 1 lettura e 4 scritture complessive. Il costo annuo è di:
+$$(1 \cdot 12.000) \text{ letture} + (4 \cdot 12.000) \text{ scritture} = 12.000 \text{ letture e } 48.000 \text{ scritture all'anno}$$
+
+\begin{table}[h]
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{|l|c|c|c|}
+        \hline
+        \textbf{Oggetto} & \textbf{Tipo} & \textbf{Accessi} & \textbf{Tipologia Accessi} \\
+        \hline
+        ESAME & E & 1 & W \\
+        \hline
+        sostiene & R & 1 & W \\
+        \hline
+        prevede & R & 1 & W \\
+        \hline
+        CORSO & E & 1 & R \\
+        \hline
+        STUDENTE & E & 1 & W \\
+        \hline
+    \end{tabular}
+    \caption{Accessi Task 2 in presenza di ridondanza}
+\end{table}
+
+\vspace{0.5cm}
+\subsubsection{Decisione sulla ridondanza}
+
+Per poter confrontare equamente i volumi di traffico generati nei due scenari, utilizziamo la proporzione prestabilita in cui un'operazione di scrittura genera un carico sul sistema pari al doppio di un'operazione di lettura ($1w = 2r$). Convertendo tutto in equivalenti accessi in lettura, otteniamo il seguente schema riassuntivo:
+
+\begin{table}[h]
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{|l|r|r|}
+        \hline
+        \textbf{Task} & \textbf{Con ridondanza} & \textbf{Senza ridondanza} \\
+        \hline
+        Task 1 & 100.000 & 4.500.000 \\
+        \hline
+        Task 2 & 108.000 & 72.000 \\
+        \hline
+        \textbf{Totale} & \textbf{208.000} & \textbf{4.572.000} \\
+        \hline
+    \end{tabular}
+    \caption{Accessi totali per operazione}
+\end{table}
+
+È palese la convenienza nel mantenere la ridondanza: a fronte del Task 2 che subisce un moderato rincaro computazionale (incremento di 36.000 accessi equivalenti), le prestazioni del Task 1 migliorano in modo estremamente significativo, permettendo al sistema di risparmiare oltre 4,4 milioni di accessi all'anno. Si decide quindi di mantenere l'attributo ridondante \textit{Crediti Totali} nello schema logico.

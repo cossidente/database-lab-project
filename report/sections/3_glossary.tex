@@ -1,1 +1,49 @@
 \section{Glossario dei Termini}
+
+Per rendere più chiaro il significato dei termini chiave e le relazioni che i requisiti strutturati definiscono tra essi viene fornito un glossario esplicativo:
+
+\vspace{0.5cm}
+
+\begin{table}[h]
+    \centering
+    \renewcommand{\arraystretch}{1.4} % Aumenta la spaziatura verticale delle righe per maggiore leggibilità
+    \begin{tabular}{|p{3cm}|p{7.5cm}|p{3.5cm}|}
+        \hline
+        \textbf{Termine} & \textbf{Descrizione} & \textbf{Termini correlati} \\
+        \hline
+        \textbf{Corso} & Insegnamento offerto dalla facoltà, identificato da un codice e caratterizzato da crediti, descrizione e prerequisiti. & Edizione, Prerequisito, Piano di studio \\
+        \hline
+        \textbf{Edizione} & Erogazione di un corso, tenuta in un determinato anno accademico e in uno specifico periodo didattico. Può essere tenuta da uno o più docenti. & Corso, Docente, Lezione \\
+        \hline
+        \textbf{Lezione} & Singolo appuntamento all'interno del calendario settimanale di un'edizione. È identificata univocamente dalla terna giorno, fascia oraria e aula. & Edizione \\
+        \hline
+        \textbf{Prerequisito} & Corso il cui esame deve essere già stato superato obbligatoriamente per poter sostenere l'esame relativo a un altro corso. & Corso \\
+        \hline
+        \textbf{Studente} & Iscritto identificato dal numero di matricola, caratterizzato dal corso di laurea frequentato e dall'anno di immatricolazione. & Piano di studio, Esame, Corso di Laurea \\
+        \hline
+        \textbf{Piano di studio} & Insieme dei corsi che un determinato studente ha scelto di inserire nel proprio percorso accademico. & Studente, Corso \\
+        \hline
+        \textbf{Esame} & Prova superata da uno studente in relazione a un corso, con relativo punteggio ottenuto. & Studente, Corso \\
+        \hline
+        \textbf{Docente} & Insegnante afferente a un dipartimento e caratterizzato da un titolo accademico. Tiene le edizioni ed è abilitato a insegnare determinati corsi. & Edizione, Corso, Dipartimento \\
+        \hline
+        \textbf{Corso di Laurea} & Percorso di studi specifico frequentato dallo studente (es. Informatica triennale). & Studente \\
+        \hline
+        \textbf{Dipartimento} & Struttura accademica di afferenza per i docenti (es. matematica e informatica, fisica). & Docente \\
+        \hline
+    \end{tabular}
+    \caption{Glossario}
+    \label{tab:glossario}
+\end{table}
+
+\subsection{Requisiti operazionali}
+
+Verranno di seguito descritte alcune operazioni significative pensate per analizzare i costi di input/output degli accessi alla base di dati in uno scenario realistico per la gestione della didattica di una facoltà universitaria. Le operazioni sono state individuate in modo da ricoprire sezioni diverse all'interno dello schema concettuale.
+
+\begin{itemize}
+    \item \textbf{OPERAZIONE 1}: Ricercare disponibilità di un professore. Dato il nome e cognome di un docente e il periodo didattico, restituire il suo calendario settimanale delle lezioni (giorno, fascia oraria e aula). 
+    \item \textbf{OPERAZIONE 2}: Calcolare le statistiche di superamento di un corso. Per ogni corso offerto dalla facoltà, restituire il numero totale di studenti che lo hanno superato e la media dei voti ottenuti.
+    \item \textbf{OPERAZIONE 3}: Modifica del piano di studi. Inserimento o rimozione di un corso all'interno del piano di studi di uno studente. È un'operazione interattiva tipica dell'inizio dell'anno accademico.
+    \item \textbf{OPERAZIONE 4}: Registrazione di un esame superato. Registrare un nuovo esame sostenuto da uno studente, inserendo la data, la tipologia, l'esito e segnandolo come "superato". Operazione di scrittura più utilizzata durante le sessioni d'esame.
+    \item \textbf{OPERAZIONE 5}: Calcolo dei crediti acquisiti dallo studente. Dato un numero di matricola, restituire la somma totale dei crediti dei corsi per i quali lo studente ha sostenuto e superato l'esame. Operazione usata continuamente dagli studenti per controllare il proprio libretto.
+\end{itemize}

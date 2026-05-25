@@ -1,0 +1,12 @@
+CREATE OR REPLACE FUNCTION normalizza_cf()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.cf := UPPER(NEW.cf);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_normalizza_cf
+BEFORE INSERT OR UPDATE ON docente
+FOR EACH ROW
+EXECUTE FUNCTION normalizza_cf();

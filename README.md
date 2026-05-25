@@ -32,10 +32,10 @@ Database Lab project for the Database Systems course at the University of Udine 
 
 **1. Build and start the PostgreSQL container:**
 ```bash
-docker compose up -d
+docker compose up -d --build
 ```
 
-This will build the Docker image, start a PostgreSQL container, initialize the database from the scripts in `init/`, and expose it on `localhost:5432`.
+This will build the Docker image, start a PostgreSQL container, initialize the database from the scripts in `sql/`, and expose it on `localhost:5432`.
 
 **2. Stop the container:**
 ```bash
@@ -54,7 +54,7 @@ docker compose down
 
 ### ⚠️ No Persistent Storage
 
-Stopping the container with `docker compose down` **wipes all data**. The database is re-initialized from the `init/` scripts on the next `docker compose up`. To persist data between restarts, configure a Docker volume in `docker-compose.yml`.
+Stopping the container with `docker compose down` **wipes all data**. The database is re-initialized from the `sql/` scripts on the next `docker compose up`. To persist data between restarts, configure a Docker volume in `docker-compose.yml`.
 
 ### Rebuilding the Container
 

@@ -53,6 +53,12 @@ jobs:
           working_directory: report
           latexmk_shell_escape: true
 
+      - name: Upload PDF Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: report
+          path: report/report.pdf
+
       - name: Create Release
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2

@@ -65,6 +65,7 @@ jobs:
         with:
           tag_name: latest
           name: "Database Lab Project Report"
+          body: "Latest version of the report."
           files: report/report.pdf
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

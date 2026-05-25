@@ -41,9 +41,9 @@ Per rendere più chiaro il significato dei termini chiave e le relazioni che i r
 Verranno di seguito descritte alcune operazioni significative pensate per analizzare i costi di input/output degli accessi alla base di dati in uno scenario realistico per la gestione della didattica di una facoltà universitaria. Le operazioni sono state individuate in modo da ricoprire sezioni diverse all'interno dello schema concettuale.
 
 \begin{itemize}
-    \item \textbf{OPERAZIONE 1}: Ricercare disponibilità di un professore. Dato il nome e cognome di un docente e il periodo didattico, restituire il suo calendario settimanale delle lezioni (giorno, fascia oraria e aula). 
-    \item \textbf{OPERAZIONE 2}: Calcolare le statistiche di superamento di un corso. Per ogni corso offerto dalla facoltà, restituire il numero totale di studenti che lo hanno superato e la media dei voti ottenuti.
-    \item \textbf{OPERAZIONE 3}: Modifica del piano di studi. Inserimento o rimozione di un corso all'interno del piano di studi di uno studente. È un'operazione interattiva tipica dell'inizio dell'anno accademico.
-    \item \textbf{OPERAZIONE 4}: Registrazione di un esame superato. Registrare un nuovo esame sostenuto da uno studente, inserendo la data, la tipologia, l'esito e segnandolo come "superato". Operazione di scrittura più utilizzata durante le sessioni d'esame.
-    \item \textbf{OPERAZIONE 5}: Calcolo dei crediti acquisiti dallo studente. Dato un numero di matricola, restituire la somma totale dei crediti dei corsi per i quali lo studente ha sostenuto e superato l'esame. Operazione usata continuamente dagli studenti per controllare il proprio libretto.
+    \item \textbf{OPERAZIONE 1}: Ricerca del corso con più iscritti. Determinare l'insegnamento (o gli insegnamenti) che compare il maggior numero di volte all'interno dei piani di studio attivi degli studenti della facoltà.
+    \item \textbf{OPERAZIONE 2}: Ricercare disponibilità di un professore. Dato il nome e cognome di un docente e il periodo didattico, restituire il suo calendario settimanale delle lezioni (giorno, fascia oraria e aula). 
+    \item \textbf{OPERAZIONE 3}: Calcolo del tasso di superamento e dei tentativi medi. Dato un determinato corso, calcolare la percentuale di studenti che hanno superato l'esame rispetto a coloro che lo hanno inserito nel proprio piano di studi, determinando inoltre il numero medio di tentativi effettuati prima del superamento.
+    \item \textbf{OPERAZIONE 4}: Modifica del piano di studi. Inserimento o rimozione di un corso all'interno del piano di studi di uno studente. È un'operazione interattiva tipica dell'inizio dell'anno accademico.
+    \item \textbf{OPERAZIONE 5}: Registrazione di un esame superato. Registrare un nuovo esame sostenuto da uno studente, inserendo la data, la tipologia, l'esito e segnandolo come "superato". Operazione di scrittura più utilizzata durante le sessioni d'esame.
 \end{itemize}

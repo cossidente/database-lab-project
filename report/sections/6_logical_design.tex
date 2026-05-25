@@ -2,7 +2,10 @@
 
 \subsection{Tabella dei volumi}
 
-Per valutare i costi delle operazioni, per effettuare una corretta analisi delle ridondanze e quindi per effettuare una corretta ristrutturazione dello schema E-R, si rende necessaria una tabella dei volumi in cui per ogni oggetto stimiamo la sua quantità media presente nella base di dati a metà del suo ciclo di vita.
+Per valutare i costi delle operazioni, per effettuare una corretta analisi delle ridondanze 
+e quindi per effettuare una corretta ristrutturazione dello schema E-R, 
+si rende necessaria una tabella dei volumi in cui per ogni oggetto stimiamo 
+la sua quantità media presente nella base di dati a metà del suo ciclo di vita operativo.
 
 \begin{table}[h]
     \centering
@@ -13,154 +16,110 @@ Per valutare i costi delle operazioni, per effettuare una corretta analisi delle
         \hline
         DIPARTIMENTO & E & 3 \\
         \hline
-        CORSO LAUREA & E & 10 \\
+        CORSO DI LAUREA & E & 21 \\
         \hline
-        DOCENTE & E & 80 \\
+        DOCENTE & E & 320 \\
         \hline
-        CORSO & E & 150 \\
+        CORSO & E & 350 \\
         \hline
-        EDIZIONE & E & 300 \\
+        EDIZIONE & E & 700 \\
         \hline
-        LEZIONE & E & 6.000 \\
+        LEZIONE & E & 14.000 \\
         \hline
-        STUDENTE & E & 2.000 \\
+        STUDENTE & E & 6.500 \\
         \hline
-        ESAME & E & 30.000 \\
+        ESAME & E & 78.000 \\
         \hline
-        è affiliato ad & R & 80 \\
+        è affiliato ad & R & 320 \\
         \hline
-        è iscritto & R & 2.000 \\
+        è iscritto & R & 6.500 \\
         \hline
-        nel piano di studio & R & 40.000 \\
+        nel piano di studio & R & 130.000 \\
         \hline
-        sostiene & R & 30.000 \\
+        sostiene & R & 78.000 \\
         \hline
-        prevede & R & 30.000 \\
+        prevede & R & 78.000 \\
         \hline
-        prerequisito & R & 50 \\
+        prerequisito & R & 100 \\
         \hline
-        può insegnare & R & 240 \\
+        può insegnare & R & 960 \\
         \hline
-        è erogato in & R & 300 \\
+        è erogato in & R & 700 \\
         \hline
-        tiene & R & 350 \\
+        tiene & R & 850 \\
         \hline
-        si compone di & R & 6.000 \\
+        si compone di & R & 14.000 \\
         \hline
     \end{tabular}
-    \caption{Tabella dei volumi}
+    \caption{Tabella dei volumi stimati per il Polo Scientifico}
     \label{tab:volumi}
 \end{table}
 
-La tabella dei volumi (Tabella \ref{tab:volumi}) è stata ricavata effettuando alcune stime realistiche basate su una facoltà universitaria di medie dimensioni valutata a metà del suo ciclo di vita operativo. 
+\noindent 
+La stima dei volumi (Tabella \ref{tab:volumi}) è stata ricavata da un'analisi quantitativa legata a una realtà accademica concreta, 
+prendendo come modello di riferimento i tre dipartimenti del Polo Scientifico dell'Università degli Studi di Udine (\texttt{DMIF}, \texttt{DPIA}, \texttt{DI4A}). 
+I dati di riferimento sono stati estrapolati e proporzionati partendo dagli Open Data ufficiali del Ministero dell'Università e della Ricerca (portale USTAT) 
+relativi all'anno 2024 e dall'offerta formativa di ateneo per l'anno accademico 2023/2024. 
+Sapendo che l'università ospita storicamente circa 16.000 iscritti complessivi e che l'area STEM (Informatica, Ingegneria, Scienze Agrarie) 
+assorbe tipicamente il 40\% del totale degli iscritti, si è stimato un volume di circa 6.500 studenti attivi. 
+Allo stesso modo, l'organico di docenti strutturati afferenti a questi tre dipartimenti ammonta a circa 320 unità, 
+i quali gestiscono un'offerta di 21 corsi di laurea (tra triennali e magistrali) e 350 insegnamenti unici. \\
 
-Si è ipotizzata la presenza di 3 Dipartimenti che gestiscono complessivamente 10 Corsi di Laurea. Il bacino d'utenza costante è stimato in 2.000 Studenti attivi, supportati da un corpo accademico di 80 Docenti. L'offerta formativa si compone di 150 Corsi. 
+\noindent
+Partendo da queste basi fattuali, i volumi delle relazioni e delle entità intermedie sono stati ricavati matematicamente per un sistema a metà del suo ciclo di vita:
 
-I volumi delle relazioni e delle entità operative sono stati ricavati tramite i seguenti calcoli proporzionali:
 \begin{itemize}
-    \item \textbf{EDIZIONE e LEZIONE}: Considerando un tracciamento storico pari a circa due anni accademici all'interno della base di dati operativa, i 150 corsi generano 300 istanze di Edizione. Assumendo una media di 20 appuntamenti in aula per singola edizione, si ottengono 6.000 istanze per l'entità Lezione e per l'omonima relazione \textit{Associa}.
-    \item \textbf{PIANO STUDIO e Inserisce}: Si stimano 2.500 Piani di Studio (considerando i 2.000 studenti attivi più eventuali bozze o piani storicizzati non ancora rimossi). Poiché un piano di studi triennale prevede mediamente l'inserimento di 20 corsi, la relazione \textit{Inserisce} conterà circa $2.500 \cdot 20 = 50.000$ tuple.
-    \item \textbf{ESAME, Sostiene e Presenta}: Valutando gli studenti a metà del loro percorso accademico, si ipotizza che ciascuno abbia superato e verbalizzato in media 15 esami. Di conseguenza, l'entità Esame e le relazioni che la legano a Studente e Corso generano $2.000 \cdot 15 = 30.000$ istanze.
-    \item \textbf{Abilitato}: Ipotizzando che ogni docente sia abilitato a insegnare in media 3 corsi differenti, si ottengono $80 \cdot 3 = 240$ tuple.
-\end{itemize}
-
-Per quanto riguarda le operazioni scelte per l'analisi delle ridondanze, le frequenze annue sono state calcolate per:
-\begin{itemize}
-    \item \textbf{Task 1 (Calcolo crediti acquisiti)}: Trattandosi di un'operazione interattiva effettuata regolarmente dagli studenti (es. controllo del libretto online prima e durante le sessioni), si stima un utilizzo medio di 50 volte l'anno per studente, portando il totale a $2.000 \cdot 50 = 100.000$ esecuzioni annue.
-    \item \textbf{Task 2 (Registrazione esame)}: Assumendo che uno studente medio sostenga e superi 6 esami in un anno solare, l'operazione di inserimento a sistema avverrà $2.000 \cdot 6 = 12.000$ volte all'anno.
+    \item \textbf{EDIZIONE e LEZIONE}: Mantenendo uno storico operativo di due anni accademici, i 350 corsi generano 700 istanze per l'entità EDIZIONE e per la relazione \textit{è erogato in}. Assumendo una media di 20 appuntamenti per edizione, si ricavano $700 \cdot 20 = 14.000$ istanze per l'entità LEZIONE e per la relazione \textit{si compone di}.
+    \item \textbf{Piano di studio}: Si stima che uno studente inserisca in media 20 corsi nel proprio piano di studi durante la sua carriera. Considerando 6.500 studenti attivi, la relazione \textit{nel piano di studio} conta $6.500 \cdot 20 = 130.000$ tuple.
+    \item \textbf{ESAME, sostiene e prevede}: Considerando l'eterogeneità della popolazione studentesca, costituita da neo-immatricolati, studenti in pari e fuori corso, si stima una media ponderata di 12 esami superati per studente. Di conseguenza, l'entità ESAME e le relazioni \textit{sostiene} e \textit{prevede} generano 6.500 $\cdot$ 12 = 78.000 istanze.
+    \item \textbf{può insegnare e tiene}: Ipotizzando che ogni docente sia abilitato a insegnare mediamente 3 corsi afferenti al proprio settore disciplinare, la relazione \textit{può insegnare} genera $320 \cdot 3 = 960$ tuple. Per la relazione \textit{tiene}, includendo le co-docenze, si stimano 850 assegnazioni sulle 700 edizioni attive.
+    \item \textbf{prerequisito}: Si ipotizza che all'interno di ciascuno dei 21 corsi di laurea vi siano in media 4 o 5 esami propedeutici per poter essere sostenuti, generando una stima di 100 istanze per la relazione ricorsiva.
 \end{itemize}
 
 \subsection{Analisi delle ridondanze}
+
+In questa sezione viene valutata l'opportunità di introdurre una ridondanza controllata all'interno dello schema logico. 
+Si evidenzia che lo schema concettuale Entità-Relazioni (E-R) precedentemente definito è rigorosamente privo di ridondanze, 
+tutte le entità in esso presenti contengono esclusivamente attributi atomici e non derivabili. 
+In questa fase di progettazione logica, tuttavia, si analizza l'impatto prestazionale derivante dall'introduzione intenzionale di un attributo ridondante, 
+denominato \textit{NumeroIscritti}, all'interno di \textit{CORSO}. \\ 
+
+\noindent
+Tale scelta comporta una denormalizzazione del modello, poiché l'informazione legata al numero di studenti 
+che hanno scelto un determinato insegnamento è già interamente ricavabile in modo dinamico contando le tuple della relazione \textit{nel piano di studio}. 
+L'obiettivo dell'analisi è stabilire se il risparmio computazionale in lettura giustifichi il sovraccarico in scrittura e la potenziale complessità di gestione delle anomalie di modifica. \\
+
+\noindent 
+I due task principali selezionati per valutare l'impatto di questa modifica sono:
+\begin{itemize}
+    \item \textbf{Task 1 (Calcolo iscritti a un corso specifico)}: Dato un corso $X$, restituire il numero totale di studenti che lo hanno inserito nel proprio piano di studi (corrisponde all'OPERAZIONE 1).
+    \item \textbf{Task 2 (Inserimento di un corso nel piano di studi)}: Dato un corso $X$, inserirlo nel piano di studi di un determinato studente (corrisponde all'OPERAZIONE 4).
+\end{itemize}
+
+\noindent 
+In base ai parametri dimensionali stabiliti, si stima che il Task 1 venga eseguito con una frequenza di 20.000 volte all'anno da parte di docenti e segreterie per il monitoraggio delle classi. 
+Il Task 2 viene eseguito interattivamente dagli studenti principalmente a ridosso dell'inizio dei semestri, registrando circa 32.500 modifiche annue ($6.500 \text{ studenti} \cdot 5 \text{ corsi/anno}$).
+
 \subsubsection{Accessi in assenza della ridondanza}
 
-\paragraph{Task 1:} In assenza dell'attributo ridondante, per calcolare il numero di crediti acquisiti da uno studente è necessario individuare tutti gli esami che ha superato e sommare i crediti dei relativi corsi. Sapendo dalla tabella dei volumi che ci sono $30.000$ istanze nella relazione \textit{sostiene} e $2.000$ in \textit{STUDENTE}, in media uno studente ha sostenuto 15 esami. 
-Dovremo quindi effettuare 15 accessi in lettura alla relazione \textit{sostiene}, 15 accessi in lettura alla relazione \textit{prevede} (per risalire al corso associato a ciascun esame) e 15 accessi in lettura all'entità \textit{CORSO} per ricavarne i crediti. Il Task 1 richiede quindi 45 operazioni di lettura. Avvenendo $100.000$ volte all'anno, il costo complessivo è di:
-$$45 \cdot 100.000 = 4.500.000 \text{ accessi in lettura all'anno}$$
+\paragraph{Task 1:} In assenza dell'attributo ridondante, per contare gli iscritti a un corso $X$, il DBMS deve scansionare la relazione \textit{nel piano di studio}. Avendo stimato un volume totale di 130.000 tuple distribuite su 350 corsi, l'operazione richiede mediamente l'accesso in lettura a $130.000 / 350 \approx 371$ record per ogni interrogazione.
+$$371 \text{ letture} \cdot 20.000 \text{ volte/anno} = 7.420.000 \text{ accessi in lettura all'anno}$$
 
-\begin{table}[h]
-    \centering
-    \renewcommand{\arraystretch}{1.2}
-    \begin{tabular}{|l|c|c|c|}
-        \hline
-        \textbf{Oggetto} & \textbf{Tipo} & \textbf{Accessi} & \textbf{Tipologia Accessi} \\
-        \hline
-        sostiene & R & 15 & R \\
-        \hline
-        prevede & R & 15 & R \\
-        \hline
-        CORSO & E & 15 & R \\
-        \hline
-    \end{tabular}
-    \caption{Accessi Task 1 in assenza di ridondanza}
-\end{table}
+\paragraph{Task 2:} L'inserimento del corso richiede esclusivamente la scrittura di una nuova tupla all'interno della relazione \textit{nel piano di studio}, senza impattare altre strutture.
+$$1 \text{ scrittura} \cdot 32.500 \text{ volte/anno} = 32.500 \text{ accessi in scrittura all'anno}$$
 
-\paragraph{Task 2:} La registrazione di un nuovo esame superato richiede l'inserimento di una nuova istanza nell'entità \textit{ESAME} e la creazione dei relativi legami nelle relazioni \textit{sostiene} e \textit{prevede}. Questa operazione comporta 3 scritture. Dato che il task si ripete $12.000$ volte all'anno, abbiamo un costo corrispondente a:
-$$3 \cdot 12.000 = 36.000 \text{ scritture all'anno}$$
-
-\begin{table}[h]
-    \centering
-    \renewcommand{\arraystretch}{1.2}
-    \begin{tabular}{|l|c|c|c|}
-        \hline
-        \textbf{Oggetto} & \textbf{Tipo} & \textbf{Accessi} & \textbf{Tipologia Accessi} \\
-        \hline
-        ESAME & E & 1 & W \\
-        \hline
-        sostiene & R & 1 & W \\
-        \hline
-        prevede & R & 1 & W \\
-        \hline
-    \end{tabular}
-    \caption{Accessi Task 2 in assenza di ridondanza}
-\end{table}
-
-\vspace{0.5cm}
 \subsubsection{Accessi in presenza della ridondanza}
 
-\paragraph{Task 1:} Dato uno studente, per ottenere i suoi crediti totali è sufficiente accedere alla sua istanza all'interno dell'entità \textit{STUDENTE} e leggere il valore dell'attributo ridondante. Questo richiede una sola operazione di lettura, per cui il costo complessivo annuo è di:
-$$1 \cdot 100.000 = 100.000 \text{ accessi in lettura all'anno}$$
+\paragraph{Task 1:} Introducendo l'attributo ridondante, il sistema non deve più navigare nella relazione intermedia ed è sufficiente accedere alla singola istanza dell'entità \textit{CORSO} corrispondente all'insegnamento $X$ e leggerne direttamente il valore memorizzato.
+$$1 \text{ lettura} \cdot 20.000 \text{ volte/anno} = 20.000 \text{ accessi in lettura all'anno}$$
 
-\begin{table}[h]
-    \centering
-    \renewcommand{\arraystretch}{1.2}
-    \begin{tabular}{|l|c|c|c|}
-        \hline
-        \textbf{Oggetto} & \textbf{Tipo} & \textbf{Accessi} & \textbf{Tipologia Accessi} \\
-        \hline
-        STUDENTE & E & 1 & R \\
-        \hline
-    \end{tabular}
-    \caption{Accessi Task 1 in presenza di ridondanza}
-\end{table}
+\paragraph{Task 2:} In presenza di ridondanza, l'operazione di scrittura si complica. Oltre all'inserimento del record nella relazione \textit{nel piano di studio} (1 scrittura), il sistema deve aggiornare il contatore nell'entità \textit{CORSO}, richiedendo una lettura preliminare del valore corrente e la successiva riscrittura del dato incrementato (1 lettura e 1 scrittura). Ogni esecuzione comporta quindi 1 lettura e 2 scritture complessive.
+$$32.500 \text{ letture/anno e } 65.000 \text{ scritture/anno}$$
 
-\paragraph{Task 2} In presenza della ridondanza, la registrazione di un esame si aggrava. Oltre alle 3 scritture calcolate nel caso precedente, è ora necessario effettuare 1 lettura nell'entità \textit{CORSO} (per scoprire quanti crediti vale l'esame appena superato) e 1 ulteriore scrittura nell'entità \textit{STUDENTE} (per aggiornare il valore totale dell'attributo ridondante). Il task prevede quindi 1 lettura e 4 scritture complessive. Il costo annuo è di:
-$$(1 \cdot 12.000) \text{ letture} + (4 \cdot 12.000) \text{ scritture} = 12.000 \text{ letture e } 48.000 \text{ scritture all'anno}$$
-
-\begin{table}[h]
-    \centering
-    \renewcommand{\arraystretch}{1.2}
-    \begin{tabular}{|l|c|c|c|}
-        \hline
-        \textbf{Oggetto} & \textbf{Tipo} & \textbf{Accessi} & \textbf{Tipologia Accessi} \\
-        \hline
-        ESAME & E & 1 & W \\
-        \hline
-        sostiene & R & 1 & W \\
-        \hline
-        prevede & R & 1 & W \\
-        \hline
-        CORSO & E & 1 & R \\
-        \hline
-        STUDENTE & E & 1 & W \\
-        \hline
-    \end{tabular}
-    \caption{Accessi Task 2 in presenza di ridondanza}
-\end{table}
-
-\vspace{0.5cm}
 \subsubsection{Decisione sulla ridondanza}
 
-Per poter confrontare equamente i volumi di traffico generati nei due scenari, utilizziamo la proporzione prestabilita in cui un'operazione di scrittura genera un carico sul sistema pari al doppio di un'operazione di lettura ($1w = 2r$). Convertendo tutto in equivalenti accessi in lettura, otteniamo il seguente schema riassuntivo:
+Al fine di confrontare in modo omogeneo i due scenari, le operazioni di modifica vengono pesate con un costo computazionale doppio rispetto alle operazioni di consultazione ($1w = 2r$). 
+I costi complessivi annui espressi in accessi equivalenti in lettura sono riassunti nella seguente tabella:
 
 \begin{table}[h]
     \centering
@@ -169,14 +128,94 @@ Per poter confrontare equamente i volumi di traffico generati nei due scenari, u
         \hline
         \textbf{Task} & \textbf{Con ridondanza} & \textbf{Senza ridondanza} \\
         \hline
-        Task 1 & 100.000 & 4.500.000 \\
+        Task 1 & 20.000 & 7.420.000 \\
         \hline
-        Task 2 & 108.000 & 72.000 \\
+        Task 2 & 162.500 & 65.000 \\
         \hline
-        \textbf{Totale} & \textbf{208.000} & \textbf{4.572.000} \\
+        \textbf{Totale [Accessi equivalenti]} & \textbf{182.500} & \textbf{7.485.000} \\
         \hline
     \end{tabular}
-    \caption{Accessi totali per operazione}
+    \caption{Bilancio complessivo degli accessi}
 \end{table}
 
-È palese la convenienza nel mantenere la ridondanza: a fronte del Task 2 che subisce un moderato rincaro computazionale (incremento di 36.000 accessi equivalenti), le prestazioni del Task 1 migliorano in modo estremamente significativo, permettendo al sistema di risparmiare oltre 4,4 milioni di accessi all'anno. Si decide quindi di mantenere l'attributo ridondante \textit{Crediti Totali} nello schema logico.
+\noindent
+Il bilancio dei costi evidenzia un divario macroscopico, a fronte di un incremento controllato dei costi di scrittura per il Task 2 (+97.500 accessi equivalenti), 
+il Task 1 beneficia di un abbattimento drastico dei tempi di risposta, consentendo di risparmiare oltre 7,3 milioni di accessi annui sul disco. \\
+
+\noindent 
+Dal punto di vista progettuale, si decide pertanto di accettare il compromesso della denormalizzazione, modificando formalmente lo schema logico rispetto a quello concettuale originario. 
+L'attributo ridondante \textit{NumeroIscritti} viene ufficialmente introdotto all'interno dell'entità \textit{CORSO}, 
+delegando a opportuni vincoli di integrità a livello logico (tramite trigger in fase di implementazione) il compito di mantenere aggiornato il contatore ed evitare qualsiasi rischio di inconsistenza della base di dati.
+
+\subsubsection{Analisi dei cicli}
+
+L'analisi delle ridondanze si è estesa alla verifica strutturale dello schema concettuale per l'individuazione di eventuali cicli. 
+All'interno del diagramma E-R sono stati individuati due percorsi ciclici principali, i quali sono stati analizzati per determinare la presenza di derivabilità.
+
+\paragraph{Ciclo 1:}
+Il primo ciclo si instaura tra le entità \textit{STUDENTE}, \textit{CORSO} ed \textit{ESAME}. È possibile collegare uno studente a un corso tramite due percorsi distinti:
+
+\begin{enumerate}
+    \item L'associazione diretta tramite la relazione \textit{nel piano di studio}.
+    \item La navigazione indiretta tramite le relazioni \textit{sostiene} e \textit{prevede}.
+\end{enumerate}
+
+\noindent
+Il ciclo \textbf{non rappresenta una ridondanza}, perché i due percorsi descrivono informazioni diverse.
+La relazione relativa ai corsi seguiti dallo studente ha uno scopo programmatorio, in quanto indica le attività che lo studente ha scelto nel proprio percorso di studi.
+La relazione legata agli esami sostenuti, invece, ha uno scopo storico, poiché registra le prove realmente effettuate e concluse.
+Di conseguenza, eliminare una delle due relazioni comporterebbe la perdita di informazioni importanti.
+La coerenza tra i due percorsi, ad esempio il fatto che uno studente possa sostenere solo esami relativi a corsi presenti nel proprio piano di studi, 
+viene garantita tramite un vincolo di integrità implementato con un trigger, e non attraverso modifiche alla struttura dello schema.
+
+\paragraph{Ciclo 2:}
+Il secondo ciclo si instaura tra le entità \textit{DOCENTE}, \textit{CORSO} ed \textit{EDIZIONE}. Un docente risulta collegato a un corso tramite:
+
+\begin{enumerate}
+    \item L'associazione diretta tramite la relazione \textit{può insegnare}.
+    \item La navigazione indiretta tramite le relazioni \textit{tiene} ed \textit{è erogato in}.
+\end{enumerate}
+
+\noindent
+Anche in questo caso il ciclo \textbf{non costituisce ridondanza}. 
+La relazione \textit{può insegnare} modella un'abilitazione di base, indicando le materie afferenti al settore scientifico-disciplinare del docente, 
+indipendentemente dall'effettiva erogazione. Il percorso indiretto modella invece l'incarico reale assegnato in un preciso anno accademico. 
+Essendo l'abilitazione (statica) e l'assegnazione (dinamica) due concetti temporalmente e funzionalmente separati, si decide di mantenere intatto lo schema E-R.
+
+\subsection{Schema Logico}
+Di seguito si riporta lo schema logico risultante. Per convenzione, gli attributi che compongono la \underline{chiave primaria} sono sottolineati, mentre le chiavi esterne sono contrassegnate da un asterisco (*).
+
+\begin{itemize}
+    \item \textbf{DIPARTIMENTO} (\underline{CodiceDipartimento}, Nome)
+    \item \textbf{CORSO\_DI\_LAUREA} (\underline{CodiceCDL}, Nome)
+    \item \textbf{DOCENTE} (\underline{CodiceFiscale}, Nome, Cognome, Titolo, CodiceDipartimento*)
+    \item \textbf{STUDENTE} (\underline{Matricola}, Nome, Cognome, Telefono, AA\_Immatricolazione, CodiceCDL*)
+    \item \textbf{CORSO} (\underline{CodiceCorso}, Nome, Crediti, Descrizione, NumeroIscritti)
+    \item \textbf{EDIZIONE} (\underline{CodiceCorso*}, \underline{AnnoAccademico}, \underline{Periodo})
+    \item \textbf{LEZIONE} (\underline{CodiceCorso*}, \underline{AnnoAccademico*}, \underline{Periodo*}, \underline{Data}, \underline{FasciaOraria}, Aula)
+    \item \textbf{ESAME} (\underline{Matricola*}, \underline{CodiceCorso*}, \underline{Data}, Punteggio)
+    \item \textbf{PIANO\_DI\_STUDIO} (\underline{Matricola*}, \underline{CodiceCorso*})
+    \item \textbf{PREREQUISITO} (\underline{CodiceCorsoPropedeutico*}, \underline{CodiceCorsoSuccessivo*})
+    \item \textbf{PUO\_INSEGNARE} (\underline{CodiceFiscale*}, \underline{CodiceCorso*})
+    \item \textbf{TIENE} (\underline{CodiceFiscale*}, \underline{CodiceCorso*}, \underline{AnnoAccademico*}, \underline{Periodo*})
+\end{itemize}
+
+\subsection{Vincoli di Integrità Referenziale}
+Per garantire la coerenza della base di dati, si definiscono esplicitamente i seguenti vincoli di integrità referenziale (Foreign Keys) per lo schema logico appena descritto:
+
+\begin{itemize}
+    \item \textbf{DOCENTE}.CodiceDipartimento $\rightarrow$ \textbf{DIPARTIMENTO}.CodiceDipartimento
+    \item \textbf{STUDENTE}.CodiceCDL $\rightarrow$ \textbf{CORSO\_DI\_LAUREA}.CodiceCDL
+    \item \textbf{EDIZIONE}.CodiceCorso $\rightarrow$ \textbf{CORSO}.CodiceCorso
+    \item \textbf{LEZIONE}.(CodiceCorso, AnnoAccademico, Periodo) $\rightarrow$ \textbf{EDIZIONE}.(CodiceCorso, AnnoAccademico, Periodo)
+    \item \textbf{ESAME}.Matricola $\rightarrow$ \textbf{STUDENTE}.Matricola
+    \item \textbf{ESAME}.CodiceCorso $\rightarrow$ \textbf{CORSO}.CodiceCorso
+    \item \textbf{PIANO\_DI\_STUDIO}.Matricola $\rightarrow$ \textbf{STUDENTE}.Matricola
+    \item \textbf{PIANO\_DI\_STUDIO}.CodiceCorso $\rightarrow$ \textbf{CORSO}.CodiceCorso
+    \item \textbf{PREREQUISITO}.CodiceCorsoPropedeutico $\rightarrow$ \textbf{CORSO}.CodiceCorso
+    \item \textbf{PREREQUISITO}.CodiceCorsoSuccessivo $\rightarrow$ \textbf{CORSO}.CodiceCorso
+    \item \textbf{PUO\_INSEGNARE}.CodiceFiscale $\rightarrow$ \textbf{DOCENTE}.CodiceFiscale
+    \item \textbf{PUO\_INSEGNARE}.CodiceCorso $\rightarrow$ \textbf{CORSO}.CodiceCorso
+    \item \textbf{TIENE}.CodiceFiscale $\rightarrow$ \textbf{DOCENTE}.CodiceFiscale
+    \item \textbf{TIENE}.(CodiceCorso, AnnoAccademico, Periodo) $\rightarrow$ \textbf{EDIZIONE}.(CodiceCorso, AnnoAccademico, Periodo)
+\end{itemize}

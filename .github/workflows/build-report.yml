@@ -1,0 +1,71 @@
+name: Build and Release PDF
+
+on:
+  push:
+    paths:
+      - "report/*"
+  pull_request:
+    paths:
+      - "report/*"
+    branches:
+      - main
+
+env:
+  docker_image: ghcr.io/xu-cheng/texlive-alpine
+  docker_image_tag: 20260401
+
+jobs:
+  build-report:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Docker image
+        id: cache-pull
+        uses: actions/cache@v5
+        with:
+          path: ~/.docker/cache
+          key: ${{ runner.os }}-docker-${{ env.docker_image }}-${{ env.docker_image_tag }}
+
+      - name: Pull Docker image and save to cache
+        if: steps.cache-pull.outputs.cache-hit != 'true'
+        run: |
+          docker pull ${{ env.docker_image }}:${{ env.docker_image_tag }}
+          mkdir -p ~/.docker/cache
+          cache_file="$(echo "${{ env.docker_image }}-${{ env.docker_image_tag }}" | tr '/:' '-')"
+          docker save ${{ env.docker_image }}:${{ env.docker_image_tag }} > ~/.docker/cache/${cache_file}
+
+      - name: Load Docker image from cache
+        if: steps.cache-pull.outputs.cache-hit == 'true'
+        run: |
+          cache_file="$(echo "${{ env.docker_image }}-${{ env.docker_image_tag }}" | tr '/:' '-')"
+          docker load < ~/.docker/cache/${cache_file}
+
+      - name: Compile LaTeX
+        uses: xu-cheng/latex-action@v3
+        with:
+          docker_image: ${{ env.docker_image }}:${{ env.docker_image_tag }}
+          root_file: report.tex
+          working_directory: report
+          latexmk_shell_escape: true
+
+      - name: Upload PDF Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: report
+          path: report/report.pdf
+
+      - name: Create Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: "Database Lab Project Report"
+          body: "Latest version of the report."
+          files: report/report.pdf
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

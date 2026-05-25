@@ -53,19 +53,19 @@ jobs:
           working_directory: report
           latexmk_shell_escape: true
 
-      - name: Upload PDF Artifact
+      - name: Upload PDF as artifact
         uses: actions/upload-artifact@v7
         with:
-          name: report
+          name: report-pdf
           path: report/report.pdf
 
       - name: Create Release
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
           name: "Database Lab Project Report"
           body: "Latest version of the report."
           files: report/report.pdf
+          make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

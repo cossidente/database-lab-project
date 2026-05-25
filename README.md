@@ -13,10 +13,11 @@ Database Lab project for the Database Systems course at the University of Udine 
 |------|-------------|
 | `report/` | Official project report (written in Italian) |
 | `schemas/` | Entity-Relationship (ER) and logical diagrams |
-| `src/` | Docker configuration and SQL scripts |
-| `src/init/01_schema.sql` | Table definitions and constraints |
-| `src/init/02_triggers.sql` | Triggers and trigger functions |
-| `src/init/03_seed.sql` | Sample data |
+| `sql/01_schema.sql` | Table definitions and constraints |
+| `sql/02_triggers.sql` | Triggers and trigger functions |
+| `sql/03_seed.sql` | Sample data |
+| `Dockerfile` | PostgreSQL image definition |
+| `docker-compose.yml` | Container configuration |
 
 ---
 
@@ -29,19 +30,14 @@ Database Lab project for the Database Systems course at the University of Udine 
 
 ### Running the Database
 
-**1. Navigate to the `src/` directory:**
-```bash
-cd src
-```
-
-**2. Build and start the PostgreSQL container:**
+**1. Build and start the PostgreSQL container:**
 ```bash
 docker compose up -d
 ```
 
-This will build the Docker image, start a PostgreSQL container, initialize the database from `init.sql`, and expose it on `localhost:5432`.
+This will build the Docker image, start a PostgreSQL container, initialize the database from the scripts in `init/`, and expose it on `localhost:5432`.
 
-**3. Stop the container:**
+**2. Stop the container:**
 ```bash
 docker compose down
 ```
@@ -58,11 +54,11 @@ docker compose down
 
 ### ⚠️ No Persistent Storage
 
-Stopping the container with `docker compose down` **wipes all data**. The database is re-initialized from `init.sql` on the next `docker compose up`. To persist data between restarts, configure a Docker volume in `docker-compose.yml`.
+Stopping the container with `docker compose down` **wipes all data**. The database is re-initialized from the `init/` scripts on the next `docker compose up`. To persist data between restarts, configure a Docker volume in `docker-compose.yml`.
 
 ### Rebuilding the Container
 
-After changes to `Dockerfile` or `docker-compose.yml`, run:
+After changes to `Dockerfile`, `docker-compose.yml`, or any SQL script, run:
 
 ```bash
 docker compose down

@@ -1,0 +1,33 @@
+name: Build and Release PDF
+
+on:
+  push:
+    paths:
+      - "report/*"
+  pull_request:
+    paths:
+      - "report/*"
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Compile LaTeX
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: report.tex
+          latexmk_shell_escape: true
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Database Lab Project Report"
+          files: report.pdf
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

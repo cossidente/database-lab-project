@@ -1,6 +1,7 @@
 \section{Analisi dei requisiti}
 
 \paragraph{Testo del problema}
+
 Si vuole progettare (parte di) una base di dati di supporto alla gestione della didattica di una facoltà universitaria. Essa dovrà contenere le seguenti informazioni:
 
 \subparagraph{I corsi offerti dalla facoltà.} Ogni corso sia identificato univocamente da un codice numerico e sia caratterizzato da un nome, un numero di crediti, una breve descrizione del suo contenuto e un insieme di prerequisiti (insieme, eventualmente vuoto, di corsi il cui esame deve essere già stato superato per poter sostenere l'esame relativo al corso).
@@ -13,8 +14,10 @@ Si vuole progettare (parte di) una base di dati di supporto alla gestione della 
 L'analisi sistematica del testo permette di suddividere il dominio informativo in aree funzionali distinte, facilitando l'individuazione delle dipendenze logiche tra i dati.
 
 \subsubsection{Architettura dell'offerta formativa e logistica}
+
 Il pilastro centrale del sistema è rappresentato dal corso, inteso come entità astratta e permanente. La complessità emerge nella gestione delle propedeuticità: il requisito specifica che un insieme di corsi può costituire un prerequisito per un altro. Questa struttura implica una gerarchia ricorsiva dove l'esistenza di un vincolo condiziona la carriera dello studente. 
 
+\noindent
 Parallelamente, l'edizione introduce la dimensione temporale. Dalla specifica "al più un'edizione per anno accademico", si deduce che l'edizione è un'entità debole che eredita l'identità dal corso. La logica si sposta poi sul micro-dettaglio della lezione. La terna composta da giorno, fascia oraria e aula non è solo un insieme di attributi, ma rappresenta un vincolo logistico: per una data edizione, la combinazione di questi elementi deve essere univoca per garantire la consistenza del calendario settimanale.
 
 \subsubsection{Gestione delle risorse umane e afferenze}
@@ -28,10 +31,12 @@ La componente relativa agli studenti richiede una modellazione capace di disting
 In questa fase vengono formalizzati i vincoli che non possono essere espressi tramite la semplice struttura delle entità, ma che sono determinanti per la coerenza della base di dati.
 
 \subsubsection{Vincoli di integrità e propedeuticità}
+
 \paragraph{Regola di precedenza degli esami}
 Uno studente può registrare il superamento di un esame relativo a un corso $C$ solo se nel sistema risulta già presente, per la medesima matricola, il superamento di tutti i corsi definiti come prerequisiti per $C$. Questo vincolo di integrità referenziale deve essere garantito a livello applicativo o tramite trigger.
 
 \subsubsection{Vincoli temporali e di assegnazione}
+
 \paragraph{Unicità dell'edizione annuale}
 Per ogni corso presente nell'offerta formativa, non può esistere più di un record di edizione associato al medesimo anno accademico. Questo garantisce che la pianificazione didattica sia univoca su base annuale.
 
@@ -39,5 +44,24 @@ Per ogni corso presente nell'offerta formativa, non può esistere più di un rec
 Un docente può essere associato a un'edizione di un corso solo se appartiene all'insieme dei docenti abilitati per quel determinato corso. Tale regola impedisce l'assegnazione di incarichi didattici al di fuori delle competenze certificate memorizzate nel sistema.
 
 \subsubsection{Specifiche sui domini dei dati}
+
 \paragraph{Restrizioni sui periodi e fasce orarie}
 Il periodo didattico è limitato all'insieme finito $\{1, 2, 3\}$, mentre le fasce orarie per le lezioni sono limitate all'intervallo $\{1, 2, 3, 4\}$. Tali attributi verranno implementati come domini vincolati per impedire l'inserimento di dati incoerenti con la realtà accademica descritta.
+
+\subsection{Operazioni}
+
+Verranno di seguito descritte alcune operazioni significative che riflettono le reali necessità di gestione 
+e interrogazione dei dati in uno scenario accademico realistico. 
+Queste operazioni, selezionate appositamente per coprire diverse aree dello schema concettuale, 
+fungeranno da base per la successiva stima dei costi degli accessi e per la valutazione delle prestazioni del database.
+
+\begin{itemize}
+    \item \textbf{OPERAZIONE 1}: Ricerca dell'insegnamento con più iscritti. Determinare l'insegnamento che compare il maggior numero di volte all'interno dei piani di studio attivi degli studenti della facoltà.
+    \item \textbf{OPERAZIONE 2}: Ricercare disponibilità di un professore. Dato il nome e cognome di un docente e il periodo didattico, restituire il suo calendario settimanale delle lezioni (giorno, fascia oraria e aula). 
+    \item \textbf{OPERAZIONE 3}: Calcolo del tasso di superamento di un esame. Dato un insegnamento, calcolare la percentuale di prove superate rispetto al totale complessivo dei tentativi (esami sostenuti) registrati.
+    \item \textbf{OPERAZIONE 4}: Calcolo del numero medio di tentativi. Dato un insegnamento, determinare la media dei tentativi effettuati prima di ottenere un esito positivo, prendendo in considerazione esclusivamente il sottoinsieme di studenti che ha effettivamente superato la prova.
+    \item \textbf{OPERAZIONE 5}: Modifica del piano di studi. Inserimento o rimozione di un insegnamento all'interno del piano di studi di uno studente. È un'operazione tipica dell'inizio dell'anno accademico.
+    \item \textbf{OPERAZIONE 6}: Registrazione dell'esito di un esame. Inserimento di un nuovo esame sostenuto da uno studente, per un determinato insegnamento, registrando la data e il punteggio ottenuto. Rappresenta l'operazione di scrittura con la frequenza più elevata durante le sessioni d'esame.
+\end{itemize}
+
+\newpage

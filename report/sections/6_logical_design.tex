@@ -2,10 +2,11 @@
 
 \subsection{Tabella dei volumi}
 
-Per valutare i costi delle operazioni, per effettuare una corretta analisi delle ridondanze 
-e quindi per effettuare una corretta ristrutturazione dello schema E-R, 
-si rende necessaria una tabella dei volumi in cui per ogni oggetto stimiamo 
-la sua quantità media presente nella base di dati a metà del suo ciclo di vita operativo.
+La tabella dei volumi costituisce lo strumento fondamentale 
+per valutare i costi delle operazioni e analizzare le ridondanze, 
+ponendo le basi per la corretta ristrutturazione dello schema E-R. 
+Al suo interno viene stimata la quantità media di ciascun oggetto 
+presente nella base di dati a metà del suo ciclo di vita operativo.
 
 \begin{table}[h]
     \centering
@@ -14,67 +15,133 @@ la sua quantità media presente nella base di dati a metà del suo ciclo di vita
         \hline
         \textbf{Concetto} & \textbf{Tipo} & \textbf{Volume} \\
         \hline
-        DIPARTIMENTO & E & 3 \\
+        DIPARTIMENTO & E & 8 \\
         \hline
-        CORSO DI LAUREA & E & 21 \\
+        CORSO DI LAUREA & E & 80 \\
         \hline
-        DOCENTE & E & 320 \\
+        DOCENTE & E & 700 \\
         \hline
-        CORSO & E & 350 \\
+        INSEGNAMENTO & E & 1.200 \\
         \hline
-        EDIZIONE & E & 700 \\
+        EDIZIONE & E & 2.400 \\
         \hline
-        LEZIONE & E & 14.000 \\
+        LEZIONE & E & 48.000 \\
         \hline
-        STUDENTE & E & 6.500 \\
+        STUDENTE & E & 16.000 \\
         \hline
-        ESAME & E & 78.000 \\
+        ESAME & E & 192.000 \\
         \hline
-        è affiliato ad & R & 320 \\
+        è affiliato ad & R & 700 \\
         \hline
-        è iscritto & R & 6.500 \\
+        è iscritto & R & 16.000 \\
         \hline
-        nel piano di studio & R & 130.000 \\
+        nel piano di studio & R & 320.000 \\
         \hline
-        sostiene & R & 78.000 \\
+        sostiene & R & 192.000 \\
         \hline
-        prevede & R & 78.000 \\
+        prevede & R & 192.000 \\
         \hline
-        prerequisito & R & 100 \\
+        prerequisito & R & 360 \\
         \hline
-        può insegnare & R & 960 \\
+        può insegnare & R & 3.500 \\
         \hline
-        è erogato in & R & 700 \\
+        è erogato in & R & 2.400\\
         \hline
-        tiene & R & 850 \\
+        tiene & R & 2.800 \\
         \hline
-        si compone di & R & 14.000 \\
+        si compone di & R & 48.000 \\
         \hline
     \end{tabular}
-    \caption{Tabella dei volumi stimati per il Polo Scientifico}
+    \caption{Tabella dei volumi}
     \label{tab:volumi}
 \end{table}
 
 \noindent 
 La stima dei volumi (Tabella \ref{tab:volumi}) è stata ricavata da un'analisi quantitativa legata a una realtà accademica concreta, 
-prendendo come modello di riferimento i tre dipartimenti del Polo Scientifico dell'Università degli Studi di Udine (\texttt{DMIF}, \texttt{DPIA}, \texttt{DI4A}). 
+prendendo come modello di riferimento l'intero Ateneo dell'Università degli Studi di Udine.
 I dati di riferimento sono stati estrapolati e proporzionati partendo dagli Open Data ufficiali del Ministero dell'Università e della Ricerca (portale USTAT) 
 relativi all'anno 2024 e dall'offerta formativa di ateneo per l'anno accademico 2023/2024. 
-Sapendo che l'università ospita storicamente circa 16.000 iscritti complessivi e che l'area STEM (Informatica, Ingegneria, Scienze Agrarie) 
-assorbe tipicamente il 40\% del totale degli iscritti, si è stimato un volume di circa 6.500 studenti attivi. 
-Allo stesso modo, l'organico di docenti strutturati afferenti a questi tre dipartimenti ammonta a circa 320 unità, 
-i quali gestiscono un'offerta di 21 corsi di laurea (tra triennali e magistrali) e 350 insegnamenti unici. \\
+L'università ospita complessivamente circa 16.000 studenti attivi distribuiti negli 8 dipartimenti storici dell'Ateneo. 
+Allo stesso modo, l'organico totale dei docenti strutturati ammonta a circa 700 unità, 
+i quali gestiscono un'offerta complessiva di 80 corsi di laurea (tra triennali, magistrali e a ciclo unico) 
+per un totale di circa 1.200 insegnamenti unici. \\
 
 \noindent
 Partendo da queste basi fattuali, i volumi delle relazioni e delle entità intermedie sono stati ricavati matematicamente per un sistema a metà del suo ciclo di vita:
 
 \begin{itemize}
-    \item \textbf{EDIZIONE e LEZIONE}: Mantenendo uno storico operativo di due anni accademici, i 350 corsi generano 700 istanze per l'entità EDIZIONE e per la relazione \textit{è erogato in}. Assumendo una media di 20 appuntamenti per edizione, si ricavano $700 \cdot 20 = 14.000$ istanze per l'entità LEZIONE e per la relazione \textit{si compone di}.
-    \item \textbf{Piano di studio}: Si stima che uno studente inserisca in media 20 corsi nel proprio piano di studi durante la sua carriera. Considerando 6.500 studenti attivi, la relazione \textit{nel piano di studio} conta $6.500 \cdot 20 = 130.000$ tuple.
-    \item \textbf{ESAME, sostiene e prevede}: Considerando l'eterogeneità della popolazione studentesca, costituita da neo-immatricolati, studenti in pari e fuori corso, si stima una media ponderata di 12 esami superati per studente. Di conseguenza, l'entità ESAME e le relazioni \textit{sostiene} e \textit{prevede} generano 6.500 $\cdot$ 12 = 78.000 istanze.
-    \item \textbf{può insegnare e tiene}: Ipotizzando che ogni docente sia abilitato a insegnare mediamente 3 corsi afferenti al proprio settore disciplinare, la relazione \textit{può insegnare} genera $320 \cdot 3 = 960$ tuple. Per la relazione \textit{tiene}, includendo le co-docenze, si stimano 850 assegnazioni sulle 700 edizioni attive.
-    \item \textbf{prerequisito}: Si ipotizza che all'interno di ciascuno dei 21 corsi di laurea vi siano in media 4 o 5 esami propedeutici per poter essere sostenuti, generando una stima di 100 istanze per la relazione ricorsiva.
+    \item \textbf{EDIZIONE e LEZIONE}: Mantenendo uno storico operativo di due anni accademici, i 1.200 insegnamenti generano 2.400 istanze per l'entità EDIZIONE e per la relazione \textit{è erogato in}. Assumendo una media di 20 appuntamenti per edizione, si ricavano $2.400 \cdot 20 = 48.000$ istanze per l'entità LEZIONE e per la relazione \textit{si compone di}.
+    \item \textbf{Piano di studio}: Si stima che uno studente inserisca in media 20 insegnamenti nel proprio piano di studi durante la sua carriera e considerando 16.000 studenti attivi, la relazione conta $320.000$ tuple.
+    \item \textbf{ESAME, sostiene e prevede}: Considerando l'eterogeneità della popolazione studentesca, costituita da neo-immatricolati, studenti in pari e fuori corso, si stima una media ponderata di 12 esami sostenuti per studente. Di conseguenza, l'entità ESAME e le relazioni \textit{sostiene} e \textit{prevede} generano 192.000 istanze.
+    \item \textbf{Può insegnare e tiene}: Ipotizzando che ogni docente sia abilitato a insegnare mediamente 5 insegnamenti afferenti al proprio settore disciplinare, la relazione \textit{può insegnare} genera $700 \cdot 5 = 3.500$ tuple. Per la relazione \textit{tiene}, includendo le co-docenze, si stimano 2.800 assegnazioni sulle 2.400 edizioni attive.
+    \item \textbf{Prerequisito}: Si ipotizza che all'interno di ciascuno degli 80 corsi di laurea vi siano in media 4 o 5 insegnamenti propedeutici, generando una stima di 360 istanze per la relazione ricorsiva.
 \end{itemize}
+
+\subsection{Analisi dei cicli}
+
+Prima di procedere alla traduzione dello schema concettuale nel modello logico, 
+viene effettuata una verifica strutturale del diagramma E-R per 
+individuare eventuali percorsi ciclici. 
+In particolare, sono stati individuati due cicli principali, 
+successivamente analizzati per stabilire se costituissero ridondanze strutturali da eliminare 
+oppure cicli giustificati da mantenere mediante opportuni vincoli di integrità nel modello logico.
+
+\paragraph{Ciclo 1:}
+Il primo ciclo si instaura tra le entità \textit{STUDENTE} - \textit{INSEGNAMENTO} - \textit{ESAME} - \textit{STUDENTE}. \\
+
+\noindent
+È possibile collegare uno studente a un insegnamento tramite due percorsi distinti:
+
+\begin{enumerate}
+    \item Il percorso diretto tramite la relazione \textit{nel piano di studio}.
+    \item Il percorso indiretto tramite le relazioni \textit{sostiene} e \textit{prevede}.
+\end{enumerate}
+
+\noindent
+Il ciclo non rappresenta una ridondanza, perché i due percorsi descrivono informazioni diverse.
+Il primo percorso relativo ai corsi seguiti dallo studente ha uno scopo programmatorio, in quanto indica le attività che lo studente ha scelto nel proprio percorso di studi.
+Il secondo percorso legato agli esami sostenuti, invece, ha uno scopo storico, poiché registra le prove realmente effettuate e concluse.
+Eliminare uno dei due percorsi comporterebbe una perdita di informazioni, 
+pertanto lo schema E-R viene mantenuto invariato. \\
+
+\noindent
+\textbf{Vincolo di integrità (Ciclo 1):} La correlazione logica tra i 
+due percorsi impone che uno studente non possa sostenere l'esame di un 
+corso non presente nel proprio piano di studi. Tale vincolo non è 
+esprimibile tramite la struttura del modello E-R e viene pertanto 
+demandato a un \textit{trigger}, che, prima di ogni inserimento nella 
+relazione \textit{sostiene}, verifica che il corso associato 
+all'esame risulti già presente nel piano di studi dello studente, 
+in caso contrario l'operazione viene rifiutata.
+
+\paragraph{Ciclo 2:}
+Il secondo ciclo si instaura tra le entità \textit{DOCENTE} - \textit{INSEGNAMENTO} - \textit{EDIZIONE} - \mbox{\textit{DOCENTE}}. \\
+
+\noindent
+Un docente risulta collegato a un insegnamento tramite:
+
+\begin{enumerate}
+    \item Il percorso diretto tramite la relazione \textit{può insegnare}.
+    \item Il percorso indiretto tramite le relazioni \textit{tiene} ed \textit{è erogato in}.
+\end{enumerate}
+
+\noindent
+Anche in questo caso il ciclo non costituisce ridondanza strutturale. 
+La relazione \textit{può insegnare} modella un'abilitazione statica, 
+indicando le materie afferenti al settore scientifico-disciplinare del docente, 
+indipendentemente dall'effettiva erogazione. 
+Il percorso indiretto modella invece l'incarico reale assegnato in una precisa edizione. 
+Essendo abilitazione e assegnazione due concetti temporalmente e funzionalmente separati, 
+lo schema E-R viene mantenuto invariato. \\
+
+\noindent
+\textbf{Vincolo di integrità (Ciclo 2):} La correlazione logica tra i 
+due percorsi impone che un docente non possa essere assegnato 
+all'edizione di un corso per il quale non risulti abilitato. 
+Anche questo vincolo viene demandato a un \textit{trigger}, che, prima di 
+ogni inserimento nella relazione \textit{tiene},
+verifica che il docente compaia nella relazione \textit{può insegnare} 
+per il corso corrispondente all'edizione, altrimenti l'operazione viene rifiutata.
 
 \subsection{Analisi delle ridondanze}
 
@@ -146,41 +213,6 @@ il Task 1 beneficia di un abbattimento drastico dei tempi di risposta, consenten
 Dal punto di vista progettuale, si decide pertanto di accettare il compromesso della denormalizzazione, modificando formalmente lo schema logico rispetto a quello concettuale originario. 
 L'attributo ridondante \textit{NumeroIscritti} viene ufficialmente introdotto all'interno dell'entità \textit{CORSO}, 
 delegando a opportuni vincoli di integrità a livello logico (tramite trigger in fase di implementazione) il compito di mantenere aggiornato il contatore ed evitare qualsiasi rischio di inconsistenza della base di dati.
-
-\subsubsection{Analisi dei cicli}
-
-L'analisi delle ridondanze si è estesa alla verifica strutturale dello schema concettuale per l'individuazione di eventuali cicli. 
-All'interno del diagramma E-R sono stati individuati due percorsi ciclici principali, i quali sono stati analizzati per determinare la presenza di derivabilità.
-
-\paragraph{Ciclo 1:}
-Il primo ciclo si instaura tra le entità \textit{STUDENTE}, \textit{CORSO} ed \textit{ESAME}. È possibile collegare uno studente a un corso tramite due percorsi distinti:
-
-\begin{enumerate}
-    \item L'associazione diretta tramite la relazione \textit{nel piano di studio}.
-    \item La navigazione indiretta tramite le relazioni \textit{sostiene} e \textit{prevede}.
-\end{enumerate}
-
-\noindent
-Il ciclo \textbf{non rappresenta una ridondanza}, perché i due percorsi descrivono informazioni diverse.
-La relazione relativa ai corsi seguiti dallo studente ha uno scopo programmatorio, in quanto indica le attività che lo studente ha scelto nel proprio percorso di studi.
-La relazione legata agli esami sostenuti, invece, ha uno scopo storico, poiché registra le prove realmente effettuate e concluse.
-Di conseguenza, eliminare una delle due relazioni comporterebbe la perdita di informazioni importanti.
-La coerenza tra i due percorsi, ad esempio il fatto che uno studente possa sostenere solo esami relativi a corsi presenti nel proprio piano di studi, 
-viene garantita tramite un vincolo di integrità implementato con un trigger, e non attraverso modifiche alla struttura dello schema.
-
-\paragraph{Ciclo 2:}
-Il secondo ciclo si instaura tra le entità \textit{DOCENTE}, \textit{CORSO} ed \textit{EDIZIONE}. Un docente risulta collegato a un corso tramite:
-
-\begin{enumerate}
-    \item L'associazione diretta tramite la relazione \textit{può insegnare}.
-    \item La navigazione indiretta tramite le relazioni \textit{tiene} ed \textit{è erogato in}.
-\end{enumerate}
-
-\noindent
-Anche in questo caso il ciclo \textbf{non costituisce ridondanza}. 
-La relazione \textit{può insegnare} modella un'abilitazione di base, indicando le materie afferenti al settore scientifico-disciplinare del docente, 
-indipendentemente dall'effettiva erogazione. Il percorso indiretto modella invece l'incarico reale assegnato in un preciso anno accademico. 
-Essendo l'abilitazione (statica) e l'assegnazione (dinamica) due concetti temporalmente e funzionalmente separati, si decide di mantenere intatto lo schema E-R.
 
 \subsection{Schema Logico}
 Di seguito si riporta lo schema logico risultante. Per convenzione, gli attributi che compongono la \underline{chiave primaria} sono sottolineati, mentre le chiavi esterne sono contrassegnate da un asterisco (*).

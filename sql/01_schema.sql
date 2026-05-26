@@ -78,7 +78,7 @@ CREATE TABLE lezione (
     fascia_oraria fascia_oraria_enum,
     aula VARCHAR(10) NOT NULL,
 
-    PRIMARY KEY (codice_corso, anno_accademico, giorno, fascia_oraria),
+    PRIMARY KEY (codice_corso, anno_accademico, giorno, fascia_oraria, aula),
     FOREIGN KEY (codice_corso, anno_accademico) REFERENCES edizione(codice_corso, anno_accademico)
 );
 

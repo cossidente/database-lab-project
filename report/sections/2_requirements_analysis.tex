@@ -50,18 +50,25 @@ Il periodo didattico è limitato all'insieme finito $\{1, 2, 3\}$, mentre le fas
 
 \subsection{Operazioni}
 
-Verranno di seguito descritte alcune operazioni significative che riflettono le reali necessità di gestione 
-e interrogazione dei dati in uno scenario accademico realistico. 
-Queste operazioni, selezionate appositamente per coprire diverse aree dello schema concettuale, 
-fungeranno da base per la successiva stima dei costi degli accessi e per la valutazione delle prestazioni del database.
+Le operazioni descritte di seguito rappresentano un insieme selezionato di attività significative, 
+progettate per riflettere in modo fedele le reali esigenze di gestione 
+e interrogazione dei dati in un contesto accademico realistico.
+Tali operazioni, scelte per coprire in maniera equilibrata le diverse aree dello schema concettuale, 
+costituiscono la base per le successive analisi di costo degli accessi 
+e per la valutazione delle prestazioni complessive del sistema di gestione della base di dati.
 
+\subsubsection{Operazioni di lettura}
 \begin{itemize}
-    \item \textbf{OPERAZIONE 1}: Ricerca dell'insegnamento con più iscritti. Determinare l'insegnamento che compare il maggior numero di volte all'interno dei piani di studio attivi degli studenti della facoltà.
-    \item \textbf{OPERAZIONE 2}: Ricercare disponibilità di un professore. Dato il nome e cognome di un docente e il periodo didattico, restituire il suo calendario settimanale delle lezioni (giorno, fascia oraria e aula). 
-    \item \textbf{OPERAZIONE 3}: Calcolo del tasso di superamento di un esame. Dato un insegnamento, calcolare la percentuale di prove superate rispetto al totale complessivo dei tentativi (esami sostenuti) registrati.
-    \item \textbf{OPERAZIONE 4}: Calcolo del numero medio di tentativi. Dato un insegnamento, determinare la media dei tentativi effettuati prima di ottenere un esito positivo, prendendo in considerazione esclusivamente il sottoinsieme di studenti che ha effettivamente superato la prova.
-    \item \textbf{OPERAZIONE 5}: Modifica del piano di studi. Inserimento o rimozione di un insegnamento all'interno del piano di studi di uno studente. È un'operazione tipica dell'inizio dell'anno accademico.
-    \item \textbf{OPERAZIONE 6}: Registrazione dell'esito di un esame. Inserimento di un nuovo esame sostenuto da uno studente, per un determinato insegnamento, registrando la data e il punteggio ottenuto. Rappresenta l'operazione di scrittura con la frequenza più elevata durante le sessioni d'esame.
+\item Determinare quale insegnamento compare più frequentemente nei piani di studio.
+\item Dato nome e cognome di un professore, un anno accademico e un periodo didattico restituire il suo calendario settimanale delle lezioni (giorno, fascia oraria, aula).
+\item Dato un insegnamento, calcolare la percentuale di prove superate rispetto al totale dei tentativi registrati.
+\item Dato un insegnamento, determinare la media dei tentativi effettuati dagli studenti che hanno effettivamente superato la prova.
+\end{itemize}
+
+\subsubsection{Operazioni di aggiornamento}
+\begin{itemize}
+\item Inserimento di un insegnamento nel piano di studi di uno studente.
+\item Inserimento di un nuovo tentativo d’esame per uno studente, specificando insegnamento, data e punteggio ottenuto.
 \end{itemize}
 
 \newpage

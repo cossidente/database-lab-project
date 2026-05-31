@@ -50,6 +50,7 @@ Table "studente" {
   "telefono" telefono_dom
   "aa_immatricolazione" anno_accademico [not null]
   "corso_di_laurea" VARCHAR(10) [not null]
+  "crediti_acquisiti" INTEGER [not null, default: 0]
 }
 
 Table "corso" {

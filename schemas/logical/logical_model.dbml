@@ -139,6 +139,7 @@ Table "insegnamento_edizione" {
   "cf_docente" codice_fiscale
   "codice_corso" corso_dom
   "anno_accademico" anno_accademico
+  "periodo" periodo_enum
 
   Indexes {
     (cf_docente, codice_corso, anno_accademico) [pk]
@@ -157,18 +158,18 @@ Ref:"studente"."matricola" < "esame"."matricola" [update: cascade, delete: casca
 
 Ref:"corso"."codice" < "esame"."codice_corso" [update: cascade, delete: restrict]
 
-Ref:"studente"."matricola" < "piano_di_studio"."matricola"
+Ref:"studente"."matricola" < "piano_di_studio"."matricola" [update: cascade, delete: cascade]
 
-Ref:"corso"."codice" < "piano_di_studio"."codice_corso"
+Ref:"corso"."codice" < "piano_di_studio"."codice_corso" [update: cascade, delete: restrict]
 
-Ref:"corso"."codice" < "prerequisito"."codice_corso"
+Ref:"corso"."codice" < "prerequisito"."codice_corso" [update: cascade, delete: cascade]
 
-Ref:"corso"."codice" < "prerequisito"."codice_prerequisito"
+Ref:"corso"."codice" < "prerequisito"."codice_prerequisito" [update: cascade, delete: cascade]
 
-Ref:"docente"."cf" < "abilitazione_docente_corso"."cf_docente"
+Ref:"docente"."cf" < "abilitazione_docente_corso"."cf_docente" [update: cascade, delete: cascade]
 
-Ref:"corso"."codice" < "abilitazione_docente_corso"."codice_corso"
+Ref:"corso"."codice" < "abilitazione_docente_corso"."codice_corso" [update: cascade, delete: cascade]
 
-Ref:"docente"."cf" < "insegnamento_edizione"."cf_docente"
+Ref:"docente"."cf" < "insegnamento_edizione"."cf_docente" [update: cascade, delete: restrict]
 
-Ref:"edizione".("codice_corso", "anno_accademico") < "insegnamento_edizione".("codice_corso", "anno_accademico")
+Ref:"edizione".("codice_corso", "anno_accademico", "periodo") < "insegnamento_edizione".("codice_corso", "anno_accademico", "periodo") [update: cascade, delete: cascade]

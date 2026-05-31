@@ -106,8 +106,8 @@ CREATE TABLE piano_di_studio (
     codice_corso corso_dom,
 
     PRIMARY KEY (matricola, codice_corso),
-    FOREIGN KEY (matricola) REFERENCES studente(matricola),
-    FOREIGN KEY (codice_corso) REFERENCES corso(codice)
+    FOREIGN KEY (matricola) REFERENCES studente(matricola) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (codice_corso) REFERENCES corso(codice) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 CREATE TABLE prerequisito (
@@ -115,8 +115,8 @@ CREATE TABLE prerequisito (
     codice_prerequisito corso_dom,
 
     PRIMARY KEY (codice_corso, codice_prerequisito),
-    FOREIGN KEY (codice_corso) REFERENCES corso(codice),
-    FOREIGN KEY (codice_prerequisito) REFERENCES corso(codice),
+    FOREIGN KEY (codice_corso) REFERENCES corso(codice) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (codice_prerequisito) REFERENCES corso(codice) ON DELETE CASCADE ON UPDATE CASCADE,
 
     CONSTRAINT ck_prerequisito CHECK (codice_corso <> codice_prerequisito)
 );
@@ -126,8 +126,8 @@ CREATE TABLE abilitazione_docente_corso (
     codice_corso corso_dom,
 
     PRIMARY KEY (cf_docente, codice_corso),
-    FOREIGN KEY (cf_docente) REFERENCES docente(cf),
-    FOREIGN KEY (codice_corso) REFERENCES corso(codice)
+    FOREIGN KEY (cf_docente) REFERENCES docente(cf) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (codice_corso) REFERENCES corso(codice) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE insegnamento_edizione (
@@ -136,6 +136,6 @@ CREATE TABLE insegnamento_edizione (
     anno_accademico anno_accademico,
 
     PRIMARY KEY (cf_docente, codice_corso, anno_accademico),
-    FOREIGN KEY (cf_docente) REFERENCES docente(cf),
-    FOREIGN KEY (codice_corso, anno_accademico) REFERENCES edizione(codice_corso, anno_accademico)
+    FOREIGN KEY (cf_docente) REFERENCES docente(cf) ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY (codice_corso, anno_accademico) REFERENCES edizione(codice_corso, anno_accademico) ON DELETE CASCADE ON UPDATE CASCADE
 );

@@ -49,6 +49,7 @@ CREATE TABLE studente (
     telefono telefono_dom,
     aa_immatricolazione anno_accademico NOT NULL,
     corso_di_laurea VARCHAR(10) NOT NULL,
+    crediti_acquisiti INTEGER NOT NULL DEFAULT 0,
 
     FOREIGN KEY (corso_di_laurea) REFERENCES corso_di_laurea(codice) ON DELETE RESTRICT ON UPDATE CASCADE
 );

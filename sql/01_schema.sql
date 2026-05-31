@@ -96,7 +96,7 @@ CREATE TABLE esame (
     punteggio punteggio,
 
     PRIMARY KEY (matricola, codice_corso, data_esame),
-    FOREIGN KEY (matricola) REFERENCES studente(matricola) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (matricola) REFERENCES studente(matricola) ON DELETE RESTRICT ON UPDATE CASCADE,
     FOREIGN KEY (codice_corso) REFERENCES corso(codice) ON DELETE RESTRICT ON UPDATE CASCADE,
 
     CONSTRAINT ck_data_esame CHECK (data_esame <= CURRENT_DATE)

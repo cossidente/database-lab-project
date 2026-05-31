@@ -2,23 +2,25 @@ name: Build and Release PDF
 
 on:
   push:
-    paths:
-      - "report/*"
-  pull_request:
-    paths:
-      - "report/*"
     branches:
       - main
+    paths:
+      - "report/**"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "report/**"
 
 env:
   docker_image: ghcr.io/xu-cheng/texlive-alpine
   docker_image_tag: 20260401
 
 jobs:
-  build-report:
+  build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
 
     steps:
       - name: Checkout
@@ -58,6 +60,20 @@ jobs:
         with:
           name: "Database Lab Project Report"
           path: report/report.pdf
+
+  release:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download PDF artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: "Database Lab Project Report"
+          path: report
 
       - name: Create Release
         uses: softprops/action-gh-release@v2

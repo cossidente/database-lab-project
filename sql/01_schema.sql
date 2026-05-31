@@ -83,7 +83,8 @@ CREATE TABLE lezione (
     aula VARCHAR(20) NOT NULL,
 
     PRIMARY KEY (codice_corso, anno_accademico, periodo, giorno, fascia_oraria, aula),
-    FOREIGN KEY (codice_corso, anno_accademico, periodo) REFERENCES edizione(codice_corso, anno_accademico, periodo) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (codice_corso, anno_accademico, periodo) 
+        REFERENCES edizione(codice_corso, anno_accademico, periodo) ON DELETE CASCADE ON UPDATE CASCADE,
 
     CONSTRAINT uq_occupazione_aula UNIQUE (anno_accademico, periodo, giorno, fascia_oraria, aula)
 );
@@ -134,8 +135,10 @@ CREATE TABLE insegnamento_edizione (
     cf_docente codice_fiscale,
     codice_corso corso_dom,
     anno_accademico anno_accademico,
+    periodo periodo_enum,
 
     PRIMARY KEY (cf_docente, codice_corso, anno_accademico),
     FOREIGN KEY (cf_docente) REFERENCES docente(cf) ON DELETE RESTRICT ON UPDATE CASCADE,
-    FOREIGN KEY (codice_corso, anno_accademico) REFERENCES edizione(codice_corso, anno_accademico) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (codice_corso, anno_accademico, periodo) 
+        REFERENCES edizione(codice_corso, anno_accademico, periodo) ON DELETE CASCADE ON UPDATE CASCADE
 );

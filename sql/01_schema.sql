@@ -7,7 +7,7 @@ CREATE TYPE giorno_enum AS ENUM ('Lunedì', 'Martedì', 'Mercoledì', 'Giovedì'
 CREATE TYPE fascia_oraria_enum AS ENUM ('1', '2', '3', '4');
 
 CREATE DOMAIN codice_fiscale AS CHAR(16)
-    CHECK (VALUE ~ '^[A-Za-z]{6}[0-9]{2}[A-Za-z]{1}[0-9]{2}[A-Za-z]{1}[0-9]{3}[A-Za-z]{1}$');
+    CHECK (VALUE ~ '^[A-Z]{6}[0-9]{2}[A-Z]{1}[0-9]{2}[A-Z]{1}[0-9]{3}[A-Z]{1}$');
 
 CREATE DOMAIN telefono_dom AS CHAR(10)
     CHECK (VALUE ~ '^[0-9]{10}$');
@@ -24,18 +24,18 @@ CREATE DOMAIN punteggio AS INTEGER
 
 CREATE TABLE dipartimento (
     codice VARCHAR(10) PRIMARY KEY,
-    nome VARCHAR(20) NOT NULL
+    nome VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE corso_di_laurea (
     codice VARCHAR(10) PRIMARY KEY,
-    nome VARCHAR(20) NOT NULL
+    nome VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE docente (
     cf codice_fiscale PRIMARY KEY,
-    nome VARCHAR(20) NOT NULL,
-    cognome VARCHAR(20) NOT NULL,
+    nome VARCHAR(40) NOT NULL,
+    cognome VARCHAR(40) NOT NULL,
     titolo titolo_enum NOT NULL,
     dipartimento VARCHAR(10) NOT NULL,
 
@@ -44,8 +44,8 @@ CREATE TABLE docente (
 
 CREATE TABLE studente (
     matricola SERIAL PRIMARY KEY,
-    nome VARCHAR(20) NOT NULL,
-    cognome VARCHAR(20) NOT NULL,
+    nome VARCHAR(40) NOT NULL,
+    cognome VARCHAR(40) NOT NULL,
     telefono telefono_dom,
     aa_immatricolazione anno_accademico NOT NULL,
     corso_di_laurea VARCHAR(10) NOT NULL,
@@ -55,7 +55,7 @@ CREATE TABLE studente (
 
 CREATE TABLE corso (
     codice corso_dom PRIMARY KEY,
-    nome VARCHAR(20) NOT NULL,
+    nome VARCHAR(50) NOT NULL,
     crediti INTEGER NOT NULL,
     descrizione TEXT,
 
@@ -67,19 +67,24 @@ CREATE TABLE edizione (
     anno_accademico anno_accademico,
     periodo periodo_enum,
 
-    PRIMARY KEY (codice_corso, anno_accademico),
-    FOREIGN KEY (codice_corso) REFERENCES corso(codice)
+    PRIMARY KEY (codice_corso, anno_accademico, periodo),
+    FOREIGN KEY (codice_corso) REFERENCES corso(codice) ON DELETE CASCADE ON UPDATE CASCADE,
+
+    CONSTRAINT uq_singola_edizione_annuale UNIQUE (codice_corso, anno_accademico)
 );
 
 CREATE TABLE lezione (
     codice_corso corso_dom,
     anno_accademico anno_accademico,
+    periodo periodo_enum,
     giorno giorno_enum,
     fascia_oraria fascia_oraria_enum,
-    aula VARCHAR(10) NOT NULL,
+    aula VARCHAR(20) NOT NULL,
 
-    PRIMARY KEY (codice_corso, anno_accademico, giorno, fascia_oraria, aula),
-    FOREIGN KEY (codice_corso, anno_accademico) REFERENCES edizione(codice_corso, anno_accademico)
+    PRIMARY KEY (codice_corso, anno_accademico, periodo, giorno, fascia_oraria, aula),
+    FOREIGN KEY (codice_corso, anno_accademico, periodo) REFERENCES edizione(codice_corso, anno_accademico, periodo) ON DELETE CASCADE ON UPDATE CASCADE,
+
+    CONSTRAINT uq_occupazione_aula UNIQUE (anno_accademico, periodo, giorno, fascia_oraria, aula)
 );
 
 CREATE TABLE esame (

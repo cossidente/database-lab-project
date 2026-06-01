@@ -13,11 +13,14 @@ Database Lab project for the Database Systems course at the University of Udine 
 |------|-------------|
 | `report/` | Official project report (written in Italian) |
 | `schemas/` | Entity-Relationship (ER) and logical diagrams |
+| `data/` | Static data used for populating the database |
+| `src/` | Source code used for interacting with the database |
 | `sql/01_schema.sql` | Table definitions and constraints |
 | `sql/02_triggers.sql` | Triggers and trigger functions |
 | `sql/03_seed.sql` | Sample data |
 | `Dockerfile` | PostgreSQL image definition |
 | `docker-compose.yml` | Container configuration |
+| `.env` | File with environment variables, included to reproduce the database easily |
 
 ---
 
@@ -27,6 +30,7 @@ Database Lab project for the Database Systems course at the University of Udine 
 
 - [Docker](https://docs.docker.com/get-docker/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
+- [uv](https://docs.astral.sh/uv/)
 
 ### Running the Database
 
@@ -37,7 +41,14 @@ docker compose up -d --build
 
 This will build the Docker image, start a PostgreSQL container, initialize the database from the scripts in `sql/`, and expose it on `localhost:5432`.
 
-**2. Stop the container:**
+**2. Populate the database:**
+```bash
+python src/main.py
+```
+
+This will populate every table of the database with random but coherent data.
+
+**3. Stop the container:**
 ```bash
 docker compose down
 ```

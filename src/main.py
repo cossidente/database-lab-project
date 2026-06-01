@@ -253,6 +253,8 @@ def add_exams(engine, metadata):
                 "data_esame": date,
                 "punteggio": score
             })
+    
+    bulk_insert(engine, metadata.tables['piano_di_studio'], exams_to_insert)
 
 def get_random_past_date(start_year=2020):
     start_date = date(start_year, 1, 1)

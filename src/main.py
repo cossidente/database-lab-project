@@ -1,9 +1,13 @@
-from sqlalchemy import create_engine, MetaData, insert
-from faker import Faker
+import os
 import json
 import string
 import random
+from faker import Faker
+from pathlib import Path
+from dotenv import load_dotenv
 from datetime import date, timedelta
+from sqlalchemy import create_engine, MetaData, insert
+
 
 PERIODS = ["1", "2", "3"]
 ROOMS = ["Aula 1", "Aula Magna", "Laboratorio A", "Aula 2", "Laboratorio B"]
@@ -13,8 +17,11 @@ ACADEMIC_YEARS = ["2023/2024", "2024/2025", "2025/2026"]
 ENROLLMENT_YEARS = [2020, 2021, 2022, 2023, 2024, 2025]
 POSITIONS = ['Professore ordinario', 'Professore associato', 'Ricercatore']
 
+
 def load_json(filename):
-    with open(f"data/{filename}", "r", encoding="utf-8") as f:
+    data_dir = Path(__file__).resolve().parent.parent / "data"
+
+    with open(data_dir / filename, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -86,16 +93,6 @@ def add_lectures(engine, metadata):
     bulk_insert(engine, metadata.tables['lezione'], lectures)
 
 
-def generate_cf():
-    part1 = ''.join(random.choices(string.ascii_uppercase, k=6))
-    part2 = ''.join(random.choices(string.digits, k=2))
-    part3 = random.choice(string.ascii_uppercase)
-    part4 = ''.join(random.choices(string.digits, k=2))
-    part5 = random.choice(string.ascii_uppercase)
-    part6 = ''.join(random.choices(string.digits, k=3))
-    part7 = random.choice(string.ascii_uppercase)
-    return f"{part1}{part2}{part3}{part4}{part5}{part6}{part7}"
-
 def add_teachers(n, engine, metadata, fake):
     teachers = []
     
@@ -106,7 +103,7 @@ def add_teachers(n, engine, metadata, fake):
     
     for _ in range(n):
         teachers.append({
-            "cf": generate_cf(),
+            "cf": fake.ssn(),
             "nome": fake.first_name(),
             "cognome": fake.last_name(),
             "titolo": random.choice(POSITIONS),
@@ -294,14 +291,22 @@ def bulk_insert(engine, table, data):
     try:
         with engine.begin() as conn:
             conn.execute(insert(table), data)
-            print(f"Inserted {len(data)} record in {table.name}.")
+            print(f"Inserted {len(data)} records in {table.name}.")
     except Exception as e:
-        print(f"Error while inserting in {table.name}: {e}")
+        raise RuntimeError(f"Error while inserting in {table.name}: {e}") from e
 
 
 def main():
     # Config
-    DATABASE_URL = "postgresql://admin:password@localhost:5432/21-database-lab-project"
+    load_dotenv()
+
+    user = os.getenv("POSTGRES_USER")
+    password = os.getenv("POSTGRES_PASSWORD")
+    host = os.getenv("POSTGRES_HOST")
+    port = os.getenv("POSTGRES_PORT")
+    db_name = os.getenv("POSTGRES_DB")
+
+    DATABASE_URL = f"postgresql://{user}:{password}@{host}:{port}/{db_name}"
     engine = create_engine(DATABASE_URL)
     metadata = MetaData()
     metadata.reflect(bind=engine)

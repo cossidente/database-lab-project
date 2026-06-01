@@ -32,23 +32,30 @@ Database Lab project for the Database Systems course at the University of Udine 
 - [Docker Compose](https://docs.docker.com/compose/install/)
 - [uv](https://docs.astral.sh/uv/)
 
-### Running the Database
+### Quick Start
 
-**1. Build and start the PostgreSQL container:**
+**1. Install Python dependencies:**
+```bash
+uv sync
+```
+
+This will create a virtual environment and install all project dependencies from `pyproject.toml`.
+
+**2. Start the PostgreSQL container:**
 ```bash
 docker compose up -d --build
 ```
 
-This will build the Docker image, start a PostgreSQL container, initialize the database from the scripts in `sql/`, and expose it on `localhost:5432`.
+This will build the Docker image, start a PostgreSQL container, and initialize the database from the scripts in `sql/`, exposing it on `localhost:5432`.
 
-**2. Populate the database:**
+**3. Populate the database:**
 ```bash
-python src/main.py
+uv run python src/main.py
 ```
 
 This will populate every table of the database with random but coherent data.
 
-**3. Stop the container:**
+**4. Stop the container:**
 ```bash
 docker compose down
 ```
@@ -62,6 +69,7 @@ docker compose down
 | **Username** | `admin` |
 | **Password** | `password` |
 | **Database** | `21-database-lab-project` |
+
 
 ### ⚠️ No Persistent Storage
 

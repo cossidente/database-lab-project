@@ -1,12 +1,9 @@
 \section{Ristrutturazione dello Schema}
 
-\subsection{Tabella dei volumi}
+\subsection{Analisi delle prestazioni}
 
-La tabella dei volumi costituisce lo strumento fondamentale 
-per valutare i costi delle operazioni e analizzare le ridondanze, 
-ponendo le basi per la corretta ristrutturazione dello schema E-R. 
-Al suo interno viene stimata la quantità media di ciascun oggetto 
-presente nella base di dati a metà del suo ciclo di vita operativo.
+La tabella dei volumi costituisce lo strumento fondamentale per valutare i costi delle operazioni e analizzare le ridondanze, ponendo le basi per la corretta ristrutturazione dello schema ER. 
+Al suo interno vengono stimate le occorrenze previste per ciascun concetto della base di dati, valutate in una condizione di utilizzo a regime del sistema.
 
 \begin{table}[h]
     \centering
@@ -23,13 +20,13 @@ presente nella base di dati a metà del suo ciclo di vita operativo.
         \hline
         Insegnamento & E & 1.200 \\
         \hline
-        Edizione & E & 2.400 \\
+        Edizione & E & 6.000 \\
         \hline
-        Lezione & E & 48.000 \\
+        Lezione & E & 120.000 \\
         \hline
         Studente & E & 16.000 \\
         \hline
-        Esame & E & 192.000 \\
+        Esame & E & 320.000 \\
         \hline
         è affiliato ad & R & 700 \\
         \hline
@@ -37,41 +34,38 @@ presente nella base di dati a metà del suo ciclo di vita operativo.
         \hline
         nel piano di studio & R & 320.000 \\
         \hline
-        sostiene & R & 192.000 \\
+        sostiene & R & 320.000 \\
         \hline
-        prevede & R & 192.000 \\
+        prevede & R & 320.000 \\
         \hline
         prerequisito & R & 360 \\
         \hline
         può insegnare & R & 3.500 \\
         \hline
-        è erogato in & R & 2.400 \\
+        è erogato in & R & 6.000 \\
         \hline
-        tiene & R & 2.800 \\
+        tiene & R & 7.000 \\
         \hline
-        si compone di & R & 48.000 \\
+        si compone di & R & 120.000 \\
         \hline
     \end{tabular}
     \caption{Tabella dei volumi}
     \label{tab:volumi}
 \end{table}
 
-La stima dei volumi (Tabella \ref{tab:volumi}) è stata ricavata da un'analisi quantitativa legata a una realtà accademica concreta, 
-prendendo come modello di riferimento l'intero Ateneo dell'Università degli Studi di Udine.
-I dati di riferimento sono stati estrapolati dagli Open Data ufficiali del Ministero dell'Università e della Ricerca (portale USTAT) 
-relativi all'anno 2024 e dall'offerta formativa di ateneo per l'anno accademico 2023/2024. 
+La stima dei volumi presentata nella Tabella \ref{tab:volumi} prende come modello di riferimento la realtà accademica dell'Università degli Studi di Udine\footnote{\url{https://www.uniud.it/it/ateneo-uniud/ateneo-uniud/numeri-ateneo}}. Le grandezze fondamentali riflettono i dati pubblici dell'Ateneo, ai quali è stato applicato un leggero arrotondamento per semplificare l'analisi quantitativa (ad esempio, i corsi di laurea sono stati approssimati a 80). 
 
-L'università ospita complessivamente circa 16.000 studenti, 8 dipartimenti distribuiscono l'offerta formativa su 80 corsi di laurea (tra triennali, magistrali e a ciclo unico) e 1.200 insegnamenti.
-Il corpo docente è composto da circa 700 unità.
+A partire da questi valori di base per studenti, docenti, dipartimenti e insegnamenti, i volumi delle entità subordinate e delle associazioni sono stati derivati analiticamente ipotizzando un orizzonte temporale di conservazione dello storico pari a 5 anni accademici, necessario per coprire l'intero ciclo di studi degli iscritti.
 
-Partendo da queste basi fattuali, i volumi delle relazioni e delle entità intermedie sono stati ricavati matematicamente per un sistema a metà del suo ciclo di vita:
-\begin{itemize}
-    \item \textbf{Edizione e Lezione}: Mantenendo uno storico operativo di due anni accademici, i 1.200 insegnamenti generano 2.400 istanze per l'entità \textit{Edizione} e per la relazione \textit{è erogato in}. Assumendo una media di 20 appuntamenti per edizione, si ricavano $2400 \cdot 20 = 48000$ istanze per l'entità \textit{Lezione} e per la relazione \textit{si compone di}.
-    \item \textbf{Piano di studio}: Si stima che uno studente inserisca in media 20 insegnamenti nel proprio piano di studi durante la sua carriera e considerando 16.000 studenti attivi, la relazione conta $320000$ tuple.
-    \item \textbf{Esame, sostiene e prevede}: Considerando l'eterogeneità della popolazione studentesca, costituita da neo-immatricolati, studenti in pari e fuori corso, si stima una media ponderata di 12 esami sostenuti per studente. Di conseguenza, l'entità \textit{Esame} e le relazioni \textit{sostiene} e \textit{prevede} generano $192000$ istanze.
-    \item \textbf{Può insegnare e tiene}: Ipotizzando che ogni docente sia abilitato a insegnare mediamente 5 insegnamenti afferenti al proprio settore disciplinare, la relazione \textit{può insegnare} genera $700 \cdot 5 = 3500$ tuple. Per la relazione \textit{tiene}, includendo le co-docenze, si stimano 2.800 assegnazioni sulle $2400$ edizioni attive.
-    \item \textbf{Prerequisito}: Si ipotizza che all'interno di ciascuno degli 80 corsi di laurea vi siano in media 4 o 5 insegnamenti propedeutici, generando una stima di 360 istanze per la relazione ricorsiva.
-\end{itemize}
+Per le entità \textit{Edizione} e \textit{Lezione}, considerando lo storico di 5 anni, i 1.200 insegnamenti erogati annualmente generano 6.000 istanze per l'entità \textit{Edizione} e per la relazione \textit{è erogato in}. Assumendo una media di 20 appuntamenti per edizione, si ricavano $6000 \cdot 20 = 120000$ istanze per l'entità \textit{Lezione} e per la relazione \textit{si compone di}.
+
+Riguardo alla relazione \textit{nel piano di studio}, si stima che uno studente inserisca in media 20 insegnamenti durante l'intera carriera accademica. Considerando 16.000 studenti attivi e storicizzati, si ottiene un volume complessivo di $320000$ tuple.
+
+Valutando l'entità \textit{Esame} e le relazioni \textit{sostiene} e \textit{prevede}, l'orizzonte di 5 anni permette di tracciare le carriere complete. Ipotizzando che l'esito (positivo o negativo) registri in media 20 verbalizzazioni a studente lungo l'intero percorso, si genera un totale di $320000$ istanze.
+
+Passando all'assegnazione dei docenti, si ipotizza che ogni professore o ricercatore sia abilitato a insegnare mediamente 5 materie afferenti al proprio settore disciplinare, portando la relazione \textit{può insegnare} a $700 \cdot 5 = 3500$ tuple. Per la relazione \textit{tiene}, includendo le possibili co-docenze accumulate nel quinquennio, si stimano 7.000 assegnazioni distribuite sulle $6000$ edizioni.
+
+Infine, per la relazione ricorsiva \textit{prerequisito}, si ipotizza che all'interno di ciascuno degli 80 corsi di laurea vi siano in media 4 o 5 insegnamenti strettamente propedeutici, generando una stima complessiva e costante di 360 istanze.
 
 \subsection{Analisi dei cicli}
 

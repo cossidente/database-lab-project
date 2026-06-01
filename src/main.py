@@ -9,6 +9,9 @@ PERIODS = ["1", "2", "3"]
 ROOMS = ["Aula 1", "Aula Magna", "Laboratorio A", "Aula 2", "Laboratorio B"]
 WEEKDAYS = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì"]
 TIMESLOTS = ["1", "2", "3", "4"]
+ACADEMIC_YEARS = ["2023/2024", "2024/2025", "2025/2026"]
+ENROLLMENT_YEARS = [2020, 2021, 2022, 2023, 2024, 2025]
+POSITIONS = ['Professore ordinario', 'Professore associato', 'Ricercatore']
 
 def load_json(filename):
     with open(f"data/{filename}", "r", encoding="utf-8") as f:
@@ -20,7 +23,7 @@ def add_courses(engine, metadata, fake):
 
     for course in courses:
         description = fake.paragraph(nb_sentences=2)
-        course["descrizione"] = f"Corso di {course["nome"]}. {description}"
+        course["descrizione"] = f"Corso di {course['nome']}. {description}"
 
     bulk_insert(engine, metadata.tables['corso'], courses)
 
@@ -30,11 +33,10 @@ def add_editions(engine, metadata):
         courses = conn.execute(metadata.tables['corso'].select()).fetchall()
     
     editions = []
-    academic_years = ["2023/2024", "2024/2025", "2025/2026"]
     
     for course in courses:
-        num_editions = random.randint(1, len(academic_years))
-        selected_years = random.sample(academic_years, num_editions) # Without repetitions
+        num_editions = random.randint(1, len(ACADEMIC_YEARS))
+        selected_years = random.sample(ACADEMIC_YEARS, num_editions) # Without repetitions
         
         for ay in selected_years:
             editions.append({
@@ -102,14 +104,12 @@ def add_teachers(n, engine, metadata, fake):
         result = conn.execute(metadata.tables['dipartimento'].select())
         department_codes = [row[0] for row in result]
     
-    positions = ['Professore ordinario', 'Professore associato', 'Ricercatore']
-    
     for _ in range(n):
         teachers.append({
             "cf": generate_cf(),
             "nome": fake.first_name(),
             "cognome": fake.last_name(),
-            "titolo": random.choice(positions),
+            "titolo": random.choice(POSITIONS),
             "dipartimento": random.choice(department_codes)
         })
 
@@ -181,9 +181,7 @@ def add_students(n, engine, metadata, fake):
         degree_program = [row[0] for row in result]
     
     for _ in range(n):
-        years = [2020, 2021, 2022, 2023, 2024, 2025]
-
-        year = random.choice(years)
+        year = random.choice(ENROLLMENT_YEARS)
         ay = f"{year}/{year + 1}"
         
         students.append({
@@ -267,6 +265,10 @@ def get_random_past_date(start_year=2020):
 
 
 def bulk_insert(engine, table, data):
+    if not data:
+        print(f"Skipped insert into {table.name}: no rows to insert.")
+        return
+    
     try:
         with engine.begin() as conn:
             conn.execute(insert(table), data)

@@ -75,6 +75,13 @@ jobs:
           name: "Database Lab Project Report"
           path: report
 
+      - name: Delete old release and tag
+        run: |
+          gh release delete latest --yes 2>/dev/null || true
+          git push origin :refs/tags/latest 2>/dev/null || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:

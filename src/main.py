@@ -220,7 +220,7 @@ def add_study_plans(engine, metadata):
 
 
 def add_exams(engine, metadata):
-     # Get all students and their study plans
+    # Get all students and their study plans
     with engine.connect() as conn:
         students = conn.execute(metadata.tables['studente'].select()).fetchall()
         study_plans = conn.execute(metadata.tables['piano_di_studio'].select()).fetchall()

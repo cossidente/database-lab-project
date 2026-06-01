@@ -218,10 +218,11 @@ def add_study_plans(engine, metadata):
 
 
 def add_exams(engine, metadata):
-    # Get all students and their study plans
+    # Get all students, their study plans and the prerequisites for their courses
     with engine.connect() as conn:
         students = conn.execute(metadata.tables['studente'].select()).fetchall()
         study_plans = conn.execute(metadata.tables['piano_di_studio'].select()).fetchall()
+        prerequisites = conn.execute(metadata.tables['prerequisito'].select()).fetchall()
 
     # Build a dict: matricola -> courses in the study plan
     student_courses_map = {}
@@ -229,6 +230,13 @@ def add_exams(engine, metadata):
         if study_plan.matricola not in student_courses_map:
             student_courses_map[study_plan.matricola] = []
         student_courses_map[study_plan.matricola].append(study_plan.codice_corso)
+
+    # Build a dict: codice_corso -> its prerequisites
+    req_map = {}
+    for req in prerequisites:
+        if req.codice_corso not in req_map:
+            req_map[req.codice_corso] = []
+        req_map[req.codice_corso].append(req.codice_prerequisito)
 
     exams_to_insert = []
 
@@ -239,16 +247,30 @@ def add_exams(engine, metadata):
             continue
 
         num_exams = random.randint(1, len(courses_in_study_plan))
-        taken_exams = random.sample(courses_in_study_plan, num_exams)
+        passed_exams = set()
 
-        for exam in taken_exams:
-            date = get_random_past_date()
+        for _ in range(num_exams):
+            available_courses = []
+            
+            for course in courses_in_study_plan:
+                if course not in passed_exams:
+                    course_reqs = req_map.get(course, [])
+                    if all(req in passed_exams for req in course_reqs):
+                        available_courses.append(course) # Student can take this course bc has passed all the prerequisites
+
+            if not available_courses:
+                break
+
+            chosen_course = random.choice(available_courses)
             score = random.randint(0, 30)
+            
+            if score >= 18:
+                passed_exams.add(chosen_course)
 
             exams_to_insert.append({
                 "matricola": student.matricola,
-                "codice_corso": exam,
-                "data_esame": date,
+                "codice_corso": chosen_course,
+                "data_esame": get_random_past_date(),
                 "punteggio": score
             })
     

@@ -17,7 +17,7 @@ Database Lab project for the Database Systems course at the University of Udine 
 | `src/` | Source code used for interacting with the database |
 | `sql/01_schema.sql` | Table definitions and constraints |
 | `sql/02_triggers.sql` | Triggers and trigger functions |
-| `sql/03_seed.sql` | Sample data |
+| `src/main.py` | Random data generator for populating the database |
 | `Dockerfile` | PostgreSQL image definition |
 | `docker-compose.yml` | Container configuration |
 | `.env` | File with environment variables, included to reproduce the database easily |

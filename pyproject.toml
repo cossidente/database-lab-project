@@ -1,7 +1,7 @@
 [project]
 name = "database-lab-project"
 version = "0.1.0"
-description = "Add your description here"
+description = "Data generation script for the database-lab-project PostgreSQL schema"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [

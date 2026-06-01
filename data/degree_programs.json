@@ -1,0 +1,18 @@
+[
+    {"codice": "CDL01", "nome": "Scienze agrarie"},
+    {"codice": "CDL02", "nome": "Allevamento e salute animale"},
+    {"codice": "CDL03", "nome": "Ingegneria elettronica"},
+    {"codice": "CDL04", "nome": "Architettura"},
+    {"codice": "CDL05", "nome": "Informatica"},
+    {"codice": "CDL06", "nome": "Matematica"},
+    {"codice": "CDL07", "nome": "Medicina e chirurgia"},
+    {"codice": "CDL08", "nome": "Fisioterapia"},
+    {"codice": "CDL09", "nome": "Giurisprudenza"},
+    {"codice": "CDL10", "nome": "Diritto per le imprese e le istituzioni"},
+    {"codice": "CDL11", "nome": "Banca e finanza"},
+    {"codice": "CDL12", "nome": "Economia aziendale"},
+    {"codice": "CDL13", "nome": "Lingue e letterature straniere"},
+    {"codice": "CDL14", "nome": "Scienze della formazione primaria"},
+    {"codice": "CDL15", "nome": "Lettere"},
+    {"codice": "CDL16", "nome": "Filosofia e trasformazione digitale"}
+]

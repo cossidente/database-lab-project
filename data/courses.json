@@ -1,0 +1,97 @@
+[
+    {"codice": "10001", "nome": "Agronomia generale", "crediti": 9},
+    {"codice": "10002", "nome": "Genetica agraria", "crediti": 6},
+    {"codice": "10003", "nome": "Patologia vegetale", "crediti": 6},
+    {"codice": "10004", "nome": "Economia agraria", "crediti": 6},
+    {"codice": "10005", "nome": "Coltivazioni erbacee", "crediti": 9},
+
+    {"codice": "20001", "nome": "Anatomia veterinaria", "crediti": 9},
+    {"codice": "20002", "nome": "Fisiologia animale", "crediti": 6},
+    {"codice": "20003", "nome": "Zootecnica speciale", "crediti": 9},
+    {"codice": "20004", "nome": "Patologia generale veterinaria", "crediti": 6},
+    {"codice": "20005", "nome": "Igiene zootecnica", "crediti": 6},
+
+    {"codice": "30001", "nome": "Elettronica analogica", "crediti": 9},
+    {"codice": "30002", "nome": "Sistemi digitali", "crediti": 9},
+    {"codice": "30003", "nome": "Teoria dei segnali", "crediti": 6},
+    {"codice": "30004", "nome": "Elettrotecnica", "crediti": 9},
+    {"codice": "30005", "nome": "Dispositivi elettronici", "crediti": 6},
+
+    {"codice": "40001", "nome": "Laboratorio di progettazione", "crediti": 12},
+    {"codice": "40002", "nome": "Storia dell'architettura", "crediti": 9},
+    {"codice": "40003", "nome": "Tecnologia dei materiali", "crediti": 6},
+    {"codice": "40004", "nome": "Urbanistica", "crediti": 9},
+    {"codice": "40005", "nome": "Restauro architettonico", "crediti": 6},
+
+    {"codice": "50001", "nome": "Programmazione I", "crediti": 9},
+    {"codice": "50002", "nome": "Basi di dati", "crediti": 9},
+    {"codice": "50003", "nome": "Sistemi operativi", "crediti": 9},
+    {"codice": "50004", "nome": "Algoritmi e strutture dati", "crediti": 9},
+    {"codice": "50005", "nome": "Reti di calcolatori", "crediti": 6},
+
+    {"codice": "60001", "nome": "Analisi matematica I", "crediti": 12},
+    {"codice": "60002", "nome": "Algebra lineare", "crediti": 9},
+    {"codice": "60003", "nome": "Geometria", "crediti": 9},
+    {"codice": "60004", "nome": "Probabilità e statistica", "crediti": 6},
+    {"codice": "60005", "nome": "Logica matematica", "crediti": 6},
+
+    {"codice": "70001", "nome": "Anatomia umana", "crediti": 12},
+    {"codice": "70002", "nome": "Biochimica", "crediti": 9},
+    {"codice": "70003", "nome": "Fisiologia", "crediti": 9},
+    {"codice": "70004", "nome": "Patologia generale", "crediti": 6},
+    {"codice": "70005", "nome": "Microbiologia clinica", "crediti": 6},
+
+    {"codice": "80001", "nome": "Scienze motorie", "crediti": 6},
+    {"codice": "80002", "nome": "Riabilitazione neuromotoria", "crediti": 9},
+    {"codice": "80003", "nome": "Terapia fisica", "crediti": 6},
+    {"codice": "80004", "nome": "Biomeccanica", "crediti": 6},
+    {"codice": "80005", "nome": "Ortopedia e traumatologia", "crediti": 6},
+
+    {"codice": "90001", "nome": "Diritto privato", "crediti": 12},
+    {"codice": "90002", "nome": "Diritto pubblico", "crediti": 12},
+    {"codice": "90003", "nome": "Diritto penale", "crediti": 9},
+    {"codice": "90004", "nome": "Diritto costituzionale", "crediti": 9},
+    {"codice": "90005", "nome": "Diritto internazionale", "crediti": 6},
+
+    {"codice": "91001", "nome": "Diritto commerciale", "crediti": 9},
+    {"codice": "91002", "nome": "Diritto del lavoro", "crediti": 9},
+    {"codice": "91003", "nome": "Diritto tributario", "crediti": 6},
+    {"codice": "91004", "nome": "Economia politica", "crediti": 6},
+    {"codice": "91005", "nome": "Diritto amministrativo", "crediti": 9},
+
+    {"codice": "92001", "nome": "Economia degli intermediari finanziari", "crediti": 9},
+    {"codice": "92002", "nome": "Finanza aziendale", "crediti": 9},
+    {"codice": "92003", "nome": "Mercati finanziari", "crediti": 6},
+    {"codice": "92004", "nome": "Statistica economica", "crediti": 6},
+    {"codice": "92005", "nome": "Matematica finanziaria", "crediti": 9},
+
+    {"codice": "93001", "nome": "Ragioneria", "crediti": 9},
+    {"codice": "93002", "nome": "Economia aziendale", "crediti": 9},
+    {"codice": "93003", "nome": "Marketing", "crediti": 6},
+    {"codice": "93004", "nome": "Organizzazione aziendale", "crediti": 6},
+    {"codice": "93005", "nome": "Bilancio", "crediti": 9},
+
+    {"codice": "94001", "nome": "Lingua inglese I", "crediti": 9},
+    {"codice": "94002", "nome": "Letteratura francese", "crediti": 9},
+    {"codice": "94003", "nome": "Linguistica generale", "crediti": 6},
+    {"codice": "94004", "nome": "Lingua tedesca I", "crediti": 9},
+    {"codice": "94005", "nome": "Letteratura spagnola", "crediti": 9},
+
+    {"codice": "95001", "nome": "Pedagogia generale", "crediti": 9},
+    {"codice": "95002", "nome": "Psicologia dello sviluppo", "crediti": 9},
+    {"codice": "95003", "nome": "Didattica generale", "crediti": 6},
+    {"codice": "95004", "nome": "Letteratura per l'infanzia", "crediti": 6},
+    {"codice": "95005", "nome": "Storia della scuola", "crediti": 6},
+
+    {"codice": "96001", "nome": "Letteratura italiana", "crediti": 12},
+    {"codice": "96002", "nome": "Storia moderna", "crediti": 9},
+    {"codice": "96003", "nome": "Glottologia", "crediti": 6},
+    {"codice": "96004", "nome": "Archeologia", "crediti": 9},
+    {"codice": "96005", "nome": "Filologia classica", "crediti": 9},
+
+    {"codice": "97001", "nome": "Filosofia teoretica", "crediti": 9},
+    {"codice": "97002", "nome": "Etica delle tecnologie", "crediti": 6},
+    {"codice": "97003", "nome": "Storia della filosofia", "crediti": 9},
+    {"codice": "97004", "nome": "Filosofia del linguaggio", "crediti": 6},
+    {"codice": "97005", "nome": "Sociologia digitale", "crediti": 6}
+]

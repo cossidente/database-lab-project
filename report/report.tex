@@ -1,4 +1,4 @@
-\documentclass[12pt,a4paper]{report}
+\documentclass[11pt, a4paper]{report}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -16,6 +16,8 @@
 \usepackage{xcolor}
 \usepackage{subcaption}
 \usepackage{hyperref}
+\usepackage{longtable}
+\usepackage{csquotes}
 \hypersetup{hidelinks}
 
 \begin{document}
@@ -56,29 +58,31 @@
         {\large \textbf{Anno Accademico 2025--2026}}
         \vspace*{0.5cm}
     \end{titlepage}
-    
+
     \tableofcontents
     \newpage
 
     \chapter{Introduzione}
     \input{sections/1_introduction}
-    
+
     \chapter{Analisi dei requisiti}
     \input{sections/2_requirements_analysis}
-    \input{sections/3_glossary}
 
     \chapter{Progettazione concettuale}
-    \input{sections/4_conceptual_design}
+    \input{sections/3_conceptual_design}
 
     \chapter{Progettazione logica}
-    \input{sections/5_schema_restructuring}
-    \input{sections/6_normalization}
-    \input{sections/7_logical_design}
+    \input{sections/4_schema_restructuring}
+    \input{sections/5_normalization}
+    \input{sections/6_logical_design}
 
     \chapter{Progettazione fisica}
-    \input{sections/8_physical_design}
+    \input{sections/7_physical_design}
 
     \chapter{Implementazione e test}
-    \input{sections/9_queries}
+    \input{sections/8_queries}
 
+    \appendix
+    \chapter{Glossario}
+    \input{sections/a1_glossary}
 \end{document}

@@ -1,0 +1,47 @@
+A partire dall'analisi dei requisiti appena descritta, in questa fase si procede alla formalizzazione strutturale delle informazioni attraverso il modello Entità-Relazione (ER). Lo schema concettuale ha l'obiettivo di tradurre il contesto del mondo reale in entità, associazioni e attributi, fornendo una rappresentazione grafica rigorosa e indipendente dal sistema di gestione di basi di dati (DBMS) che verrà adottato.
+
+Di seguito viene presentato il diagramma ER completo relativo all'architettura informativa della facoltà (Figura \ref{fig:er_schema}). Si noti che tutte le regole aziendali e i vincoli che, per limiti intrinseci del modello grafico, non possono essere espressi tramite cardinalità o identificatori, verranno formalizzati nell'apposita sezione immediatamente successiva.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{img/er.pdf}
+    \caption{Schema ER per la gestione della didattica.}
+    \label{fig:er_schema}
+\end{figure}
+
+\section{Vincoli e regole aziendali}
+\label{sec:vincoli-e-regole-aziendali}
+
+In questa fase vengono formalizzate le regole di dominio che non emergono direttamente dalla catalogazione strutturale delle informazioni, ma che sono determinanti per garantire la coerenza logica del sistema rispetto alle direttive della facoltà.
+
+\subsection{Vincoli di integrità e propedeuticità}
+\label{ssec:vincoli-di-integrita-e-propedeuticita}
+
+\paragraph{Regola di precedenza degli esami}
+Uno studente può registrare il superamento di una prova d'esame relativa a un insegnamento $I$ solo se risulta già certificato, per la medesima matricola, il superamento di tutti gli insegnamenti definiti come prerequisiti per $I$. Tale vincolo di propedeuticità impone un controllo rigoroso sulla sequenza di avanzamento della carriera.
+
+\subsection{Vincoli temporali e di assegnazione}
+\label{ssec:vincoli-temporali-e-di-assegnazione}
+
+\paragraph{Unicità dell'edizione annuale}
+Per ogni insegnamento presente nell'offerta formativa, non può essere attivata più di un'edizione nel medesimo anno accademico.
+Questo garantisce che la pianificazione didattica sia univoca su base annuale.
+
+\paragraph{Vincolo di abilitazione alla docenza}
+Un docente può assumere la titolarità di un'edizione solo se risulta formalmente abilitato a tenere quello specifico insegnamento.
+Tale regola impedisce l'assegnazione di incarichi didattici al di fuori delle competenze certificate dalla facoltà.
+
+\subsection{Specifiche sui domini dei dati}
+\label{ssec:specifiche-sui-domini-dei-dati}
+
+\paragraph{Restrizioni sui periodi didattici}
+L'organizzazione temporale della didattica su scala annuale è soggetta a parametri rigidi imposti dalla facoltà. Nello specifico, il periodo didattico in cui si svolge un'edizione deve necessariamente appartenere all'insieme finito $\{1, 2, 3\}$.
+
+\paragraph{Restrizioni sulle fasce orarie}
+La collocazione giornaliera delle singole lezioni segue vincoli logistici altrettanto restrittivi. Tale parametro è infatti strettamente limitato a quattro blocchi temporali predefiniti, identificati dai valori discreti $\{1, 2, 3, 4\}$.
+
+\paragraph{Restrizioni sui giorni di lezione}
+Per garantire la coerenza del calendario didattico, la programmazione settimanale esclude i fine settimana. Di conseguenza, il valore relativo al giorno in cui si svolge una lezione è rigorosamente limitato all'insieme testuale $\{$`Lunedì', `Martedì', `Mercoledì', `Giovedì', `Venerdì'$\}$.
+
+\paragraph{Restrizioni sul titolo accademico}
+A differenza del dipartimento di afferenza, gestito strutturalmente tramite un'entità dedicata, si è scelto di modellare il titolo professionale del docente attraverso un dominio vincolato. Questa scelta progettuale è motivata dalla natura statica dell'informazione, che presenta una bassissima volatilità nel tempo. Il titolo deve pertanto appartenere a un vocabolario controllato, ad esempio $\{$`Ricercatore', `Professore associato', `Professore ordinario'$\}$.

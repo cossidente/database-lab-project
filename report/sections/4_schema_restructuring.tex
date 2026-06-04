@@ -1,8 +1,10 @@
 \section{Ristrutturazione dello Schema}
+\label{sec:ristrutturazione-dello-schema}
 
 \subsection{Analisi delle prestazioni}
+\label{ssec:analisi-delle-prestazioni}
 
-La tabella dei volumi costituisce lo strumento fondamentale per valutare i costi delle operazioni e analizzare le ridondanze, ponendo le basi per la corretta ristrutturazione dello schema ER. 
+La tabella dei volumi costituisce lo strumento fondamentale per valutare i costi delle operazioni e analizzare le ridondanze, ponendo le basi per la corretta ristrutturazione dello schema ER.
 Al suo interno vengono stimate le occorrenze previste per ciascun concetto della base di dati, valutate in una condizione di utilizzo a regime del sistema.
 
 \begin{table}[h]
@@ -53,7 +55,7 @@ Al suo interno vengono stimate le occorrenze previste per ciascun concetto della
     \label{tab:volumi}
 \end{table}
 
-La stima dei volumi presentata nella Tabella \ref{tab:volumi} prende come modello di riferimento la realtà accademica dell'Università degli Studi di Udine\footnote{\url{https://www.uniud.it/it/ateneo-uniud/ateneo-uniud/numeri-ateneo}}. Le grandezze fondamentali riflettono i dati pubblici dell'Ateneo, ai quali è stato applicato un leggero arrotondamento per semplificare l'analisi quantitativa (ad esempio, i corsi di laurea sono stati approssimati a 80). 
+La stima dei volumi presentata nella Tabella \ref{tab:volumi} prende come modello di riferimento la realtà accademica dell'Università degli Studi di Udine\footnote{\url{https://www.uniud.it/it/ateneo-uniud/ateneo-uniud/numeri-ateneo}}. Le grandezze fondamentali riflettono i dati pubblici dell'Ateneo, ai quali è stato applicato un leggero arrotondamento per semplificare l'analisi quantitativa (ad esempio, i corsi di laurea sono stati approssimati a 80).
 
 A partire da questi valori di base per studenti, docenti, dipartimenti e insegnamenti, i volumi delle entità subordinate e delle associazioni sono stati derivati analiticamente ipotizzando un orizzonte temporale di conservazione dello storico pari a 5 anni accademici, necessario per coprire l'intero ciclo di studi degli iscritti.
 
@@ -68,12 +70,13 @@ Passando all'assegnazione dei docenti, si ipotizza che ogni professore o ricerca
 Infine, per la relazione ricorsiva \textit{prerequisito}, si ipotizza che all'interno di ciascuno degli 80 corsi di laurea vi siano in media 4 o 5 insegnamenti strettamente propedeutici, generando una stima complessiva e costante di 360 istanze.
 
 \subsection{Analisi dei cicli}
+\label{ssec:analisi-dei-cicli}
 
-Prima di procedere alla traduzione dello schema concettuale nel modello logico, 
-viene effettuata una verifica strutturale del diagramma E-R per 
-individuare eventuali percorsi ciclici. 
-In particolare, sono stati individuati due cicli principali, 
-successivamente analizzati per stabilire se costituissero ridondanze strutturali da eliminare 
+Prima di procedere alla traduzione dello schema concettuale nel modello logico,
+viene effettuata una verifica strutturale del diagramma ER per
+individuare eventuali percorsi ciclici.
+In particolare, sono stati individuati due cicli principali,
+successivamente analizzati per stabilire se costituissero ridondanze strutturali da eliminare
 oppure cicli giustificati da mantenere mediante opportuni vincoli di integrità nel modello logico.
 
 \paragraph{Ciclo 1:}
@@ -91,17 +94,17 @@ Il primo ciclo si instaura tra le entità \textit{STUDENTE} - \textit{INSEGNAMEN
 Il ciclo non rappresenta una ridondanza, perché i due percorsi descrivono informazioni diverse.
 Il primo percorso relativo ai corsi seguiti dallo studente ha uno scopo programmatorio, in quanto indica le attività che lo studente ha scelto nel proprio percorso di studi.
 Il secondo percorso legato agli esami sostenuti, invece, ha uno scopo storico, poiché registra le prove realmente effettuate e concluse.
-Eliminare uno dei due percorsi comporterebbe una perdita di informazioni, 
-pertanto lo schema E-R viene mantenuto invariato. \\
+Eliminare uno dei due percorsi comporterebbe una perdita di informazioni,
+pertanto lo schema ER viene mantenuto invariato. \\
 
 \noindent
-\textbf{Vincolo di integrità (Ciclo 1):} La correlazione logica tra i 
-due percorsi impone che uno studente non possa sostenere l'esame di un 
-corso non presente nel proprio piano di studi. Tale vincolo non è 
-esprimibile tramite la struttura del modello E-R e viene pertanto 
-demandato a un \textit{trigger}, che, prima di ogni inserimento nella 
-relazione \textit{sostiene}, verifica che il corso associato 
-all'esame risulti già presente nel piano di studi dello studente, 
+\textbf{Vincolo di integrità (Ciclo 1):} La correlazione logica tra i
+due percorsi impone che uno studente non possa sostenere l'esame di un
+corso non presente nel proprio piano di studi. Tale vincolo non è
+esprimibile tramite la struttura del modello ER e viene pertanto
+demandato a un \textit{trigger}, che, prima di ogni inserimento nella
+relazione \textit{sostiene}, verifica che il corso associato
+all'esame risulti già presente nel piano di studi dello studente,
 in caso contrario l'operazione viene rifiutata.
 
 \paragraph{Ciclo 2:}
@@ -116,83 +119,87 @@ Un docente risulta collegato a un insegnamento tramite:
 \end{enumerate}
 
 \noindent
-Anche in questo caso il ciclo non costituisce ridondanza strutturale. 
-La relazione \textit{può insegnare} modella un'abilitazione statica, 
-indicando le materie afferenti al settore scientifico-disciplinare del docente, 
-indipendentemente dall'effettiva erogazione. 
-Il percorso indiretto modella invece l'incarico reale assegnato in una precisa edizione. 
-Essendo abilitazione e assegnazione due concetti temporalmente e funzionalmente separati, 
-lo schema E-R viene mantenuto invariato. \\
+Anche in questo caso il ciclo non costituisce ridondanza strutturale.
+La relazione \textit{può insegnare} modella un'abilitazione statica,
+indicando le materie afferenti al settore scientifico-disciplinare del docente,
+indipendentemente dall'effettiva erogazione.
+Il percorso indiretto modella invece l'incarico reale assegnato in una precisa edizione.
+Essendo abilitazione e assegnazione due concetti temporalmente e funzionalmente separati,
+lo schema ER viene mantenuto invariato. \\
 
 \noindent
-\textbf{Vincolo di integrità (Ciclo 2):} La correlazione logica tra i 
-due percorsi impone che un docente non possa essere assegnato 
-all'edizione di un corso per il quale non risulti abilitato. 
-Anche questo vincolo viene demandato a un \textit{trigger}, che, prima di 
+\textbf{Vincolo di integrità (Ciclo 2):} La correlazione logica tra i
+due percorsi impone che un docente non possa essere assegnato
+all'edizione di un corso per il quale non risulti abilitato.
+Anche questo vincolo viene demandato a un \textit{trigger}, che, prima di
 ogni inserimento nella relazione \textit{tiene},
-verifica che il docente compaia nella relazione \textit{può insegnare} 
+verifica che il docente compaia nella relazione \textit{può insegnare}
 per il corso corrispondente all'edizione, altrimenti l'operazione viene rifiutata.
 
 \subsection{Analisi delle ridondanze}
+\label{ssec:analisi-delle-ridondanze}
 
-In questa fase della progettazione logica, si analizza l'impatto prestazionale 
-derivante dal mantenimento degli attributi ridondanti 
-del modello concettuale all'interno del modello logico. 
-L'unico caso riguarda l'attributo derivato \textit{Crediti Ottenuti} in \textit{STUDENTE},  
-il cui valore è calcolabile sommando i crediti degli insegnamenti 
+In questa fase della progettazione logica, si analizza l'impatto prestazionale
+derivante dal mantenimento degli attributi ridondanti
+del modello concettuale all'interno del modello logico.
+L'unico caso riguarda l'attributo derivato \textit{Crediti Ottenuti} in \textit{STUDENTE},
+il cui valore è calcolabile sommando i crediti degli insegnamenti
 per i quali lo studente ha registrato un esame superato (punteggio $\geq 18$). \\
 
 \noindent
-Per valutare se il risparmio computazionale in lettura 
-giustifichi il sovraccarico in scrittura, 
+Per valutare se il risparmio computazionale in lettura
+giustifichi il sovraccarico in scrittura,
 l'analisi si basa su una stima delle frequenze di accesso ai dati.
 Nello specifico, le operazioni coinvolte nell'analisi sono:
 \begin{itemize}
-    \item \textbf{Lettura:} verifica del totale dei crediti conseguiti da uno studente. 
-    Stimando che ogni studente consulti il proprio stato 
-    carriera mediamente 3 volte l'anno (inizio semestre, pre-sessione, verifica laurea), 
+    \item \textbf{Lettura:} verifica del totale dei crediti conseguiti da uno studente.
+    Stimando che ogni studente consulti il proprio stato
+    carriera mediamente 3 volte l'anno (inizio semestre, pre-sessione, verifica laurea),
     si ottiene $16.000 \text{ studenti} \times 3 = 48.000 \approx 50.000$ esecuzioni/anno.
-    \item \textbf{Scrittura:} aggiornamento dei crediti totali conseguiti da uno studente al superamento di un esame.  
-    Stimando 5 esami superati all'anno per studente, si ottiene 
+    \item \textbf{Scrittura:} aggiornamento dei crediti totali conseguiti da uno studente al superamento di un esame.
+    Stimando 5 esami superati all'anno per studente, si ottiene
     $16.000 \text{ studenti} \times 5 = 80.000$ esecuzioni/anno.
 \end{itemize}
 
 \noindent
-Per uniformare il confronto tra operazioni di natura diversa si adotta la convenzione $1w = 2r$ , 
-ossia ogni accesso in scrittura equivale a due accessi in lettura, 
+Per uniformare il confronto tra operazioni di natura diversa si adotta la convenzione $1w = 2r$ ,
+ossia ogni accesso in scrittura equivale a due accessi in lettura,
 esprimendo così il costo in letture equivalenti.
 
 \subsubsection{Accessi in assenza della ridondanza}
+\label{sssec:accessi-in-assenza-della-ridondanza}
 
-In assenza dell'attributo ridondante, per calcolare il totale dei 
-crediti conseguiti da uno studente, il DBMS deve accedere a tutti 
-gli esami superati in \textit{ESAME} (in media 12 record per studente) 
-e, per ciascuno, recuperare il numero di crediti 
-dall'entità \textit{INSEGNAMENTO}, complessivamente 
+In assenza dell'attributo ridondante, per calcolare il totale dei
+crediti conseguiti da uno studente, il DBMS deve accedere a tutti
+gli esami superati in \textit{ESAME} (in media 12 record per studente)
+e, per ciascuno, recuperare il numero di crediti
+dall'entità \textit{INSEGNAMENTO}, complessivamente
 $12 \times 2 = 24$ accessi per esecuzione,
-poiché ogni esame richiede una lettura in \textit{ESAME} 
+poiché ogni esame richiede una lettura in \textit{ESAME}
 e una in \textit{INSEGNAMENTO}.
 $$24 \text{ letture} \times 50.000 \text{ volte/anno} = 1.200.000 \text{ accessi in lettura/anno}$$
-L'inserimento di un nuovo esame richiede la sola scrittura 
+L'inserimento di un nuovo esame richiede la sola scrittura
 di una tupla in \textit{ESAME}, ossia 2 accessi in lettura.
 $$2 \text{ accessi} \times 80.000 \text{ volte/anno} = 160.000 \text{ accessi in lettura/anno}$$
 
 \subsubsection{Accessi in presenza della ridondanza}
+\label{sssec:accessi-in-presenza-della-ridondanza}
 
-Mantenendo l'attributo ridondante, 
-la verifica del totale crediti si riduce a 
-un singolo accesso alla tupla dello studente, eliminando 
-completamente la navigazione tra \textit{ESAME} e 
+Mantenendo l'attributo ridondante,
+la verifica del totale crediti si riduce a
+un singolo accesso alla tupla dello studente, eliminando
+completamente la navigazione tra \textit{ESAME} e
 \textit{INSEGNAMENTO}.
 $$1 \text{ lettura} \times 50.000 \text{ volte/anno} = 50.000 \text{ accessi in lettura/anno}$$
-Al contrario, la scrittura si complica dato che oltre all'inserimento in \textit{ESAME} 
-(1 scrittura), se il punteggio è $\geq 18$, un trigger deve leggere 
-i crediti dell'insegnamento da \textit{INSEGNAMENTO} (1 lettura) e 
-aggiornare i crediti dello studente (1 lettura e 1 scrittura), 
+Al contrario, la scrittura si complica dato che oltre all'inserimento in \textit{ESAME}
+(1 scrittura), se il punteggio è $\geq 18$, un trigger deve leggere
+i crediti dell'insegnamento da \textit{INSEGNAMENTO} (1 lettura) e
+aggiornare i crediti dello studente (1 lettura e 1 scrittura),
 per un totale di 6 accessi considerando la conversione.
 $$6 \text{ accessi} \times 80.000 = 480.000 \text{ accessi in lettura/anno}$$
 
 \subsubsection{Decisione sulla ridondanza}
+\label{sssec:decisione-sulla-ridondanza}
 
 I costi complessivi annui espressi in accessi in lettura sono riassunti nella seguente tabella:
 
@@ -201,7 +208,7 @@ I costi complessivi annui espressi in accessi in lettura sono riassunti nella se
     \renewcommand{\arraystretch}{1.2}
     \begin{tabular}{|l|r|r|}
         \hline
-        \textbf{Operazione} & \textbf{Con ridondanza} 
+        \textbf{Operazione} & \textbf{Con ridondanza}
         & \textbf{Senza ridondanza} \\
         \hline
         Lettura & 50.000 & 1.200.000 \\
@@ -215,12 +222,12 @@ I costi complessivi annui espressi in accessi in lettura sono riassunti nella se
 \end{table}
 
 \noindent
-L'analisi evidenzia un vantaggio netto nel mantenere la ridondanza. 
-L'abbattimento del 96\% dei costi di lettura (da 1.200.000 a 50.000 accessi/anno) 
-compensa ampiamente il sovraccarico in scrittura (+320.000 accessi). 
+L'analisi evidenzia un vantaggio netto nel mantenere la ridondanza.
+L'abbattimento del 96\% dei costi di lettura (da 1.200.000 a 50.000 accessi/anno)
+compensa ampiamente il sovraccarico in scrittura (+320.000 accessi).
 Con un bilancio complessivo ridotto da 1.360.000 a 530.000 accessi annui,
-viene scelto di mantenere \textit{Crediti Ottenuti} in \textit{STUDENTE}. 
-La sua coerenza sarà garantita da un trigger 
-attivato ad ogni inserimento in \textit{ESAME} con punteggio 
-$\geq 18$, la cui implementazione è descritta nella sezione di 
+viene scelto di mantenere \textit{Crediti Ottenuti} in \textit{STUDENTE}.
+La sua coerenza sarà garantita da un trigger
+attivato ad ogni inserimento in \textit{ESAME} con punteggio
+$\geq 18$, la cui implementazione è descritta nella sezione di
 progettazione fisica.

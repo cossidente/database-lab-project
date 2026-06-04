@@ -1,0 +1,10 @@
+[
+    {"codice": "DMED", "nome": "Dipartimento di Medicina"},
+    {"codice": "DILL", "nome": "Dipartimento di Lingue e letterature, comunicazione, formazione e società"},
+    {"codice": "DI4A", "nome": "Dipartimento di Scienze agroalimentari, ambientali e animali"},
+    {"codice": "DIES", "nome": "Dipartimento di Scienze economiche e statistiche"},
+    {"codice": "DISG", "nome": "Dipartimento di Scienze giuridiche"},
+    {"codice": "DMIF", "nome": "Dipartimento di Scienze matematiche, informatiche e fisiche"},
+    {"codice": "DIUM", "nome": "Dipartimento di Studi umanistici e del patrimonio culturale"},
+    {"codice": "DPIA", "nome": "Dipartimento Politecnico di ingegneria e architettura"}
+]

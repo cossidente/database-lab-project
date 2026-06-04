@@ -1,0 +1,12 @@
+[project]
+name = "database-lab-project"
+version = "0.1.0"
+description = "Data generation script for the database-lab-project PostgreSQL schema"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "faker>=40.19.1",
+    "psycopg2-binary>=2.9.12",
+    "python-dotenv>=1.2.2",
+    "sqlalchemy>=2.0.50",
+]

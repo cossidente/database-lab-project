@@ -83,9 +83,3 @@ After changes to `Dockerfile`, `docker-compose.yml`, or any SQL script, run:
 docker compose down
 docker compose up --build
 ```
-
----
-
-## ⚠️ Repository Rules
-
-Direct pushes to `main` are **not allowed**. All changes must go through a Pull Request.

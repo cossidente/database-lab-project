@@ -1,6 +1,6 @@
-A partire dall'analisi dei requisiti appena descritta, in questa fase si procede alla formalizzazione strutturale delle informazioni attraverso il modello Entità-Relazione (ER). Lo schema concettuale ha l'obiettivo di tradurre il contesto del mondo reale in entità, associazioni e attributi, fornendo una rappresentazione grafica rigorosa e indipendente dal sistema di gestione di basi di dati (DBMS) che verrà adottato.
+A partire dai requisiti appena descritti, in questa fase si costruisce lo schema concettuale attraverso il modello Entità-Relazione (ER). Questo schema permette di rappresentare graficamente i dati e i loro legami in modo rigoroso, rimanendo del tutto indipendente dall'implementazione fisica.
 
-Di seguito viene presentato il diagramma ER completo relativo all'architettura informativa della facoltà (Figura \ref{fig:er_schema}). Si noti che tutte le regole aziendali e i vincoli che, per limiti intrinseci del modello grafico, non possono essere espressi tramite cardinalità o identificatori, verranno formalizzati nell'apposita sezione immediatamente successiva.
+Di seguito viene presentato il diagramma ER completo relativo alla struttura dei dati della facoltà (Figura \ref{fig:er_schema}). Si noti che tutti i vincoli che per limiti intrinseci del modello grafico non possono essere espressi, vengono trattati nella sezione \ref{sec:vincoli-di-integrita-e-di-dominio}.
 
 \begin{figure}[h!]
     \centering
@@ -9,16 +9,16 @@ Di seguito viene presentato il diagramma ER completo relativo all'architettura i
     \label{fig:er_schema}
 \end{figure}
 
-\section{Vincoli e regole aziendali}
-\label{sec:vincoli-e-regole-aziendali}
+\section{Vincoli di integrità e di dominio}
+\label{sec:vincoli-di-integrita-e-di-dominio}
 
-In questa fase vengono formalizzate le regole di dominio che non emergono direttamente dalla catalogazione strutturale delle informazioni, ma che sono determinanti per garantire la coerenza logica del sistema rispetto alle direttive della facoltà.
+In questa sezione vengono descritte le regole che non si possono esprimere direttamente attraverso lo schema concettuale, ma che sono fondamentali per garantire che il sistema rispetti le regole della facoltà.
 
-\subsection{Vincoli di integrità e propedeuticità}
-\label{ssec:vincoli-di-integrita-e-propedeuticita}
+\subsection{Vincoli di propedeuticità}
+\label{ssec:vincoli-di-propedeuticita}
 
 \paragraph{Regola di precedenza degli esami}
-Uno studente può registrare il superamento di una prova d'esame relativa a un insegnamento $I$ solo se risulta già certificato, per la medesima matricola, il superamento di tutti gli insegnamenti definiti come prerequisiti per $I$. Tale vincolo di propedeuticità impone un controllo rigoroso sulla sequenza di avanzamento della carriera.
+Uno studente può registrare il superamento di una prova d'esame relativa a un insegnamento $I$ solo se risulta già certificato, per la medesima matricola, il superamento di tutti gli insegnamenti definiti come prerequisiti per $I$. In questo modo viene garantito il rispetto del corretto ordine di avanzamento della carriera.
 
 \subsection{Vincoli temporali e di assegnazione}
 \label{ssec:vincoli-temporali-e-di-assegnazione}
@@ -46,5 +46,4 @@ Per garantire la coerenza del calendario didattico, la programmazione settimanal
 Di conseguenza, il valore relativo al giorno in cui si svolge una lezione è rigorosamente limitato all'insieme testuale \{Lunedì, Martedì, Mercoledì, Giovedì, Venerdì\}.
 
 \paragraph{Restrizioni sul titolo accademico}
-A differenza del dipartimento di afferenza, gestito strutturalmente tramite un'entità dedicata, si è scelto di modellare il titolo professionale del docente attraverso un dominio vincolato. Questa scelta progettuale è motivata dalla natura statica dell'informazione, che presenta una bassissima volatilità nel tempo.
-Il titolo deve pertanto appartenere a un vocabolario controllato, ad esempio \{Ricercatore, Professore associato, Professore ordinario\}.
+Mentre il dipartimento di afferenza è gestito tramite un'entità dedicata, il titolo del docente è modellato come un dominio vincolato. Questa scelta dipende dalla natura statica del dato, che cambia molto raramente nel tempo. Il titolo deve quindi appartenere a un elenco chiuso di valori, come $\{Ricercatore, Professore Associato, Professore Ordinario\}$.

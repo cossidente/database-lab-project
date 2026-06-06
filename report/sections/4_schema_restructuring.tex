@@ -5,7 +5,7 @@
 \label{ssec:analisi-delle-prestazioni}
 
 La tabella dei volumi costituisce lo strumento fondamentale per valutare i costi delle operazioni e analizzare le ridondanze, ponendo le basi per la corretta ristrutturazione dello schema ER.
-Al suo interno vengono stimate le occorrenze previste per ciascun concetto della base di dati, valutate in una condizione di utilizzo a regime del sistema.
+Al suo interno vengono stimate le occorrenze previste per ogni elemento del database, calcolate in una condizione di normale funzionamento del sistema.
 
 \begin{table}[h]
     \centering
@@ -13,73 +13,68 @@ Al suo interno vengono stimate le occorrenze previste per ciascun concetto della
     \begin{tabular}{lcr}
         \textbf{Concetto} & \textbf{Tipo} & \textbf{Volume} \\
         \hline
-        Dipartimento & E & 8 \\
+        Dipartimento & E & \num{8} \\
 
-        Corso di laurea & E & 80 \\
+        Corso di laurea & E & \num{80} \\
 
-        Docente & E & 700 \\
+        Docente & E & \num{700} \\
 
-        Insegnamento & E & 1.200 \\
+        Insegnamento & E & \num{1200} \\
 
-        Edizione & E & 6.000 \\
+        Edizione & E & \num{6000} \\
 
-        Lezione & E & 120.000 \\
+        Lezione & E & \num{120000} \\
 
-        Studente & E & 16.000 \\
+        Studente & E & \num{16000} \\
 
-        Esame & E & 320.000 \\
+        Esame & E & \num{320000} \\
 
-        è affiliato ad & R & 700 \\
+        è affiliato ad & R & \num{700} \\
 
-        è iscritto & R & 16.000 \\
+        è iscritto & R & \num{16000} \\
 
-        nel piano di studio & R & 320.000 \\
+        nel piano di studio & R & \num{320000} \\
 
-        sostiene & R & 320.000 \\
+        sostiene & R & \num{320000} \\
 
-        prevede & R & 320.000 \\
+        prevede & R & \num{320000} \\
 
-        prerequisito & R & 360 \\
+        prerequisito & R & \num{360} \\
 
-        può insegnare & R & 3.500 \\
+        può insegnare & R & \num{3500} \\
 
-        è erogato in & R & 6.000 \\
+        è erogato in & R & \num{6000} \\
 
-        tiene & R & 7.000 \\
+        tiene & R & \num{7000} \\
 
-        si compone di & R & 120.000 \\
+        si compone di & R & \num{120000} \\
 
     \end{tabular}
     \caption{Tabella dei volumi}
     \label{tab:volumi}
 \end{table}
 
-La stima dei volumi presentata nella Tabella \ref{tab:volumi} prende come modello di riferimento la realtà accademica dell'Università degli Studi di Udine\footnote{\url{https://www.uniud.it/it/ateneo-uniud/ateneo-uniud/numeri-ateneo}}. Le grandezze fondamentali riflettono i dati pubblici dell'Ateneo, ai quali è stato applicato un leggero arrotondamento per semplificare l'analisi quantitativa (ad esempio, i corsi di laurea sono stati approssimati a 80).
+La stima dei volumi presentata nella Tabella \ref{tab:volumi} prende come modello di riferimento la realtà accademica dell'Università degli Studi di Udine\footnote{\url{https://www.uniud.it/it/ateneo-uniud/ateneo-uniud/numeri-ateneo}}. Le grandezze fondamentali riflettono i dati pubblici dell'Ateneo, ai quali è stato applicato un leggero arrotondamento per semplificare l'analisi quantitativa (ad esempio, i corsi di laurea sono stati approssimati a \num{80}).
 
 A partire da questi valori di base per studenti, docenti, dipartimenti e insegnamenti, i volumi delle entità subordinate e delle associazioni sono stati derivati analiticamente ipotizzando un orizzonte temporale di conservazione dello storico pari a 5 anni accademici, necessario per coprire l'intero ciclo di studi degli iscritti.
 
-Per le entità \textit{Edizione} e \textit{Lezione}, considerando lo storico di 5 anni, i 1.200 insegnamenti erogati annualmente generano 6.000 istanze per l'entità \textit{Edizione} e per la relazione \textit{è erogato in}. Assumendo una media di 20 appuntamenti per edizione, si ricavano $6000 \cdot 20 = 120000$ istanze per l'entità \textit{Lezione} e per la relazione \textit{si compone di}.
+Per le entità \textit{Edizione} e \textit{Lezione} i \num{1200} insegnamenti erogati annualmente generano \num{6000} istanze per l'entità \textit{Edizione} e per la relazione \textit{è erogato in}. Assumendo una media di \num{20} appuntamenti per edizione, si ricavano \num{6000} $\cdot$ \num{20} $=$ \num{120000} istanze per l'entità \textit{Lezione} e per la relazione \textit{si compone di}.
 
-Riguardo alla relazione \textit{nel piano di studio}, si stima che uno studente inserisca in media 20 insegnamenti durante l'intera carriera accademica. Considerando 16.000 studenti attivi e storicizzati, si ottiene un volume complessivo di $320000$ tuple.
+Riguardo alla relazione \textit{nel piano di studio}, si stima che uno studente inserisca in media 20 insegnamenti durante l'intera carriera accademica. Considerando \num{16000} studenti attivi e storicizzati, si ottiene un volume complessivo di \num{320000} tuple.
 
-Valutando l'entità \textit{Esame} e le relazioni \textit{sostiene} e \textit{prevede}, l'orizzonte di 5 anni permette di tracciare le carriere complete. Ipotizzando che l'esito (positivo o negativo) registri in media 20 verbalizzazioni a studente lungo l'intero percorso, si genera un totale di $320000$ istanze.
+Per valutare l'entità \textit{Esame} e le relazioni \textit{sostiene} e \textit{prevede}, si ipotizza che l'esito (positivo o negativo) registri in media 20 verbalizzazioni a studente lungo l'intero percorso, si genera dunque un totale di \num{320000} istanze.
 
-Passando all'assegnazione dei docenti, si ipotizza che ogni professore o ricercatore sia abilitato a insegnare mediamente 5 materie afferenti al proprio settore disciplinare, portando la relazione \textit{può insegnare} a $700 \cdot 5 = 3500$ tuple. Per la relazione \textit{tiene}, includendo le possibili co-docenze accumulate nel quinquennio, si stimano 7.000 assegnazioni distribuite sulle $6000$ edizioni.
+Passando all'assegnazione dei docenti, si ipotizza che ogni professore o ricercatore sia abilitato a insegnare mediamente 5 materie afferenti al proprio settore disciplinare, portando la relazione \textit{può insegnare} a \num{700} $\cdot$ \num{5} $=$ \num{3500} tuple. Per la relazione \textit{tiene}, includendo le possibili co-docenze, si stimano \num{7000} assegnazioni distribuite sulle \num{6000} edizioni.
 
 Infine, per la relazione ricorsiva \textit{prerequisito}, si ipotizza che all'interno di ciascuno degli 80 corsi di laurea vi siano in media 4 o 5 insegnamenti strettamente propedeutici, generando una stima complessiva e costante di 360 istanze.
 
 \subsection{Analisi dei cicli}
 \label{ssec:analisi-dei-cicli}
 
-Prima di procedere alla traduzione dello schema concettuale nel modello logico,
-viene effettuata una verifica strutturale del diagramma ER per
-individuare eventuali percorsi ciclici.
-In particolare, sono stati individuati due cicli principali,
-successivamente analizzati per stabilire se costituissero ridondanze strutturali da eliminare
-oppure cicli giustificati da mantenere mediante opportuni vincoli di integrità nel modello logico.
+La presenza di percorsi ciclici nello schema ER rappresenta un punto critico per la coerenza dei dati. Prima di passare al modello logico, è quindi necessario analizzare i due cicli individuati nel diagramma: l'obiettivo è distinguere le vere ridondanze dalle relazioni necessarie, che richiedono invece vincoli di integrità specifici per non creare disallineamenti.
 
 \paragraph{Ciclo 1:}
-Il primo ciclo si instaura tra le entità \textit{STUDENTE} - \textit{INSEGNAMENTO} - \textit{ESAME} - \textit{STUDENTE}. \\
+Il primo ciclo è composto dalle entità \textit{STUDENTE} - \textit{INSEGNAMENTO} - \textit{ESAME} - \textit{STUDENTE}. \\
 
 \noindent
 È possibile collegare uno studente a un insegnamento tramite due percorsi distinti:
@@ -90,14 +85,11 @@ Il primo ciclo si instaura tra le entità \textit{STUDENTE} - \textit{INSEGNAMEN
 \end{enumerate}
 
 \noindent
-Il ciclo non rappresenta una ridondanza, perché i due percorsi descrivono informazioni diverse.
-Il primo percorso relativo ai corsi seguiti dallo studente ha uno scopo programmatorio, in quanto indica le attività che lo studente ha scelto nel proprio percorso di studi.
-Il secondo percorso legato agli esami sostenuti, invece, ha uno scopo storico, poiché registra le prove realmente effettuate e concluse.
-Eliminare uno dei due percorsi comporterebbe una perdita di informazioni,
-pertanto lo schema ER viene mantenuto invariato. \\
+Il ciclo non rappresenta una ridondanza perché i due percorsi descrivono informazioni diverse. 
+Il primo, relativo ai corsi seguiti, serve alla pianificazione: indica infatti le attività che lo studente ha scelto di inserire nel proprio percorso di studi. Il secondo percorso, legato agli esami sostenuti, ha invece un valore storico, poiché registra le prove realmente effettuate. Eliminare uno dei due percorsi comporterebbe una perdita di dati, pertanto lo schema ER rimane invariato. \\
 
 \noindent
-\textbf{Vincolo di integrità (Ciclo 1):} La correlazione logica tra i
+\textbf{Vincolo di integrità:} La correlazione logica tra i
 due percorsi impone che uno studente non possa sostenere l'esame di un
 corso non presente nel proprio piano di studi. Tale vincolo non è
 esprimibile tramite la struttura del modello ER e viene pertanto
@@ -107,7 +99,7 @@ all'esame risulti già presente nel piano di studi dello studente,
 in caso contrario l'operazione viene rifiutata.
 
 \paragraph{Ciclo 2:}
-Il secondo ciclo si instaura tra le entità \textit{DOCENTE} - \textit{INSEGNAMENTO} - \textit{EDIZIONE} - \mbox{\textit{DOCENTE}}. \\
+Il secondo cicloè composto dalle entità \textit{DOCENTE} - \textit{INSEGNAMENTO} - \textit{EDIZIONE} - \mbox{\textit{DOCENTE}}. \\
 
 \noindent
 Un docente risulta collegato a un insegnamento tramite:
@@ -118,9 +110,9 @@ Un docente risulta collegato a un insegnamento tramite:
 \end{enumerate}
 
 \noindent
-Anche in questo caso il ciclo non costituisce ridondanza strutturale.
+Anche in questo caso il ciclo non costituisce ridondanza.
 La relazione \textit{può insegnare} modella un'abilitazione statica,
-indicando le materie afferenti al settore scientifico-disciplinare del docente,
+indicando le materie de dominio di interesse del docente,
 indipendentemente dall'effettiva erogazione.
 Il percorso indiretto modella invece l'incarico reale assegnato in una precisa edizione.
 Essendo abilitazione e assegnazione due concetti temporalmente e funzionalmente separati,

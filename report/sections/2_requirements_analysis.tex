@@ -5,45 +5,46 @@ Si vuole progettare una base di dati di supporto alla gestione della didattica d
 
 \subparagraph{I corsi offerti dalla facoltà.} Ogni corso sia identificato univocamente da un codice numerico e sia caratterizzato da un nome, un numero di crediti, una breve descrizione del suo contenuto e un insieme di prerequisiti (insieme, eventualmente vuoto, di corsi il cui esame deve essere già stato superato per poter sostenere l'esame relativo al corso).
 \subparagraph{Le edizioni dei corsi.} Le edizioni dei corsi tenute nei diversi anni accademici. Ogni edizione di un corso sia caratterizzata dal codice del corso, dall'anno accademico (si assuma che di ogni corso venga tenuta al più un'edizione per anno accademico), dal periodo didattico (si assuma che vi siano tre periodi didattici, identificati dai numeri 1, 2 e 3, rispettivamente), dai nomi dei docenti (uno o più) e dal calendario settimanale delle lezioni (ogni lezione sia identificata dalla terna giorno, fascia oraria e aula). Si assuma che i docenti che tengono un dato corso possano variare da un anno all'altro. Si assuma, inoltre, che le fasce orarie previste siano quattro, identificate dai numeri 1, 2, 3 e 4.
-\subparagraph{Gli studenti.} Ogni studente sia identificato dal suo numero di matricola e sia caratterizzato da nome e cognome, da un recapito telefonico, dal corso di laurea frequentato (Informatica triennale, TWM triennale, Informatica specialistica, \dots) e dall'anno accademico di immatricolazione. Si vuol tener traccia dei corsi che ogni studente ha inserito nel proprio piano di studi e degli esami superati da ogni studente, col relativo punteggio.
-\subparagraph{I docenti.} Ogni docente sia identificato univocamente dal suo codice fiscale e sia caratterizzato da nome e cognome, dal dipartimento di afferenza (matematica e informatica, fisica, scienze statistiche, \dots) e dal titolo (ricercatore, professore associato, \dots). Per ogni docente, si memorizzino i corsi che è abilitato a tenere.
+\subparagraph{Gli studenti.} Ogni studente sia identificato dal suo numero di matricola e sia caratterizzato da nome e cognome, da un recapito telefonico, dal corso di laurea frequentato (Informatica, Biotecnologie, Ingegneria elettronica, \dots) e dall'anno accademico di immatricolazione. Si vuol tener traccia dei corsi che ogni studente ha inserito nel proprio piano di studi e degli esami superati da ogni studente, col relativo punteggio.
+\subparagraph{I docenti.} Ogni docente sia identificato univocamente dal suo codice fiscale e sia caratterizzato da nome e cognome, dal dipartimento di afferenza (DMIF, DMED, DILL, DIES, \dots) e dal titolo (ricercatore, professore associato, \dots). Per ogni docente, si memorizzino i corsi che è abilitato a tenere.
 
 \section{Analisi del dominio e scomposizione dei requisiti}
 \label{sec:analisi-del-dominio-e-scomposizione-dei-requisiti}
 
-L'analisi sistematica della traccia permette di suddividere il dominio informativo in aree funzionali distinte, facilitando l'individuazione delle dipendenze logiche tra i dati. Per la definizione formale dei termini chiave utilizzati in questa sezione e nelle successive, si rimanda al glossario (\textbf{Tabella \ref{tab:glossario}}) riportato in appendice.
+Analizzando il testo di partenza in modo sistematico, è possibile dividere le informazioni in diverse aree funzionali. Questo processo aiuta a individuare chiaramente come i dati dipendono l'uno dall'altro. Per i significati precisi dei termini chiave usati in questa e nelle prossime sezioni, si può consultare il glossario in appendice
 
 \paragraph{Nota:} sebbene la traccia originale del problema utilizzi genericamente il termine \enquote{corso}, nel resto del documento e nel modello concettuale si è scelto di adottare il termine \enquote{insegnamento} per indicare la singola materia offerta. Questa scelta progettuale è stata presa per evitare ogni possibile ambiguità con l'entità relativa al \enquote{corso di laurea}.
 
-\subsection{Architettura dell'offerta formativa e logistica}
-\label{ssec:architettura-dell-offerta-formativa-e-logistica}
+\subsection{Architettura e organizzazione dell'offerta formativa}
+\label{ssec:architettura-dell-offerta-formativa-e-organizzazione}
 
-Il pilastro centrale del sistema è rappresentato dall'insegnamento, inteso come entità astratta e permanente.
-La complessità emerge nella gestione delle propedeuticità: il requisito specifica che un insieme di insegnamenti può costituire un prerequisito per un altro.
-Questa specifica definisce una rete di dipendenze logiche tra gli insegnamenti, imponendo un rigoroso vincolo di sequenzialità nel superamento degli esami.
+Il fulcro del sistema è l'insegnamento, visto come un elemento astratto e permanente.
+La complessità principale riguarda le propedeuticità: il testo specifica infatti che un gruppo di insegnamenti può essere il prerequisito per un altro.
+Questa regola crea una rete di dipendenze tra i vari corsi, stabilendo un ordine preciso da seguire nel superamento degli esami.
 
-Parallelamente, l'edizione introduce la dimensione temporale.
-Dalla specifica \enquote{al più un'edizione per anno accademico}, emerge che l'edizione non gode di esistenza autonoma, ma la sua identità si definisce unicamente in funzione dell'insegnamento a cui fa riferimento.
-Scendendo poi nel dettaglio logistico della lezione, si nota come la terna composta da giorno, fascia oraria e aula non sia una semplice caratteristica informativa: essa impone un vincolo di unicità spaziotemporale, indispensabile per garantire la coerenza del calendario settimanale di una specifica edizione.
+Allo stesso tempo, l'edizione inserisce la dimensione temporale.
+Dalla frase \enquote{al più un'edizione per anno accademico}, si capisce che l'edizione non esiste da sola, ma la sua identità dipende interamente dall'insegnamento a cui è legata.
+Passando poi ai dettagli organizzativi della lezione, emerge che la combinazione di giorno, fascia oraria e aula non è un semplice dato informativo: questo legame crea un vincolo unico di spazio e tempo, fondamentale per evitare sovrapposizioni nel calendario settimanale di ogni edizione.
 
 \subsection{Profilo dei docenti e incarichi didattici}
 \label{ssec:profilo-dei-docenti-e-incarichi-didattici}
 
-L'analisi dell'organizzazione accademica richiede di distinguere le informazioni strutturali del docente dalle sue effettive mansioni didattiche.
-Da un lato, ogni professore è inquadrato amministrativamente attraverso il proprio titolo e il dipartimento di afferenza.
-Dall'altro, il suo coinvolgimento nella didattica si articola su due fronti: l'abilitazione e l'assegnazione.
+Per gestire l'organizzazione accademica, bisogna dividere i dati personali dei docenti dai loro compiti reali. 
+A livello amministrativo, ogni professore è definito semplicemente dal titolo e dal dipartimento di appartenenza. 
+L'attività didattica vera e propria si divide invece in due concetti: l'abilitazione e l'assegnazione.
 
-L'abilitazione è una caratteristica permanente che definisce l'insieme degli insegnamenti per i quali il docente possiede le competenze necessarie, a prescindere dalla loro effettiva erogazione.
-L'assegnazione, invece, rappresenta l'incarico operativo che lega uno o più docenti a una specifica edizione annuale di un insegnamento.
-Evidenziare questa separazione concettuale tra competenze possedute e cattedre effettivamente ricoperte è fondamentale per rispettare il requisito di flessibilità, il quale prevede che la titolarità di un corso possa variare liberamente da un anno all'altro.
+L'abilitazione è permanente e indica quali corsi il docente è qualificato a insegnare, anche se poi non lo fa concretamente. 
+L'assegnazione è invece il passaggio pratico che affida a uno o più docenti una specifica edizione annuale di un corso. 
+Separare le competenze dalle cattedre reali è indispensabile per garantire la flessibilità del sistema. In questo modo, il titolare di un corso può cambiare liberamente da un anno all'altro.
 
 \subsection{Carriera studentesca e tracciamento delle attività}
 \label{ssec:carriera-studentesca-e-tracciamento-delle-attivita}
-L'analisi del percorso studentesco evidenzia la necessità di tracciare due fasi distinte della vita universitaria.
-Da una parte vi è il piano di studi, che rappresenta una pianificazione e indica gli insegnamenti che lo studente sceglie di frequentare.
-Dall'altra vi è lo storico degli esami, che costituisce invece un dato consolidato, certificato dal conseguimento di un voto finale.
-Tale valutazione scaturisce esclusivamente dal superamento di una prova per uno specifico insegnamento in una data precisa.
-Infine, ogni studente opera all'interno di un singolo corso di laurea, che ne inquadra il contesto accademico, ed è identificato univocamente all'interno della facoltà tramite il proprio numero di matricola.
+
+Il percorso degli studenti si divide in due fasi distinte. 
+La prima è il piano di studi, che raccoglie i corsi scelti dallo studente. 
+La seconda è lo storico degli esami, che traccia tutti i tentativi fatti, compresi i voti finali e le prove non superate. 
+Ogni esito deriva da una prova sostenuta per un corso specifico in una data precisa. 
+Infine, ogni studente appartiene a un solo corso di laurea ed è identificato in modo unico dal numero di matricola.
 
 \paragraph{Assunzione sui tentativi d'esame:} sebbene la traccia richieda di tracciare unicamente gli esami superati, si è assunto di dover modellare lo storico completo di tutti i tentativi effettuati dallo studente (inclusi gli esiti negativi). Questa scelta aggiuntiva permette di ricavare statistiche essenziali sul tasso di superamento dei singoli insegnamenti.
 
@@ -61,7 +62,7 @@ e per la valutazione delle prestazioni complessive del sistema di gestione della
 \label{sssec:operazioni-di-lettura}
 \begin{itemize}
     \item Determinare quale insegnamento compare più frequentemente nei piani di studio.
-    \item Dato nome e cognome di un professore, un anno accademico e un periodo didattico restituire il suo calendario settimanale delle lezioni (giorno, fascia oraria, aula).
+    \item Dato nome e cognome di un professore, un anno accademico e un periodo didattico restituire il suo calendario settimanale delle lezioni (insegnamento, giorno, fascia oraria, aula).
     \item Dato un insegnamento, calcolare la percentuale di prove superate rispetto al totale dei tentativi registrati.
     \item Dato un insegnamento, determinare la media dei tentativi effettuati dagli studenti che hanno effettivamente superato la prova.
 \end{itemize}

@@ -6,6 +6,7 @@ GROUP BY corso.codice, corso.nome
 ORDER BY frequenza DESC
 LIMIT 1;
 
+
 -- Dato nome e cognome di un professore, un anno accademico e un periodo didattico restituire il suo calendario settimanale delle lezioni (insegnamento, giorno, fascia oraria, aula)
 SELECT corso.nome, lezione.giorno, lezione.fascia_oraria, lezione.aula
 FROM lezione
@@ -18,6 +19,7 @@ WHERE docente.nome = 'Maria'
     AND docente.cognome = 'Gozzi' 
     AND lezione.anno_accademico = '2024/2025' 
     AND lezione.periodo = '2';
+
 
 -- Dato un insegnamento, calcolare la percentuale di prove superate rispetto al totale dei tentativi registrati
 WITH tentativi_totali (codice_corso, totali) AS (
@@ -37,6 +39,7 @@ JOIN tentativi_superati ON tentativi_totali.codice_corso = tentativi_superati.co
 JOIN corso ON tentativi_totali.codice_corso = corso.codice
 WHERE corso.nome = 'Logica matematica';
 
+
 -- Dato un insegnamento, determinare la media dei tentativi effettuati dagli studenti che hanno effettivamente superato la prova
 WITH tentativi_per_passare (matricola, num_tentativi) AS (
     SELECT esame.matricola, COUNT(*)
@@ -49,6 +52,7 @@ WITH tentativi_per_passare (matricola, num_tentativi) AS (
 SELECT AVG(num_tentativi) AS media_tentativi
 FROM tentativi_per_passare;
 
+
 -- Dato uno studente, si vuole gestire l'eliminazione di tutti i suoi dati in seguito ad una rinuncia agli studi
 BEGIN;
 -- Necessario per ON DELETE RESTRICT di matricola su esame
@@ -59,3 +63,17 @@ WHERE matricola = 15;
 DELETE FROM studente
 WHERE matricola = 15;
 COMMIT;
+
+
+-- Dato un professore e l'anno accademico, si vuole gestire la sostituzione delle sue cattedre
+UPDATE insegnamento_edizione
+SET cf_docente = 'ZCCNTL28S02G280O'
+WHERE insegnamento_edizione.cf_docente = 'PTRFBA87S13G935U'
+  AND insegnamento_edizione.anno_accademico = '2025/2026'
+  AND EXISTS (
+      -- Verifica abilitazione nuovo docente
+      SELECT 1 
+      FROM abilitazione_docente_corso
+      WHERE abilitazione_docente_corso.cf_docente = 'ZCCNTL28S02G280O' 
+        AND abilitazione_docente_corso.codice_corso = insegnamento_edizione.codice_corso
+  );

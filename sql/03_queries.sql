@@ -48,3 +48,14 @@ WITH tentativi_per_passare (matricola, num_tentativi) AS (
 )
 SELECT AVG(num_tentativi) AS media_tentativi
 FROM tentativi_per_passare;
+
+-- Dato uno studente, si vuole gestire l'eliminazione di tutti i suoi dati in seguito ad una rinuncia agli studi
+BEGIN;
+-- Necessario per ON DELETE RESTRICT di matricola su esame
+DELETE FROM esame
+WHERE matricola = 15;
+
+-- Rimozione del piano di studi gestita in automatico
+DELETE FROM studente
+WHERE matricola = 15;
+COMMIT;

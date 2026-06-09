@@ -54,7 +54,7 @@ CREATE TABLE studente (
     FOREIGN KEY (corso_di_laurea) REFERENCES corso_di_laurea(codice) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
-CREATE TABLE corso (
+CREATE TABLE insegnamento (
     codice corso_dom PRIMARY KEY,
     nome VARCHAR(50) NOT NULL,
     crediti INTEGER NOT NULL,
@@ -69,7 +69,7 @@ CREATE TABLE edizione (
     periodo periodo_enum,
 
     PRIMARY KEY (codice_corso, anno_accademico, periodo),
-    FOREIGN KEY (codice_corso) REFERENCES corso(codice) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (codice_corso) REFERENCES insegnamento(codice) ON DELETE CASCADE ON UPDATE CASCADE,
 
     CONSTRAINT uq_singola_edizione_annuale UNIQUE (codice_corso, anno_accademico)
 );
@@ -97,7 +97,7 @@ CREATE TABLE esame (
 
     PRIMARY KEY (matricola, codice_corso, data_esame),
     FOREIGN KEY (matricola) REFERENCES studente(matricola) ON DELETE RESTRICT ON UPDATE CASCADE,
-    FOREIGN KEY (codice_corso) REFERENCES corso(codice) ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY (codice_corso) REFERENCES insegnamento(codice) ON DELETE RESTRICT ON UPDATE CASCADE,
 
     CONSTRAINT ck_data_esame CHECK (data_esame <= CURRENT_DATE)
 );
@@ -108,7 +108,7 @@ CREATE TABLE piano_di_studio (
 
     PRIMARY KEY (matricola, codice_corso),
     FOREIGN KEY (matricola) REFERENCES studente(matricola) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (codice_corso) REFERENCES corso(codice) ON DELETE RESTRICT ON UPDATE CASCADE
+    FOREIGN KEY (codice_corso) REFERENCES insegnamento(codice) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 CREATE TABLE prerequisito (
@@ -116,19 +116,19 @@ CREATE TABLE prerequisito (
     codice_prerequisito corso_dom,
 
     PRIMARY KEY (codice_corso, codice_prerequisito),
-    FOREIGN KEY (codice_corso) REFERENCES corso(codice) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (codice_prerequisito) REFERENCES corso(codice) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (codice_corso) REFERENCES insegnamento(codice) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (codice_prerequisito) REFERENCES insegnamento(codice) ON DELETE CASCADE ON UPDATE CASCADE,
 
     CONSTRAINT ck_prerequisito CHECK (codice_corso <> codice_prerequisito)
 );
 
-CREATE TABLE abilitazione_docente_corso (
+CREATE TABLE abilitazione_docente_insegnamento (
     cf_docente codice_fiscale,
     codice_corso corso_dom,
 
     PRIMARY KEY (cf_docente, codice_corso),
     FOREIGN KEY (cf_docente) REFERENCES docente(cf) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (codice_corso) REFERENCES corso(codice) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (codice_corso) REFERENCES insegnamento(codice) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE insegnamento_edizione (

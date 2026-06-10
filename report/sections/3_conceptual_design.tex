@@ -17,8 +17,14 @@ In questa sezione vengono descritte le regole che non si possono esprimere diret
 \subsection{Vincoli di propedeuticità}
 \label{ssec:vincoli-di-propedeuticita}
 
+\paragraph{Assenza di cicli nelle propedeuticità}
+La relazione ricorsiva \textit{prerequisito} non può generare dipendenze cicliche tra insegnamenti.
+In particolare, un insegnamento non può risultare, direttamente o indirettamente, prerequisito di sé stesso.
+Tale vincolo garantisce l'esistenza di un ordine valido di superamento degli esami.
+
 \paragraph{Regola di precedenza degli esami}
-Uno studente può registrare il superamento di una prova d'esame relativa a un insegnamento $I$ solo se risulta già certificato, per la medesima matricola, il superamento di tutti gli insegnamenti definiti come prerequisiti per $I$. In questo modo viene garantito il rispetto del corretto ordine di avanzamento della carriera.
+Uno studente può registrare il superamento di una prova d'esame relativa a un insegnamento $I$ solo se risulta già certificato, per la medesima matricola, il superamento di tutti gli insegnamenti definiti come prerequisiti per $I$.
+In questo modo viene garantito il rispetto del corretto ordine di avanzamento della carriera.
 
 \subsection{Vincoli temporali e di assegnazione}
 \label{ssec:vincoli-temporali-e-di-assegnazione}

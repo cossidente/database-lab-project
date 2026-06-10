@@ -1,6 +1,6 @@
 A partire dai requisiti appena descritti, in questa fase si costruisce lo schema concettuale attraverso il modello Entità-Relazione (ER). Questo schema permette di rappresentare graficamente i dati e i loro legami in modo rigoroso, rimanendo del tutto indipendente dall'implementazione fisica.
 
-Di seguito viene presentato il diagramma ER completo relativo alla struttura dei dati della facoltà (Figura \ref{fig:er_schema}). Si noti che tutti i vincoli che per limiti intrinseci del modello grafico non possono essere espressi, vengono trattati nella sezione \ref{sec:vincoli-di-integrita-e-di-dominio}.
+Di seguito viene presentato il diagramma ER completo relativo alla struttura dei dati (Figura \ref{fig:er_schema}). Si noti che tutti i vincoli che per limiti intrinseci del modello grafico non possono essere espressi, vengono trattati nella sezione \ref{sec:vincoli-di-integrita-e-di-dominio}.
 
 \begin{figure}[h!]
     \centering
@@ -12,7 +12,7 @@ Di seguito viene presentato il diagramma ER completo relativo alla struttura dei
 \section{Vincoli di integrità e di dominio}
 \label{sec:vincoli-di-integrita-e-di-dominio}
 
-In questa sezione vengono descritte le regole che non si possono esprimere direttamente attraverso lo schema concettuale, ma che sono fondamentali per garantire che il sistema rispetti le regole della facoltà.
+In questa sezione vengono descritte le regole che non si possono esprimere direttamente attraverso lo schema concettuale, ma che sono fondamentali per garantire che il sistema rispetti le regole dell'ateneo.
 
 \subsection{Vincoli di propedeuticità}
 \label{ssec:vincoli-di-propedeuticita}
@@ -29,13 +29,14 @@ Questo garantisce che la pianificazione didattica sia univoca su base annuale.
 
 \paragraph{Vincolo di abilitazione alla docenza}
 Un docente può assumere la titolarità di un'edizione solo se risulta formalmente abilitato a tenere quello specifico insegnamento.
-Tale regola impedisce l'assegnazione di incarichi didattici al di fuori delle competenze certificate dalla facoltà.
+Tale regola impedisce l'assegnazione di incarichi didattici al di fuori delle competenze certificate.
 
 \subsection{Specifiche sui domini dei dati}
 \label{ssec:specifiche-sui-domini-dei-dati}
 
 \paragraph{Restrizioni sui periodi didattici}
-L'organizzazione temporale della didattica su scala annuale è soggetta a parametri rigidi imposti dalla facoltà. Nello specifico, il periodo didattico in cui si svolge un'edizione deve necessariamente appartenere all'insieme finito $\{1, 2, 3\}$.
+L'organizzazione temporale della didattica su scala annuale è soggetta a parametri rigidi imposti dall'ateneo.
+Nello specifico, il periodo didattico in cui si svolge un'edizione deve necessariamente appartenere all'insieme finito $\{1, 2, 3\}$.
 
 \paragraph{Restrizioni sulle fasce orarie}
 La collocazione giornaliera delle singole lezioni segue vincoli logistici altrettanto restrittivi.

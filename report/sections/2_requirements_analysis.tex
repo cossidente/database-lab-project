@@ -1,9 +1,9 @@
 \section{Testo del problema}
 \label{sec:testo-del-problema}
 
-Si vuole progettare una base di dati di supporto alla gestione della didattica di una facoltà universitaria. Essa dovrà contenere le seguenti informazioni:
+Si vuole progettare una base di dati di supporto alla gestione della didattica di un ateneo. Essa dovrà contenere le seguenti informazioni:
 
-\subparagraph{I corsi offerti dalla facoltà.} Ogni corso sia identificato univocamente da un codice numerico e sia caratterizzato da un nome, un numero di crediti, una breve descrizione del suo contenuto e un insieme di prerequisiti (insieme, eventualmente vuoto, di corsi il cui esame deve essere già stato superato per poter sostenere l'esame relativo al corso).
+\subparagraph{I corsi offerti dall'ateneo.} Ogni corso sia identificato univocamente da un codice numerico e sia caratterizzato da un nome, un numero di crediti, una breve descrizione del suo contenuto e un insieme di prerequisiti (insieme, eventualmente vuoto, di corsi il cui esame deve essere già stato superato per poter sostenere l'esame relativo al corso).
 \subparagraph{Le edizioni dei corsi.} Le edizioni dei corsi tenute nei diversi anni accademici. Ogni edizione di un corso sia caratterizzata dal codice del corso, dall'anno accademico (si assuma che di ogni corso venga tenuta al più un'edizione per anno accademico), dal periodo didattico (si assuma che vi siano tre periodi didattici, identificati dai numeri 1, 2 e 3, rispettivamente), dai nomi dei docenti (uno o più) e dal calendario settimanale delle lezioni (ogni lezione sia identificata dalla terna giorno, fascia oraria e aula). Si assuma che i docenti che tengono un dato corso possano variare da un anno all'altro. Si assuma, inoltre, che le fasce orarie previste siano quattro, identificate dai numeri 1, 2, 3 e 4.
 \subparagraph{Gli studenti.} Ogni studente sia identificato dal suo numero di matricola e sia caratterizzato da nome e cognome, da un recapito telefonico, dal corso di laurea frequentato (Informatica, Biotecnologie, Ingegneria elettronica, \dots) e dall'anno accademico di immatricolazione. Si vuol tener traccia dei corsi che ogni studente ha inserito nel proprio piano di studi e degli esami superati da ogni studente, col relativo punteggio.
 \subparagraph{I docenti.} Ogni docente sia identificato univocamente dal suo codice fiscale e sia caratterizzato da nome e cognome, dal dipartimento di afferenza (DMIF, DMED, DILL, DIES, \dots) e dal titolo (ricercatore, professore associato, \dots). Per ogni docente, si memorizzino i corsi che è abilitato a tenere.
@@ -11,7 +11,7 @@ Si vuole progettare una base di dati di supporto alla gestione della didattica d
 \section{Analisi del dominio e scomposizione dei requisiti}
 \label{sec:analisi-del-dominio-e-scomposizione-dei-requisiti}
 
-Analizzando il testo di partenza in modo sistematico, è possibile dividere le informazioni in diverse aree funzionali. Questo processo aiuta a individuare chiaramente come i dati dipendono l'uno dall'altro. Per i significati precisi dei termini chiave usati in questa e nelle prossime sezioni, si può consultare il glossario in appendice
+Analizzando il testo di partenza in modo sistematico, è possibile dividere le informazioni in diverse aree funzionali. Questo processo aiuta a individuare chiaramente come i dati dipendono l'uno dall'altro. Per i significati precisi dei termini chiave usati in questa e nelle prossime sezioni, si può consultare il glossario in appendice \ref{tab:glossario}.
 
 \paragraph{Nota:} sebbene la traccia originale del problema utilizzi genericamente il termine \enquote{corso}, nel resto del documento e nel modello concettuale si è scelto di adottare il termine \enquote{insegnamento} per indicare la singola materia offerta. Questa scelta progettuale è stata presa per evitare ogni possibile ambiguità con l'entità relativa al \enquote{corso di laurea}.
 

@@ -56,17 +56,17 @@ Al suo interno vengono stimate le occorrenze previste per ogni elemento del data
 
 La stima dei volumi presentata nella Tabella \ref{tab:volumi} prende come modello di riferimento la realtà accademica dell'Università degli Studi di Udine\footnote{\url{https://www.uniud.it/it/ateneo-uniud/ateneo-uniud/numeri-ateneo}}. Le grandezze fondamentali riflettono i dati pubblici dell'Ateneo, ai quali è stato applicato un leggero arrotondamento per semplificare l'analisi quantitativa (ad esempio, i corsi di laurea sono stati approssimati a \num{80}).
 
-A partire da questi valori di base per studenti, docenti, dipartimenti e insegnamenti, i volumi delle entità subordinate e delle associazioni sono stati derivati analiticamente ipotizzando un orizzonte temporale di conservazione dello storico pari a 5 anni accademici, necessario per coprire l'intero ciclo di studi degli iscritti.
+A partire da questi valori di base per studenti, docenti, dipartimenti e insegnamenti, i volumi delle entità subordinate e delle associazioni sono stati derivati analiticamente ipotizzando un orizzonte temporale di conservazione dello storico pari a \num{5} anni accademici, necessario per coprire l'intero ciclo di studi degli iscritti.
 
 Per le entità \textit{Edizione} e \textit{Lezione} i \num{1200} insegnamenti erogati annualmente generano \num{6000} istanze per l'entità \textit{Edizione} e per la relazione \textit{è erogato in}. Assumendo una media di \num{20} appuntamenti per edizione, si ricavano \num{6000} $\cdot$ \num{20} $=$ \num{120000} istanze per l'entità \textit{Lezione} e per la relazione \textit{si compone di}.
 
-Riguardo alla relazione \textit{nel piano di studio}, si stima che uno studente inserisca in media 20 insegnamenti durante l'intera carriera accademica. Considerando \num{16000} studenti attivi e storicizzati, si ottiene un volume complessivo di \num{320000} tuple.
+Riguardo alla relazione \textit{nel piano di studio}, si stima che uno studente inserisca in media \num{20} insegnamenti durante l'intera carriera accademica. Considerando \num{16000} studenti attivi e storicizzati, si ottiene un volume complessivo di \num{320000} tuple.
 
-Per valutare l'entità \textit{Esame} e le relazioni \textit{sostiene} e \textit{prevede}, si ipotizza che l'esito (positivo o negativo) registri in media 20 verbalizzazioni a studente lungo l'intero percorso, si genera dunque un totale di \num{320000} istanze.
+Per valutare l'entità \textit{Esame} e le relazioni \textit{sostiene} e \textit{prevede}, si ipotizza che l'esito (positivo o negativo) registri in media \num{20} verbalizzazioni a studente lungo l'intero percorso, si genera dunque un totale di \num{320000} istanze.
 
-Passando all'assegnazione dei docenti, si ipotizza che ogni professore o ricercatore sia abilitato a insegnare mediamente 5 materie afferenti al proprio settore disciplinare, portando la relazione \textit{può insegnare} a \num{700} $\cdot$ \num{5} $=$ \num{3500} tuple. Per la relazione \textit{tiene}, includendo le possibili co-docenze, si stimano \num{7000} assegnazioni distribuite sulle \num{6000} edizioni.
+Passando all'assegnazione dei docenti, si ipotizza che ogni professore o ricercatore sia abilitato a insegnare mediamente \num{5} materie afferenti al proprio settore disciplinare, portando la relazione \textit{può insegnare} a \num{700} $\cdot$ \num{5} $=$ \num{3500} tuple. Per la relazione \textit{tiene}, includendo le possibili co-docenze, si stimano \num{7000} assegnazioni distribuite sulle \num{6000} edizioni.
 
-Infine, per la relazione ricorsiva \textit{prerequisito}, si ipotizza che all'interno di ciascuno degli 80 corsi di laurea vi siano in media 4 o 5 insegnamenti strettamente propedeutici, generando una stima complessiva e costante di 360 istanze.
+Infine, per la relazione ricorsiva \textit{prerequisito}, si ipotizza che all'interno di ciascuno degli \num{80} corsi di laurea vi siano in media \num{4} o \num{5} insegnamenti strettamente propedeutici, generando una stima complessiva e costante di \num{360} istanze.
 
 \subsection{Analisi dei cicli}
 \label{ssec:analisi-dei-cicli}
@@ -99,7 +99,7 @@ all'esame risulti già presente nel piano di studi dello studente,
 in caso contrario l'operazione viene rifiutata.
 
 \paragraph{Ciclo 2:}
-Il secondo cicloè composto dalle entità \textit{DOCENTE} - \textit{INSEGNAMENTO} - \textit{EDIZIONE} - \mbox{\textit{DOCENTE}}. \\
+Il secondo ciclo è composto dalle entità \textit{DOCENTE} - \textit{INSEGNAMENTO} - \textit{EDIZIONE} - \mbox{\textit{DOCENTE}}. \\
 
 \noindent
 Un docente risulta collegato a un insegnamento tramite:
@@ -139,18 +139,18 @@ Al fine di stabilire la reale convenienza di questa modifica strutturale, viene 
 Il modello di valutazione adotta la convenzione standard secondo cui un accesso in scrittura comporta un costo computazionale doppio rispetto a un accesso in lettura, sintetizzabile nella relazione $1W = 2R$.
 L'intera stima dei costi viene di conseguenza espressa tramite un'unica unità di misura quantificata in numero di accessi complessivi.
 
-Si assume che uno studente sostenga in media 20 prove totali nell'entità \textit{Esame}, delle quali il $60\%$ (pari a circa 12 verbalizzazioni) ha esito positivo con un voto maggiore o uguale a 18.
-Il carico di lavoro annuo prevede 50000 operazioni di lettura della carriera e 80000 registrazioni di nuovi esami.
+Si assume che uno studente sostenga in media \num{20} prove totali nell'entità \textit{Esame}, delle quali il $60\%$ (pari a circa \num{12} verbalizzazioni) ha esito positivo con un voto maggiore o uguale a \num{18}.
+Il carico di lavoro annuo prevede \num{50000} operazioni di lettura della carriera e \num{80000} registrazioni di nuovi esami.
 
 La prima opzione analizzata, denominata \textbf{Strategia A}, prevede il mantenimento dello schema puro senza alcuna ridondanza.
 In questo scenario, ogni volta che si desidera conoscere il saldo dei crediti di una matricola, il DBMS deve calcolare il valore dinamicamente attraverso un'operazione di aggregazione e join.
-Il sistema esegue un primo accesso alla tupla dell'entità \textit{Studente}, esamina tutti i 20 record a lui associati nell'entità \textit{Esame} per scartare le insufficienze e infine interroga l'entità \textit{Corso} per recuperare il valore dei crediti dei 12 esami effettivamente superati. Questa sequenza comporta un costo fisso di $1 + 20 + 12 = 33$ accessi per ogni singola consultazione, che moltiplicato per il volume delle interrogazioni annuali genera un costo totale di 1650000 accessi all'anno.
-Di contro, la fase di inserimento rimane estremamente leggera poiché la registrazione di un nuovo voto si limita alla scrittura di una singola tupla nell'entità \textit{Esame}, corrispondente a 2 accessi. Su base annua, questa componente incide per 160000 accessi.
+Il sistema esegue un primo accesso alla tupla dell'entità \textit{Studente}, esamina tutti i \num{20} record a lui associati nell'entità \textit{Esame} per scartare le insufficienze e infine interroga l'entità \textit{Corso} per recuperare il valore dei crediti dei \num{12} esami effettivamente superati. Questa sequenza comporta un costo fisso di $1 + 20 + 12 = 33$ accessi per ogni singola consultazione, che moltiplicato per il volume delle interrogazioni annuali genera un costo totale di \num{1650000} accessi all'anno.
+Di contro, la fase di inserimento rimane estremamente leggera poiché la registrazione di un nuovo voto si limita alla scrittura di una singola tupla nell'entità \textit{Esame}, corrispondente a \num{2} accessi. Su base annua, questa componente incide per \num{160000} accessi.
 
 La seconda opzione, identificata come \textbf{Strategia B}, prevede l'aggiunta dell'attributo derivato.
-In questo modo la lettura della carriera si risolvesse istantaneamente interrogando il singolo record dell'entità \textit{Studente}, azzerando la necessità di scorrere lo storico degli esami e riducendo il costo a un solo accesso per operazione, per un totale annuo di 50000 accessi.
-La fase di scrittura subisce invece un incremento dovuto alla logica dei vincoli attivi. L'inserimento base della tupla nell'entità \textit{Esame} richiede sempre 2 accessi, ma l'attivazione del trigger introduce un sovraccarico.
-Il trigger esegue le proprie operazioni soltanto quando il punteggio inserito è sufficiente, circostanza che si verifica nel $60\%$ dei casi. Quando scatta, il trigger deve leggere i crediti dall'entità \textit{Corso} (1 accesso), leggere lo stato corrente della tupla nell'entità \textit{Studente} (1 accesso) e aggiornare il record incrementando i crediti (1 scrittura pari a 2 accessi), per un costo parziale del trigger di 4 accessi. Considerando la probabilità dell'evento sul volume totale, il costo di scrittura si attesta a 352000 accessi annui, derivanti dalla somma dei 160000 accessi di inserimento base e dei 192000 accessi dovuti alle 48000 esecuzioni effettive del trigger.
+In questo modo la lettura della carriera si risolvesse istantaneamente interrogando il singolo record dell'entità \textit{Studente}, azzerando la necessità di scorrere lo storico degli esami e riducendo il costo a un solo accesso per operazione, per un totale annuo di \num{50000} accessi.
+La fase di scrittura subisce invece un incremento dovuto alla logica dei vincoli attivi. L'inserimento base della tupla nell'entità \textit{Esame} richiede sempre \num{2} accessi, ma l'attivazione del trigger introduce un sovraccarico.
+Il trigger esegue le proprie operazioni soltanto quando il punteggio inserito è sufficiente, circostanza che si verifica nel $60\%$ dei casi. Quando scatta, il trigger deve leggere i crediti dall'entità \textit{Corso} (\num{1} accesso), leggere lo stato corrente della tupla nell'entità \textit{Studente} (\num{1} accesso) e aggiornare il record incrementando i crediti (\num{1} scrittura pari a \num{2} accessi), per un costo parziale del trigger di \num{4} accessi. Considerando la probabilità dell'evento sul volume totale, il costo di scrittura si attesta a \num{352000} accessi annui, derivanti dalla somma dei \num{160000} accessi di inserimento base e dei \num{192000} accessi dovuti alle \num{48000} esecuzioni effettive del trigger.
 
 I risultati complessivi di questo bilancio quantitativo sono sintetizzati nella Tabella~\ref{tab:bilancio_ridondanza}, dove emerge chiaramente come il risparmio ottenuto sulle letture superi di gran lunga il costo aggiuntivo pagato in fase di scrittura.
 
@@ -161,22 +161,22 @@ I risultati complessivi di questo bilancio quantitativo sono sintetizzati nella 
         \hline
         \textbf{Operazione} & \textbf{Strategia A} & \textbf{Strategia B} \\
         \hline
-        Lettura carriera & 1650000 & 50000 \\
-        Registrazione esami & 160000 & 352000 \\
+        Lettura carriera & \num{1650000} & \num{50000} \\
+        Registrazione esami & \num{160000} & \num{352000} \\
         \hline
-        \textbf{Accessi totali annui} & \textbf{1810000} & \textbf{402000} \\
+        \textbf{Accessi totali annui} & \textbf{\num{1810000}} & \textbf{\num{402000}} \\
         \hline
     \end{tabular}
     \caption{Bilancio complessivo degli accessi annui.}
     \label{tab:bilancio_ridondanza}
 \end{table}
 
-L'introduzione della ridondanza controllata determina un abbattimento dei costi complessivi che scendono da 1810000 a 402000 accessi all'anno, garantendo un risparmio netto pari a 1408000 accessi annui.
+L'introduzione della ridondanza controllata determina un abbattimento dei costi complessivi che scendono da \num{1810000} a \num{402000} accessi all'anno, garantendo un risparmio netto pari a \num{1408000} accessi annui.
 Per questa ragione, si decide formalmente di implementare l'ottimizzazione integrando l'attributo nel modello logico.
 La coerenza del dato verrà preservata mediante un trigger la cui struttura e sintassi verranno dettagliate nella sezione dedicata alla progettazione fisica.
 
 Per verificare la tenuta di questa soluzione a lungo termine e prevenire colli di bottiglia causati da un eventuale aumento massiccio delle iscrizioni agli appelli, viene sviluppato uno studio di scalabilità volto a identificare il punto di pareggio del sistema. Questo limite definisce la quantità critica di registrazioni annuali oltre la quale l'esecuzione ripetuta del trigger renderebbe la Strategia B meno efficiente rispetto al calcolo dinamico della Strategia A.
-Mantenendo stabile il numero di consultazioni della carriera a 50000 operazioni all'anno, l'uguaglianza matematica tra i costi delle due opzioni si verifica a una soglia limite di 666.667 operazioni di scrittura. Poiché il volume reale stimato per la facoltà si attesta su 80000 esami all'anno, il sistema si posiziona in un'area di assoluta sicurezza e convenienza prestazionale, dimostrando la piena sostenibilità e la futura scalabilità della scelta architetturale.
+Mantenendo stabile il numero di consultazioni della carriera a \num{50000} operazioni all'anno, l'uguaglianza matematica tra i costi delle due opzioni si verifica a una soglia limite di \num{666667} operazioni di scrittura. Poiché il volume reale stimato si attesta su \num{80000} esami all'anno, il sistema si posiziona in un'area di assoluta sicurezza e convenienza prestazionale, dimostrando la piena sostenibilità e la futura scalabilità della scelta architetturale.
 
 % \begin{figure}[h!]
 %     \centering

@@ -7,6 +7,11 @@ from dotenv import load_dotenv
 from datetime import date, timedelta
 from sqlalchemy import create_engine, MetaData, insert
 
+SEED = 42
+
+random.seed(SEED)
+Faker.seed(SEED)
+
 PERIODS = ["1", "2", "3"]
 ROOMS = ["Aula 1", "Aula Magna", "Laboratorio A", "Aula 2", "Laboratorio B"]
 WEEKDAYS = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì"]

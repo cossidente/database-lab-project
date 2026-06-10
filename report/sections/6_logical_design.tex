@@ -7,13 +7,13 @@ Le entità del dominio sono state trasformate in relazioni, mantenendo come chia
 \paragraph{Traduzione delle entità}
 Le entità \textit{dipartimento}, \textit{corso\_di\_laurea}, \textit{docente}, \textit{studente} e \textit{insegnamento} sono state convertite direttamente in relazioni autonome.
 
-L'entità \textit{edizione} è stata tradotta mediante una relazione identificata dalla combinazione di \texttt{codice\_corso}, \texttt{anno\_accademico} e \texttt{periodo}, in accordo con il significato semantico dell'entità nel dominio applicativo. Analogamente, l'entità \textit{lezione} è stata rappresentata mediante una relazione la cui chiave primaria comprende l'identificativo dell'edizione di appartenenza e gli attributi necessari a distinguere univocamente le diverse lezioni previste dal calendario didattico.
+L'entità \textit{edizione} è stata tradotta mediante una relazione identificata dalla combinazione di \texttt{codice\_insegnamento}, \texttt{anno\_accademico} e \texttt{periodo}, in accordo con il significato semantico dell'entità nel dominio applicativo. Analogamente, l'entità \textit{lezione} è stata rappresentata mediante una relazione la cui chiave primaria comprende l'identificativo dell'edizione di appartenenza e gli attributi necessari a distinguere univocamente le diverse lezioni previste dal calendario didattico.
 
 \paragraph{Scelte di identificazione delle edizioni}
 
 Sebbene il vincolo di unicità annuale imponga che per uno stesso insegnamento non possano esistere più edizioni nel medesimo anno accademico, l'attributo \texttt{periodo} è stato mantenuto all'interno della chiave primaria di \textit{edizione}. Questa scelta consente di propagare direttamente l'informazione del periodo didattico alle relazioni dipendenti, in particolare a \textit{lezione}, preservando il legame semantico tra una lezione e il periodo in cui essa viene erogata.
 
-L'inclusione del periodo nella chiave evita inoltre la duplicazione dell'attributo nelle relazioni dipendenti senza adeguati vincoli di consistenza e semplifica la definizione di vincoli operativi relativi all'occupazione delle aule e alla pianificazione del calendario didattico. La presenza del vincolo di unicità sulla coppia \texttt{(codice\_corso, anno\_accademico)} garantisce comunque che non possano essere create più edizioni dello stesso insegnamento all'interno del medesimo anno accademico.
+L'inclusione del periodo nella chiave evita inoltre la duplicazione dell'attributo nelle relazioni dipendenti senza adeguati vincoli di consistenza e semplifica la definizione di vincoli operativi relativi all'occupazione delle aule e alla pianificazione del calendario didattico. La presenza del vincolo di unicità sulla coppia \texttt{(codice\_insegnamento, anno\_accademico)} garantisce comunque che non possano essere create più edizioni dello stesso insegnamento all'interno del medesimo anno accademico.
 
 \paragraph{Traduzione delle associazioni}
 Le associazioni molti-a-molti presenti nello schema concettuale sono state trasformate in relazioni dedicate.

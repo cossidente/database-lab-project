@@ -15,7 +15,7 @@ Questa prima query risponde all'esigenza di determinare quale insegnamento compa
 \begin{lstlisting}[language=SQL]
 SELECT i.nome, COUNT(*) AS frequenza
 FROM piano_di_studio pds
-JOIN insegnamento i ON pds.codice_corso = i.codice
+JOIN insegnamento i ON pds.codice_insegnamento = i.codice
 GROUP BY i.codice, i.nome
 ORDER BY frequenza DESC
 LIMIT 1;
@@ -31,8 +31,8 @@ Questa operazione permette di ricostruire l'orario settimanale completo delle le
 \begin{lstlisting}[language=SQL]
 SELECT i.nome, l.giorno, l.fascia_oraria, l.aula
 FROM lezione l
-JOIN insegnamento i ON l.codice_corso = i.codice
-JOIN insegnamento_edizione ie ON l.codice_corso = ie.codice_corso
+JOIN insegnamento i ON l.codice_insegnamento = i.codice
+JOIN insegnamento_edizione ie ON l.codice_insegnamento = ie.codice_insegnamento
     AND l.anno_accademico = ie.anno_accademico
     AND l.periodo = ie.periodo
 JOIN docente d ON ie.cf_docente = d.cf
@@ -50,21 +50,21 @@ L'interrogazione si articola su una catena profonda di \texttt{JOIN} che collega
 La query quantifica la percentuale di prove d'esame superate con successo rispetto al volume totale dei tentativi registrati per un determinato corso.
 
 \begin{lstlisting}[language=SQL]
-WITH tentativi_totali (codice_corso, totali) AS (
-    SELECT codice_corso, COUNT(*)
+WITH tentativi_totali (codice_insegnamento, totali) AS (
+    SELECT codice_insegnamento, COUNT(*)
     FROM esame
-    GROUP BY codice_corso
+    GROUP BY codice_insegnamento
 ),
-tentativi_superati (codice_corso, superati) AS (
-    SELECT codice_corso, COUNT(*) AS superati
+tentativi_superati (codice_insegnamento, superati) AS (
+    SELECT codice_insegnamento, COUNT(*) AS superati
     FROM esame
     WHERE punteggio >= 18
-    GROUP BY codice_corso
+    GROUP BY codice_insegnamento
 )
 SELECT i.nome, (ts.superati * 100.0 / tt.totali) AS percentuale_superamento
 FROM tentativi_totali tt
-JOIN tentativi_superati ts ON tt.codice_corso = ts.codice_corso
-JOIN insegnamento i ON tt.codice_corso = i.codice
+JOIN tentativi_superati ts ON tt.codice_insegnamento = ts.codice_insegnamento
+JOIN insegnamento i ON tt.codice_insegnamento = i.codice
 WHERE i.nome = 'Logica matematica';
 \end{lstlisting}
 
@@ -79,7 +79,7 @@ Questa interrogazione analizza l'effettiva complessità didattica di un insegnam
 WITH tentativi_per_passare (matricola, num_tentativi) AS (
     SELECT e.matricola, COUNT(*)
     FROM esame e
-    JOIN insegnamento i ON e.codice_corso = i.codice
+    JOIN insegnamento i ON e.codice_insegnamento = i.codice
     WHERE i.nome = 'Teoria dei segnali'
     GROUP BY e.matricola
     HAVING MAX(e.punteggio) >= 18
@@ -126,7 +126,7 @@ WHERE cf_docente = 'PTRFBA87S13G935U'
       SELECT 1
       FROM abilitazione_docente_insegnamento adi
       WHERE adi.cf_docente = 'ZCCNTL28S02G280O'
-        AND adi.codice_corso = insegnamento_edizione.codice_corso
+        AND adi.codice_insegnamento = insegnamento_edizione.codice_insegnamento
   );
 \end{lstlisting}
 

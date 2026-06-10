@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 from datetime import date, timedelta
 from sqlalchemy import create_engine, MetaData, insert
 
-
 PERIODS = ["1", "2", "3"]
 ROOMS = ["Aula 1", "Aula Magna", "Laboratorio A", "Aula 2", "Laboratorio B"]
 WEEKDAYS = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì"]
@@ -31,12 +30,12 @@ def add_courses(engine, metadata, fake):
         description = fake.paragraph(nb_sentences=2)
         course["descrizione"] = f"Corso di {course['nome']}. {description}"
 
-    bulk_insert(engine, metadata.tables['corso'], courses)
+    bulk_insert(engine, metadata.tables['insegnamento'], courses)
 
 def add_editions(engine, metadata):
     # Get all courses
     with engine.connect() as conn:
-        courses = conn.execute(metadata.tables['corso'].select()).fetchall()
+        courses = conn.execute(metadata.tables['insegnamento'].select()).fetchall()
 
     editions = []
 
@@ -46,7 +45,7 @@ def add_editions(engine, metadata):
 
         for ay in selected_years:
             editions.append({
-                "codice_corso": course.codice,
+                "codice_insegnamento": course.codice,
                 "anno_accademico": ay,
                 "periodo": random.choice(PERIODS)
             })
@@ -78,7 +77,7 @@ def add_lectures(engine, metadata):
                 occupied_slots.add(slot_signature) # Mark as occupied
 
                 lectures.append({
-                    "codice_corso": edition.codice_corso,
+                    "codice_insegnamento": edition.codice_insegnamento,
                     "anno_accademico": edition.anno_accademico,
                     "periodo": edition.periodo,
                     "giorno": day,
@@ -115,7 +114,7 @@ def add_teacher_qualifications(engine, metadata):
     # Get all teachers and courses to create random associations
     with engine.connect() as conn:
         teachers = conn.execute(metadata.tables['docente'].select()).fetchall()
-        courses = conn.execute(metadata.tables['corso'].select()).fetchall()
+        courses = conn.execute(metadata.tables['insegnamento'].select()).fetchall()
 
     qualifications = []
     # Assign each to teacher 1-3 random courses they are "qualified" for
@@ -125,29 +124,29 @@ def add_teacher_qualifications(engine, metadata):
         for course in assigned_courses:
             qualifications.append({
                 "cf_docente": teacher.cf,
-                "codice_corso": course.codice
+                "codice_insegnamento": course.codice
             })
 
-    bulk_insert(engine, metadata.tables['abilitazione_docente_corso'], qualifications)
+    bulk_insert(engine, metadata.tables['abilitazione_docente_insegnamento'], qualifications)
 
 def add_editions_teachings(engine, metadata):
     # Get qualifications and editions to consider only qualified teachers
     with engine.connect() as conn:
-        qualifications = conn.execute(metadata.tables['abilitazione_docente_corso'].select()).fetchall()
+        qualifications = conn.execute(metadata.tables['abilitazione_docente_insegnamento'].select()).fetchall()
         editions = conn.execute(metadata.tables['edizione'].select()).fetchall()
 
     # Build a dict: course_code -> list of qualified teacher CFs
     qualified_teachers_map = {}
     for q in qualifications:
-        if q.codice_corso not in qualified_teachers_map:
-            qualified_teachers_map[q.codice_corso] = []
-        qualified_teachers_map[q.codice_corso].append(q.cf_docente)
+        if q.codice_insegnamento not in qualified_teachers_map:
+            qualified_teachers_map[q.codice_insegnamento] = []
+        qualified_teachers_map[q.codice_insegnamento].append(q.cf_docente)
 
     teachings = []
 
     for edition in editions:
         # Get only the teachers qualified for this specific course
-        available_teachers = qualified_teachers_map.get(edition.codice_corso, [])
+        available_teachers = qualified_teachers_map.get(edition.codice_insegnamento, [])
 
         # If no one is qualified, we must skip to avoid DB constraints violation
         if not available_teachers:
@@ -160,7 +159,7 @@ def add_editions_teachings(engine, metadata):
         for teacher_cf in assigned_teachers:
             teachings.append({
                 "cf_docente": teacher_cf,
-                "codice_corso": edition.codice_corso,
+                "codice_insegnamento": edition.codice_insegnamento,
                 "anno_accademico": edition.anno_accademico,
                 "periodo": edition.periodo
             })
@@ -195,7 +194,7 @@ def add_study_plans(engine, metadata):
     # Get all students and all courses
     with engine.connect() as conn:
         students = conn.execute(metadata.tables['studente'].select()).fetchall()
-        courses = conn.execute(metadata.tables['corso'].select()).fetchall()
+        courses = conn.execute(metadata.tables['insegnamento'].select()).fetchall()
 
     study_plans = []
 
@@ -207,7 +206,7 @@ def add_study_plans(engine, metadata):
         for course in selected_courses:
             study_plans.append({
                 "matricola": student.matricola,
-                "codice_corso": course.codice
+                "codice_insegnamento": course.codice
             })
 
     bulk_insert(engine, metadata.tables['piano_di_studio'], study_plans)
@@ -225,14 +224,14 @@ def add_exams(engine, metadata):
     for study_plan in study_plans:
         if study_plan.matricola not in student_courses_map:
             student_courses_map[study_plan.matricola] = []
-        student_courses_map[study_plan.matricola].append(study_plan.codice_corso)
+        student_courses_map[study_plan.matricola].append(study_plan.codice_insegnamento)
 
-    # Build a dict: codice_corso -> its prerequisites
+    # Build a dict: codice_insegnamento -> its prerequisites
     req_map = {}
     for req in prerequisites:
-        if req.codice_corso not in req_map:
-            req_map[req.codice_corso] = []
-        req_map[req.codice_corso].append(req.codice_prerequisito)
+        if req.codice_insegnamento not in req_map:
+            req_map[req.codice_insegnamento] = []
+        req_map[req.codice_insegnamento].append(req.codice_prerequisito)
 
     exams_to_insert = []
 
@@ -265,7 +264,7 @@ def add_exams(engine, metadata):
 
             exams_to_insert.append({
                 "matricola": student.matricola,
-                "codice_corso": chosen_course,
+                "codice_insegnamento": chosen_course,
                 "data_esame": get_random_past_date(),
                 "punteggio": score
             })

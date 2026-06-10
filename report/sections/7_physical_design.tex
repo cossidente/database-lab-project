@@ -38,7 +38,7 @@ Un esempio cruciale è rappresentato dalla tabella \texttt{edizione}, all'intern
 
 \begin{lstlisting}[language=SQL]
 CONSTRAINT uq_singola_edizione_annuale
-    UNIQUE (codice_corso, anno_accademico)
+    UNIQUE (codice_insegnamento, anno_accademico)
 \end{lstlisting}
 
 Questo costrutto garantisce in modo stringente il rispetto della specifica secondo cui per un dato insegnamento non può essere attivata più di una singola edizione all'interno dello stesso anno accademico.
@@ -51,7 +51,7 @@ Ulteriori controlli di consistenza logica sono stati distribuiti tramite espress
 \subsection{Analisi delle scelte di indicizzazione e chiavi}
 \label{ssec:analisi-delle-scelte-di-indicizzazione-e-chiavi}
 
-Come anticipato nella progettazione logica, la scelta di includere l'attributo \texttt{periodo} all'interno della chiave primaria della tabella \texttt{edizione}, nonostante il vincolo \texttt{UNIQUE(codice\_corso, anno\_accademico)} sia già sufficiente a identificare univocamente ogni riga, risponde a una precisa strategia di ottimizzazione fisica.
+Come anticipato nella progettazione logica, la scelta di includere l'attributo \texttt{periodo} all'interno della chiave primaria della tabella \texttt{edizione}, nonostante il vincolo \texttt{UNIQUE(codice\_insegnamento, anno\_accademico)} sia già sufficiente a identificare univocamente ogni riga, risponde a una precisa strategia di ottimizzazione fisica.
 
 Questa configurazione permette di propagare automaticamente il \texttt{periodo} come chiave esterna verso le tabelle dipendenti, come \texttt{lezione} e \texttt{insegnamento\_edizione}, portando un immediato vantaggio prestazionale.
 Il DBMS ha sempre l'informazione sul periodo didattico localmente a disposizione all'interno di queste strutture, azzerando la necessità di eseguire continui e costosi \texttt{JOIN} con la tabella padre \texttt{edizione} ogni volta che si deve consultare il calendario settimanale o verificare la disponibilità di un'aula.
@@ -88,9 +88,9 @@ BEGIN
             UNION
             SELECT p.codice_prerequisito
             FROM prerequisito p
-            JOIN raggiungibili r ON r.codice = p.codice_corso
+            JOIN raggiungibili r ON r.codice = p.codice_insegnamento
         )
-        SELECT 1 FROM raggiungibili WHERE codice = NEW.codice_corso
+        SELECT 1 FROM raggiungibili WHERE codice = NEW.codice_insegnamento
     ) THEN
         RAISE EXCEPTION 'Inserimento creerebbe un ciclo nei prerequisiti';
     END IF;
@@ -104,6 +104,6 @@ Poiché la verbalizzazione di un voto costituisce un atto formale concluso, la b
 Qualsiasi tentativo di eseguire operazioni di \texttt{UPDATE} o \texttt{DELETE} sulla tabella \texttt{esame} viene intercettato in modalità \texttt{BEFORE}, sollevando un'eccezione irreversibile che congela lo stato della carriera studentesca.
 
 \paragraph{Verifica di conformità al piano di studi}
-Infine, l'allineamento tra la fase di pianificazione e la verbalizzazione viene garantito dalla procedura \texttt{controlla\_corso\_in\_piano}.
+Infine, l'allineamento tra la fase di pianificazione e la verbalizzazione viene garantito dalla procedura \texttt{controlla\_insegnamento\_in\_piano}.
 Il trigger si attiva prima di registrare un voto nella tabella \texttt{esame}, respingendo le transazioni relative a insegnamenti che la matricola non ha preventivamente inserito all'interno della tabella \texttt{piano\_di\_studio}.
 

@@ -16,7 +16,7 @@ CREATE DOMAIN anno_accademico AS CHAR(9)
     CHECK (VALUE ~ '^[0-9]{4}/[0-9]{4}$' AND 
            CAST(split_part(VALUE, '/', 2) AS INTEGER) = CAST(split_part(VALUE, '/', 1) AS INTEGER) + 1);
 
-CREATE DOMAIN corso_dom AS CHAR(5)
+CREATE DOMAIN insegnamento_dom AS CHAR(5)
     CHECK (VALUE ~ '^[0-9]{5}$');
 
 CREATE DOMAIN punteggio AS INTEGER
@@ -55,7 +55,7 @@ CREATE TABLE studente (
 );
 
 CREATE TABLE insegnamento (
-    codice corso_dom PRIMARY KEY,
+    codice insegnamento_dom PRIMARY KEY,
     nome VARCHAR(50) NOT NULL,
     crediti INTEGER NOT NULL,
     descrizione TEXT,
@@ -64,81 +64,81 @@ CREATE TABLE insegnamento (
 );
 
 CREATE TABLE edizione (
-    codice_corso corso_dom,
+    codice_insegnamento insegnamento_dom,
     anno_accademico anno_accademico,
     periodo periodo_enum,
 
-    PRIMARY KEY (codice_corso, anno_accademico, periodo),
-    FOREIGN KEY (codice_corso) REFERENCES insegnamento(codice) ON DELETE CASCADE ON UPDATE CASCADE,
+    PRIMARY KEY (codice_insegnamento, anno_accademico, periodo),
+    FOREIGN KEY (codice_insegnamento) REFERENCES insegnamento(codice) ON DELETE CASCADE ON UPDATE CASCADE,
 
-    CONSTRAINT uq_singola_edizione_annuale UNIQUE (codice_corso, anno_accademico)
+    CONSTRAINT uq_singola_edizione_annuale UNIQUE (codice_insegnamento, anno_accademico)
 );
 
 CREATE TABLE lezione (
-    codice_corso corso_dom,
+    codice_insegnamento insegnamento_dom,
     anno_accademico anno_accademico,
     periodo periodo_enum,
     giorno giorno_enum,
     fascia_oraria fascia_oraria_enum,
     aula VARCHAR(20) NOT NULL,
 
-    PRIMARY KEY (codice_corso, anno_accademico, periodo, giorno, fascia_oraria, aula),
-    FOREIGN KEY (codice_corso, anno_accademico, periodo) 
-        REFERENCES edizione(codice_corso, anno_accademico, periodo) ON DELETE CASCADE ON UPDATE CASCADE,
+    PRIMARY KEY (codice_insegnamento, anno_accademico, periodo, giorno, fascia_oraria, aula),
+    FOREIGN KEY (codice_insegnamento, anno_accademico, periodo) 
+        REFERENCES edizione(codice_insegnamento, anno_accademico, periodo) ON DELETE CASCADE ON UPDATE CASCADE,
 
     CONSTRAINT uq_occupazione_aula UNIQUE (anno_accademico, periodo, giorno, fascia_oraria, aula)
 );
 
 CREATE TABLE esame (
     matricola INTEGER,
-    codice_corso corso_dom,
+    codice_insegnamento insegnamento_dom,
     data_esame DATE,
     punteggio punteggio,
 
-    PRIMARY KEY (matricola, codice_corso, data_esame),
+    PRIMARY KEY (matricola, codice_insegnamento, data_esame),
     FOREIGN KEY (matricola) REFERENCES studente(matricola) ON DELETE RESTRICT ON UPDATE CASCADE,
-    FOREIGN KEY (codice_corso) REFERENCES insegnamento(codice) ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY (codice_insegnamento) REFERENCES insegnamento(codice) ON DELETE RESTRICT ON UPDATE CASCADE,
 
     CONSTRAINT ck_data_esame CHECK (data_esame <= CURRENT_DATE)
 );
 
 CREATE TABLE piano_di_studio (
     matricola INTEGER,
-    codice_corso corso_dom,
+    codice_insegnamento insegnamento_dom,
 
-    PRIMARY KEY (matricola, codice_corso),
+    PRIMARY KEY (matricola, codice_insegnamento),
     FOREIGN KEY (matricola) REFERENCES studente(matricola) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (codice_corso) REFERENCES insegnamento(codice) ON DELETE RESTRICT ON UPDATE CASCADE
+    FOREIGN KEY (codice_insegnamento) REFERENCES insegnamento(codice) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 CREATE TABLE prerequisito (
-    codice_corso corso_dom,
-    codice_prerequisito corso_dom,
+    codice_insegnamento insegnamento_dom,
+    codice_prerequisito insegnamento_dom,
 
-    PRIMARY KEY (codice_corso, codice_prerequisito),
-    FOREIGN KEY (codice_corso) REFERENCES insegnamento(codice) ON DELETE CASCADE ON UPDATE CASCADE,
+    PRIMARY KEY (codice_insegnamento, codice_prerequisito),
+    FOREIGN KEY (codice_insegnamento) REFERENCES insegnamento(codice) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (codice_prerequisito) REFERENCES insegnamento(codice) ON DELETE CASCADE ON UPDATE CASCADE,
 
-    CONSTRAINT ck_prerequisito CHECK (codice_corso <> codice_prerequisito)
+    CONSTRAINT ck_prerequisito CHECK (codice_insegnamento <> codice_prerequisito)
 );
 
 CREATE TABLE abilitazione_docente_insegnamento (
     cf_docente codice_fiscale,
-    codice_corso corso_dom,
+    codice_insegnamento insegnamento_dom,
 
-    PRIMARY KEY (cf_docente, codice_corso),
+    PRIMARY KEY (cf_docente, codice_insegnamento),
     FOREIGN KEY (cf_docente) REFERENCES docente(cf) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (codice_corso) REFERENCES insegnamento(codice) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (codice_insegnamento) REFERENCES insegnamento(codice) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE insegnamento_edizione (
     cf_docente codice_fiscale,
-    codice_corso corso_dom,
+    codice_insegnamento insegnamento_dom,
     anno_accademico anno_accademico,
     periodo periodo_enum,
 
-    PRIMARY KEY (cf_docente, codice_corso, anno_accademico),
+    PRIMARY KEY (cf_docente, codice_insegnamento, anno_accademico),
     FOREIGN KEY (cf_docente) REFERENCES docente(cf) ON DELETE RESTRICT ON UPDATE CASCADE,
-    FOREIGN KEY (codice_corso, anno_accademico, periodo) 
-        REFERENCES edizione(codice_corso, anno_accademico, periodo) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (codice_insegnamento, anno_accademico, periodo) 
+        REFERENCES edizione(codice_insegnamento, anno_accademico, periodo) ON DELETE CASCADE ON UPDATE CASCADE
 );

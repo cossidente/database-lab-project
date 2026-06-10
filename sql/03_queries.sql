@@ -73,7 +73,7 @@ WHERE insegnamento_edizione.cf_docente = 'PTRFBA87S13G935U'
   AND EXISTS (
       -- Verifica abilitazione nuovo docente
       SELECT 1 
-      FROM abilitazione_docente_corso
-      WHERE abilitazione_docente_corso.cf_docente = 'ZCCNTL28S02G280O' 
-        AND abilitazione_docente_corso.codice_corso = insegnamento_edizione.codice_corso
+      FROM abilitazione_docente_insegnamento
+      WHERE abilitazione_docente_insegnamento.cf_docente = 'ZCCNTL28S02G280O' 
+        AND abilitazione_docente_insegnamento.codice_corso = insegnamento_edizione.codice_corso
   );

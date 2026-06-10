@@ -1,2 +1,109 @@
-\section{Progettazione Fisica e Script SQL}
-\label{sec:progettazione-fisica-e-script-sql}
+La progettazione fisica ha l'obiettivo di tradurre lo schema logico relazionale in una struttura concretamente implementabile all'interno del DBMS PostgreSQL. Questa fase definisce rigorosamente i tipi di dato, le estensioni dei domini, i vincoli di integrità fisici e i meccanismi procedurali necessari a garantire il rispetto delle regole applicative precedentemente individuate.
+
+Al fine di mantenere il capitolo compatto e focalizzato sulla discussione delle scelte ingegneristiche e architetturali, all'interno della trattazione sono stati isolati ed esaminati esclusivamente gli estratti di codice più significativi. La struttura completa della base di dati, comprensiva della creazione sequenziale di tutte le tabelle, delle chiavi esterne e del corpo integrale delle procedure memorizzate, è consultabile nella repository GitHub del progetto\footnote{\url{https://github.com/cossidente/database-lab-project/}}.
+
+\section{Tipi enumerati e domini personalizzati}
+\label{sec:tipi-enumerati-e-domini-personalizzati}
+
+Per migliorare la qualità dei dati memorizzati e centralizzare i controlli di validazione, sono stati introdotti sia tipi enumerati sia domini personalizzati dotati di vincoli di controllo integrati.
+
+I tipi enumerati sono stati impiegati per rappresentare insiemi finiti e statici di valori ammessi, impedendo l'inserimento di stringhe invalide e ottimizzando lo spazio di memorizzazione su disco, poiché PostgreSQL gestisce internamente tali strutture come identificatori numerici sequenziali.
+In particolare, sono stati formalizzati i tipi \texttt{titolo\_enum}, \texttt{periodo\_enum}, \texttt{giorno\_enum} e \texttt{fascia\_oraria\_enum}.
+
+Parallelamente, sono stati introdotti domini dedicati per vincolare gli attributi soggetti a restrizioni specifiche.
+Il dominio \texttt{codice\_fiscale} verifica la correttezza formale del dato tramite un'espressione regolare strutturata per essere perfettamente corrispondente alla codifica standard ministeriale italiana di sedici caratteri alfanumerici, mentre \texttt{telefono\_dom} limita rigorosamente il formato dei recapiti a una stringa fissa di dieci cifre numeriche.
+
+Un'attenzione particolare è stata riservata al dominio \texttt{anno\_accademico}. Oltre a validare la formattazione testuale nella configurazione \texttt{YYYY/YYYY}, la clausola di controllo estrae e converte le due componenti annuali per verificare che l'anno di chiusura sia esattamente successivo a quello di inizio, prevenendo l'inserimento di intervalli temporali incongruenti.
+Analogamente, il dominio \texttt{punteggio} limita i voti d'esame all'intervallo discreto compreso tra 0 e 30.
+
+L'implementazione fisica del dominio relativo all'anno accademico è stata realizzata attraverso la seguente struttura:
+
+\begin{lstlisting}[language=SQL]
+CREATE DOMAIN anno_accademico AS CHAR(9)
+    CHECK (VALUE ~ '^[0-9]{4}/[0-9]{4}$' AND
+           CAST(split_part(VALUE, '/', 2) AS INTEGER) =
+           CAST(split_part(VALUE, '/', 1) AS INTEGER) + 1);
+\end{lstlisting}
+
+Questa scelta progettuale centralizza la logica di validazione nel server della base di dati, azzerando la necessità di replicare i controlli sul codice delle applicazioni esterne che interagiranno con l'infrastruttura dell'ateneo.
+
+\subsection{Implementazione dei vincoli strutturali}
+\label{ssec:implementazione-dei-vincoli-strutturali}
+
+I vincoli strutturali derivati dalla progettazione logica sono stati mappati sfruttando le clausole native di chiave primaria, chiave esterna, vincoli di unicità e vincoli \texttt{CHECK} locali.
+
+Le chiavi esterne garantiscono la consistenza referenziale tra le relazioni dell'ateneo, regolando le politiche di cancellazione e aggiornamento in cascata per evitare la presenza di puntatori orfani. I vincoli di unicità vengono invece declinati per forzare regole di business non catturabili dalle sole chiavi primarie.
+
+Un esempio cruciale è rappresentato dalla tabella \texttt{edizione}, all'interno della quale è stato introdotto un indice di unicità composto volto a escludere ridondanze annuali concorrenti:
+
+\begin{lstlisting}[language=SQL]
+CONSTRAINT uq_singola_edizione_annuale
+    UNIQUE (codice_corso, anno_accademico)
+\end{lstlisting}
+
+Questo costrutto garantisce in modo stringente il rispetto della specifica secondo cui per un dato insegnamento non può essere attivata più di una singola edizione all'interno dello stesso anno accademico.
+
+L'introduzione di questo specifico vincolo si ricollega direttamente alle scelte di strutturazione discusse nella Sezione~\ref{sec:schema-logico}.
+Come precedentemente illustrato, è proprio l'esplicita dichiarazione di questo vincolo di unicità annuale che permette di mantenere l'attributo \texttt{periodo} all'interno della chiave primaria della tabella \texttt{edizione} a fini di ottimizzazione referenziale verso le lezioni. La clausola \texttt{UNIQUE} agisce come sbarramento fisico a livello di DBMS, garantendo che la superchiave composta non minimale scelta per la chiave primaria non si traduca in una violazione del vincolo di unicità annuale.
+
+Ulteriori controlli di consistenza logica sono stati distribuiti tramite espressioni \texttt{CHECK} sulle singole tabelle. Tra i principali si segnalano il blocco preventivo sull'inserimento di valori negativi per i CFU nella tabella \texttt{insegnamento}, l'esclusione di relazioni autoreferenziali nella tabella \texttt{prerequisito} e la verifica che le date di verbalizzazione nella tabella \texttt{esame} appartengano al passato rispetto al tempo di sistema dell'operazione.
+
+\subsection{Analisi delle scelte di indicizzazione e chiavi}
+\label{ssec:analisi-delle-scelte-di-indicizzazione-e-chiavi}
+
+Come anticipato nella progettazione logica, la scelta di includere l'attributo \texttt{periodo} all'interno della chiave primaria della tabella \texttt{edizione}, nonostante il vincolo \texttt{UNIQUE(codice\_corso, anno\_accademico)} sia già sufficiente a identificare univocamente ogni riga, risponde a una precisa strategia di ottimizzazione fisica.
+
+Questa configurazione permette di propagare automaticamente il \texttt{periodo} come chiave esterna verso le tabelle dipendenti, come \texttt{lezione} e \texttt{insegnamento\_edizione}, portando un immediato vantaggio prestazionale.
+Il DBMS ha sempre l'informazione sul periodo didattico localmente a disposizione all'interno di queste strutture, azzerando la necessità di eseguire continui e costosi \texttt{JOIN} con la tabella padre \texttt{edizione} ogni volta che si deve consultare il calendario settimanale o verificare la disponibilità di un'aula.
+
+Il secondo grande beneficio riguarda la sicurezza dei dati, poiché la propagazione di una chiave composta crea un vincolo automatico a livello strutturale che impedisce a monte qualsiasi incongruenza temporale.
+Se il \texttt{periodo} non facesse parte della chiave esterna, il database potrebbe accettare record formalmente validi ma logicamente contraddittori.
+
+Per esempio, senza questo vincolo, una riga della tabella \texttt{lezione} potrebbe essere registrata per errore con il campo \texttt{periodo} impostato su \texttt{'2'} (secondo periodo), pur essendo collegata a un record della tabella \texttt{edizione} attivato esclusivamente nel \texttt{'1'} (primo periodo). Includendo il periodo all'interno della foreign key, il DBMS intercetta e rifiuta automaticamente inserimenti disallineati di questo tipo, garantendo l'integrità del calendario senza dover gravare sul sistema con trigger o controlli aggiuntivi.
+
+\section{Trigger e vincoli procedurali}
+\label{sec:trigger-e-vincoli-procedurali}
+
+Le regole di business complesse che richiedono l'interrogazione coordinata di più tabelle non sono esprimibili tramite vincoli dichiarativi tradizionali. Per superare questi limiti strutturali, sono stati implementati vincoli procedurali attraverso trigger dedicati associati a funzioni scritte in linguaggio \texttt{PL/pgSQL}.
+
+\paragraph{Controllo delle propedeuticità d'esame}
+Prima di consentire l'inserimento di una nuova riga nella tabella \texttt{esame}, il sistema deve verificare lo stato della carriera dello studente. La funzione \texttt{controlla\_prerequisiti} intercetta l'operazione e verifica se la matricola ha superato tutte le materie definite come propedeutiche per il corso in esame. In caso di esito negativo, la transazione viene interrotta, sollevando un'eccezione che elenca esplicitamente i codici dei corsi mancanti.
+
+\paragraph{Automazione della ridondanza del saldo crediti}
+Coerentemente con lo studio costi-benefici formalizzato in precedenza, l'attributo \texttt{crediti\_acquisiti} nella tabella \texttt{studente} viene gestito in modo interamente automatizzato. La procedura \texttt{aggiorna\_crediti\_acquisiti} si attiva in modalità \texttt{AFTER INSERT} sulla tabella \texttt{Esame}. Il trigger agisce in modo condizionale: valuta se il punteggio è sufficiente ($\ge 18$) e controlla che l'insegnamento non sia già stato superato in un appello precedente, scongiurando il rischio amministrativo di un doppio conteggio dei CFU a parità di esame.
+
+\paragraph{Validazione delle abilitazioni del corpo docente}
+L'invariante di business emerso dall'analisi dei cicli didattici viene forzato in fase di inserimento nella tabella \texttt{insegnamento\_edizione}. La funzione \texttt{controlla\_abilitazione\_docente} interroga preventivamente la tabella ponte delle competenze stabili, bloccando l'assegnazione della cattedra qualora non vi sia una corrispondenza esatta tra il codice fiscale del docente e l'insegnamento erogato.
+
+\paragraph{Prevenzione dei cicli nelle propedeuticità}
+Per preservare la coerenza logica dell'offerta formativa, viene impedita la creazione di relazioni di propedeuticità circolari all'interno della tabella \texttt{prerequisito}. Il controllo viene eseguito mediante una query ricorsiva che esplora l'intero grafo diretto dei prerequisiti prima di autorizzare la transazione, implementata come segue:
+
+\begin{lstlisting}[language=SQL]
+CREATE OR REPLACE FUNCTION controlla_ciclo_prerequisiti()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF EXISTS (
+        WITH RECURSIVE raggiungibili(codice) AS (
+            SELECT NEW.codice_prerequisito
+            UNION
+            SELECT p.codice_prerequisito
+            FROM prerequisito p
+            JOIN raggiungibili r ON r.codice = p.codice_corso
+        )
+        SELECT 1 FROM raggiungibili WHERE codice = NEW.codice_corso
+    ) THEN
+        RAISE EXCEPTION 'Inserimento creerebbe un ciclo nei prerequisiti';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+\end{lstlisting}
+
+\paragraph{Protezione dell'immutabilità dello storico esami}
+Poiché la verbalizzazione di un voto costituisce un atto formale concluso, la base di dati protegge l'integrità dello storico mediante il trigger \texttt{trigger\_blocca\_modifica\_esame}.
+Qualsiasi tentativo di eseguire operazioni di \texttt{UPDATE} o \texttt{DELETE} sulla tabella \texttt{esame} viene intercettato in modalità \texttt{BEFORE}, sollevando un'eccezione irreversibile che congela lo stato della carriera studentesca.
+
+\paragraph{Verifica di conformità al piano di studi}
+Infine, l'allineamento tra la fase di pianificazione e la verbalizzazione viene garantito dalla procedura \texttt{controlla\_corso\_in\_piano}.
+Il trigger si attiva prima di registrare un voto nella tabella \texttt{esame}, respingendo le transazioni relative a insegnamenti che la matricola non ha preventivamente inserito all'interno della tabella \texttt{piano\_di\_studio}.
+

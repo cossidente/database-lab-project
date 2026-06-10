@@ -39,7 +39,7 @@ BEGIN
         ) THEN
             UPDATE studente
             SET crediti_acquisiti = crediti_acquisiti + (
-                SELECT crediti FROM corso WHERE codice = NEW.codice_corso
+                SELECT crediti FROM insegnamento WHERE codice = NEW.codice_corso
             )
             WHERE matricola = NEW.matricola;
         END IF;
@@ -69,7 +69,7 @@ RETURNS TRIGGER AS $$
 BEGIN
     IF NOT EXISTS (
         SELECT 1
-        FROM abilitazione_docente_corso a
+        FROM abilitazione_docente_insegnamento a
         WHERE a.cf_docente = NEW.cf_docente
           AND a.codice_corso = NEW.codice_corso
     ) THEN

@@ -19,7 +19,34 @@
 \usepackage{longtable}
 \usepackage{csquotes}
 \usepackage{siunitx}
+\usepackage{listings}
+\definecolor{codegray}{rgb}{0.96, 0.96, 0.98}
+\definecolor{keywordblue}{rgb}{0.13, 0.29, 0.53}
+\definecolor{stringgreen}{rgb}{0.29, 0.54, 0.13}
+\definecolor{commentrgb}{rgb}{0.50, 0.50, 0.50}
 
+\lstdefinestyle{modernsql}{
+    backgroundcolor=\color{codegray},
+    commentstyle=\color{commentrgb}\itshape,
+    keywordstyle=\color{keywordblue}\bfseries,
+    numberstyle=\tiny\color{commentrgb},
+    stringstyle=\color{stringgreen},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=none,
+    numbersep=8pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    frame=single,
+    rulecolor=\color{codegray},
+    frameround=tttt
+}
+\lstset{style=modernsql}
 \sisetup{locale = IT}
 \hypersetup{hidelinks}
 

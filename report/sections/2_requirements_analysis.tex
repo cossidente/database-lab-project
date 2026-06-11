@@ -1,74 +1,75 @@
-\section{Analisi dei requisiti}
+\section{Testo del problema}
+\label{sec:testo-del-problema}
 
-\paragraph{Testo del problema}
+Si vuole progettare una base di dati di supporto alla gestione della didattica di un ateneo. Essa dovrà contenere le seguenti informazioni:
 
-Si vuole progettare (parte di) una base di dati di supporto alla gestione della didattica di una facoltà universitaria. Essa dovrà contenere le seguenti informazioni:
-
-\subparagraph{I corsi offerti dalla facoltà.} Ogni corso sia identificato univocamente da un codice numerico e sia caratterizzato da un nome, un numero di crediti, una breve descrizione del suo contenuto e un insieme di prerequisiti (insieme, eventualmente vuoto, di corsi il cui esame deve essere già stato superato per poter sostenere l'esame relativo al corso).
+\subparagraph{I corsi offerti dall'ateneo.} Ogni corso sia identificato univocamente da un codice numerico e sia caratterizzato da un nome, un numero di crediti, una breve descrizione del suo contenuto e un insieme di prerequisiti (insieme, eventualmente vuoto, di corsi il cui esame deve essere già stato superato per poter sostenere l'esame relativo al corso).
 \subparagraph{Le edizioni dei corsi.} Le edizioni dei corsi tenute nei diversi anni accademici. Ogni edizione di un corso sia caratterizzata dal codice del corso, dall'anno accademico (si assuma che di ogni corso venga tenuta al più un'edizione per anno accademico), dal periodo didattico (si assuma che vi siano tre periodi didattici, identificati dai numeri 1, 2 e 3, rispettivamente), dai nomi dei docenti (uno o più) e dal calendario settimanale delle lezioni (ogni lezione sia identificata dalla terna giorno, fascia oraria e aula). Si assuma che i docenti che tengono un dato corso possano variare da un anno all'altro. Si assuma, inoltre, che le fasce orarie previste siano quattro, identificate dai numeri 1, 2, 3 e 4.
-\subparagraph{Gli studenti.} Ogni studente sia identificato dal suo numero di matricola e sia caratterizzato da nome e cognome, da un recapito telefonico, dal corso di laurea frequentato (Informatica triennale, TWM triennale, Informatica specialistica, \dots) e dall'anno accademico di immatricolazione. Si vuol tener traccia dei corsi che ogni studente ha inserito nel proprio piano di studi e degli esami superati da ogni studente, col relativo punteggio.
-\subparagraph{I docenti.} Ogni docente sia identificato univocamente dal suo codice fiscale e sia caratterizzato da nome e cognome, dal dipartimento di afferenza (matematica e informatica, fisica, scienze statistiche, \dots) e dal titolo (ricercatore, professore associato, \dots). Per ogni docente, si memorizzino i corsi che è abilitato a tenere.
+\subparagraph{Gli studenti.} Ogni studente sia identificato dal suo numero di matricola e sia caratterizzato da nome e cognome, da un recapito telefonico, dal corso di laurea frequentato (Informatica, Biotecnologie, Ingegneria elettronica, \dots) e dall'anno accademico di immatricolazione. Si vuol tener traccia dei corsi che ogni studente ha inserito nel proprio piano di studi e degli esami superati da ogni studente, col relativo punteggio.
+\subparagraph{I docenti.} Ogni docente sia identificato univocamente dal suo codice fiscale e sia caratterizzato da nome e cognome, dal dipartimento di afferenza (DMIF, DMED, DILL, DIES, \dots) e dal titolo (ricercatore, professore associato, \dots). Per ogni docente, si memorizzino i corsi che è abilitato a tenere.
 
-\subsection{Analisi del dominio e scomposizione dei requisiti}
+\section{Analisi del dominio e scomposizione dei requisiti}
+\label{sec:analisi-del-dominio-e-scomposizione-dei-requisiti}
 
-L'analisi sistematica del testo permette di suddividere il dominio informativo in aree funzionali distinte, facilitando l'individuazione delle dipendenze logiche tra i dati.
+Analizzando il testo di partenza in modo sistematico, è possibile dividere le informazioni in diverse aree funzionali. Questo processo aiuta a individuare chiaramente come i dati dipendono l'uno dall'altro. Per i significati precisi dei termini chiave usati in questa e nelle prossime sezioni, si può consultare il glossario in appendice \ref{tab:glossario}.
 
-\subsubsection{Architettura dell'offerta formativa e logistica}
+\paragraph{Nota:} sebbene la traccia originale del problema utilizzi genericamente il termine \enquote{corso}, nel resto del documento e nel modello concettuale si è scelto di adottare il termine \enquote{insegnamento} per indicare la singola materia offerta. Questa scelta progettuale è stata presa per evitare ogni possibile ambiguità con l'entità relativa al \enquote{corso di laurea}.
 
-Il pilastro centrale del sistema è rappresentato dal corso, inteso come entità astratta e permanente. La complessità emerge nella gestione delle propedeuticità: il requisito specifica che un insieme di corsi può costituire un prerequisito per un altro. Questa struttura implica una gerarchia ricorsiva dove l'esistenza di un vincolo condiziona la carriera dello studente. 
+\subsection{Architettura e organizzazione dell'offerta formativa}
+\label{ssec:architettura-e-organizzazione-dell-offerta-formativa}
 
-\noindent
-Parallelamente, l'edizione introduce la dimensione temporale. Dalla specifica "al più un'edizione per anno accademico", si deduce che l'edizione è un'entità debole che eredita l'identità dal corso. La logica si sposta poi sul micro-dettaglio della lezione. La terna composta da giorno, fascia oraria e aula non è solo un insieme di attributi, ma rappresenta un vincolo logistico: per una data edizione, la combinazione di questi elementi deve essere univoca per garantire la consistenza del calendario settimanale.
+Il fulcro del sistema è l'insegnamento, visto come un elemento astratto e permanente.
+La complessità principale riguarda le propedeuticità: il testo specifica infatti che un gruppo di insegnamenti può essere il prerequisito per un altro.
+Questa regola crea una rete di dipendenze tra i vari corsi, stabilendo un ordine preciso da seguire nel superamento degli esami.
 
-\subsubsection{Gestione delle risorse umane e afferenze}
-Il corpo docente viene modellato considerando due livelli di legame con l'attività didattica. Il primo è di natura statica e riguarda l'abilitazione: un docente possiede le competenze per insegnare determinati corsi a prescindere dalla loro effettiva attivazione. Il secondo livello è dinamico e riguarda la titolarità: la partecipazione effettiva di uno o più docenti a una specifica edizione. Questa distinzione è fondamentale per gestire la variabilità dei docenti di anno in anno, come esplicitamente richiesto. Per quanto riguarda l'inquadramento organizzativo, il dipartimento e il titolo professionale definiscono il profilo amministrativo del docente, fungendo da vincoli di classificazione.
+Allo stesso tempo, l'edizione inserisce la dimensione temporale.
+Dalla frase \enquote{al più un'edizione per anno accademico}, si capisce che l'edizione non esiste da sola, ma la sua identità dipende interamente dall'insegnamento a cui è legata.
+Passando poi ai dettagli organizzativi della lezione, emerge che la combinazione di giorno, fascia oraria e aula non è un semplice dato informativo: questo legame crea un vincolo unico di spazio e tempo, fondamentale per evitare sovrapposizioni nel calendario settimanale di ogni edizione.
 
-\subsubsection{Carriera studentesca e tracciamento delle attività}
-La componente relativa agli studenti richiede una modellazione capace di distinguere tra stati diversi del percorso accademico. Il piano di studi rappresenta una proiezione di intenti (corsi scelti), mentre il superamento degli esami rappresenta un dato consolidato e storico. Il punteggio è un attributo che nasce solo dalla concretizzazione del legame tra studente e corso in una data specifica. La matricola garantisce l'univocità del soggetto, mentre il corso di laurea di appartenenza definisce il contesto accademico in cui lo studente opera.
+\subsection{Profilo dei docenti e incarichi didattici}
+\label{ssec:profilo-dei-docenti-e-incarichi-didattici}
 
-\subsection{Vincoli e regole aziendali}
+Per gestire l'organizzazione accademica, bisogna dividere i dati personali dei docenti dai loro compiti reali.
+A livello amministrativo, ogni professore è definito semplicemente dal titolo e dal dipartimento di appartenenza.
+L'attività didattica vera e propria si divide invece in due concetti: l'abilitazione e l'assegnazione.
 
-In questa fase vengono formalizzati i vincoli che non possono essere espressi tramite la semplice struttura delle entità, ma che sono determinanti per la coerenza della base di dati.
+L'abilitazione è permanente e indica quali corsi il docente è qualificato a insegnare, anche se poi non lo fa concretamente.
+L'assegnazione è invece il passaggio pratico che affida a uno o più docenti una specifica edizione annuale di un insegnamento.
+Separare le competenze dalle cattedre reali è indispensabile per garantire la flessibilità del sistema. In questo modo, il titolare di un insegnamento può cambiare liberamente da un anno all'altro.
 
-\subsubsection{Vincoli di integrità e propedeuticità}
+\subsection{Carriera studentesca e tracciamento delle attività}
+\label{ssec:carriera-studentesca-e-tracciamento-delle-attivita}
 
-\paragraph{Regola di precedenza degli esami}
-Uno studente può registrare il superamento di un esame relativo a un corso $C$ solo se nel sistema risulta già presente, per la medesima matricola, il superamento di tutti i corsi definiti come prerequisiti per $C$. Questo vincolo di integrità referenziale deve essere garantito a livello applicativo o tramite trigger.
+Il percorso degli studenti si divide in due fasi distinte.
+La prima è il piano di studi, che raccoglie i corsi scelti dallo studente.
+La seconda è lo storico degli esami, che traccia tutti i tentativi fatti, compresi i voti finali e le prove non superate.
+Ogni esito deriva da una prova sostenuta per un insegnamento specifico in una data precisa.
+Infine, ogni studente appartiene a un solo corso di laurea ed è identificato in modo unico dal numero di matricola.
 
-\subsubsection{Vincoli temporali e di assegnazione}
+\paragraph{Assunzione sui tentativi d'esame:} sebbene la traccia richieda di tracciare unicamente gli esami superati, si è assunto di dover modellare lo storico completo di tutti i tentativi effettuati dallo studente (inclusi gli esiti negativi). Questa scelta aggiuntiva permette di ricavare statistiche essenziali sul tasso di superamento dei singoli insegnamenti.
 
-\paragraph{Unicità dell'edizione annuale}
-Per ogni corso presente nell'offerta formativa, non può esistere più di un record di edizione associato al medesimo anno accademico. Questo garantisce che la pianificazione didattica sia univoca su base annuale.
+\section{Operazioni}
+\label{sec:operazioni}
 
-\paragraph{Vincolo di abilitazione docenza}
-Un docente può essere associato a un'edizione di un corso solo se appartiene all'insieme dei docenti abilitati per quel determinato corso. Tale regola impedisce l'assegnazione di incarichi didattici al di fuori delle competenze certificate memorizzate nel sistema.
-
-\subsubsection{Specifiche sui domini dei dati}
-
-\paragraph{Restrizioni sui periodi e fasce orarie}
-Il periodo didattico è limitato all'insieme finito $\{1, 2, 3\}$, mentre le fasce orarie per le lezioni sono limitate all'intervallo $\{1, 2, 3, 4\}$. Tali attributi verranno implementati come domini vincolati per impedire l'inserimento di dati incoerenti con la realtà accademica descritta.
-
-\subsection{Operazioni}
-
-Le operazioni descritte di seguito rappresentano un insieme selezionato di attività significative, 
-progettate per riflettere in modo fedele le reali esigenze di gestione 
+Le operazioni descritte di seguito rappresentano un insieme selezionato di attività significative,
+progettate per riflettere in modo fedele le reali esigenze di gestione
 e interrogazione dei dati in un contesto accademico realistico.
-Tali operazioni, scelte per coprire in maniera equilibrata le diverse aree dello schema concettuale, 
-costituiscono la base per le successive analisi di costo degli accessi 
+Tali operazioni, scelte per coprire in maniera equilibrata le diverse aree dello schema concettuale,
+costituiscono la base per le successive analisi di costo degli accessi
 e per la valutazione delle prestazioni complessive del sistema di gestione della base di dati.
 
 \subsubsection{Operazioni di lettura}
+\label{sssec:operazioni-di-lettura}
 \begin{itemize}
-\item Determinare quale insegnamento compare più frequentemente nei piani di studio.
-\item Dato nome e cognome di un professore, un anno accademico e un periodo didattico restituire il suo calendario settimanale delle lezioni (giorno, fascia oraria, aula).
-\item Dato un insegnamento, calcolare la percentuale di prove superate rispetto al totale dei tentativi registrati.
-\item Dato un insegnamento, determinare la media dei tentativi effettuati dagli studenti che hanno effettivamente superato la prova.
+    \item Determinare quale insegnamento compare più frequentemente nei piani di studio.
+    \item Dato nome e cognome di un professore, un anno accademico e un periodo didattico restituire il suo calendario settimanale delle lezioni (insegnamento, giorno, fascia oraria, aula).
+    \item Dato un insegnamento, calcolare la percentuale di prove superate rispetto al totale dei tentativi registrati.
+    \item Dato un insegnamento, determinare la media dei tentativi effettuati dagli studenti che hanno effettivamente superato la prova.
 \end{itemize}
 
-\subsubsection{Operazioni di aggiornamento}
+\subsubsection{Operazioni di modifica}
+\label{sssec:operazioni-di-modifica}
 \begin{itemize}
-\item Inserimento di un insegnamento nel piano di studi di uno studente.
-\item Inserimento di un nuovo tentativo d’esame per uno studente, specificando insegnamento, data e punteggio ottenuto.
+    \item Dato uno studente, si vuole gestire l'eliminazione di tutti i suoi dati in seguito ad una rinuncia agli studi.
+    \item Dato un professore e l'anno accademico, si vuole gestire la sostituzione delle sue cattedre.
 \end{itemize}
-
-\newpage

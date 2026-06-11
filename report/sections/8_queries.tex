@@ -1,0 +1,132 @@
+A completamento della fase di progettazione e implementazione fisica, in questo capitolo vengono presentate le query SQL corrispondenti alle attività fondamentali definite precedentemente nella Sezione~\ref{sec:operazioni}.
+
+Come anticipato durante la raccolta dei requisiti, le operazioni elencate di seguito rappresentano un insieme selezionato di attività significative, atte a coprire in maniera equilibrata le diverse aree dello schema.
+L'implementazione pratica di queste interrogazioni dimostra la capacità della base di dati di rispondere in modo robusto ed efficiente sia alle normali esigenze operative di una segreteria didattica, sia alle richieste di analisi statistica avanzata sulle carriere degli studenti.
+
+\section{Implementazione delle operazioni di lettura}
+\label{sec:implementazione-delle-operazioni-di-lettura}
+
+\subsection{Frequenza degli insegnamenti nei piani di studio}
+\label{ssec:frequenza-degli-insegnamenti-nei-piani-di-studio}
+Questa prima query risponde all'esigenza di determinare quale insegnamento compaia più frequentemente all'interno dei piani di studio degli iscritti.
+
+\begin{lstlisting}[language=SQL]
+SELECT i.nome, COUNT(*) AS frequenza
+FROM piano_di_studio pds
+JOIN insegnamento i ON pds.codice_insegnamento = i.codice
+GROUP BY i.codice, i.nome
+ORDER BY frequenza DESC
+LIMIT 1;
+\end{lstlisting}
+
+L'operazione esegue un raggruppamento sul codice dell'insegnamento e ordina i risultati in modo decrescente.
+La combinazione della clausola \texttt{ORDER BY} con \texttt{LIMIT 1} permette di isolare immediatamente e in modo efficiente il singolo record con il conteggio massimo, senza dover ricorrere all'uso più dispendioso di sottoquery annidate.
+
+\subsection{Estrazione del calendario settimanale di un docente}
+\label{ssec:estrazione-del-calendario-settimanale-di-un-docente}
+Questa operazione permette di ricostruire l'orario settimanale completo delle lezioni per un determinato professore, vincolando la ricerca a uno specifico anno accademico e al relativo periodo didattico.
+
+\begin{lstlisting}[language=SQL]
+SELECT i.nome, l.giorno, l.fascia_oraria, l.aula
+FROM lezione l
+JOIN insegnamento i ON l.codice_insegnamento = i.codice
+JOIN insegnamento_edizione ie ON l.codice_insegnamento = ie.codice_insegnamento
+    AND l.anno_accademico = ie.anno_accademico
+    AND l.periodo = ie.periodo
+JOIN docente d ON ie.cf_docente = d.cf
+WHERE d.nome = 'Maria'
+    AND d.cognome = 'Gozzi'
+    AND l.anno_accademico = '2024/2025'
+    AND l.periodo = '2';
+\end{lstlisting}
+
+L'interrogazione si articola su una catena di \texttt{JOIN} che collega la tabella \texttt{lezione} all'anagrafica del \texttt{docente} tramite la tabella ponte \texttt{insegnamento\_edizione}.
+È rilevante notare come i vincoli di giunzione sfruttino l'intera chiave composta: il DBMS esegue i controlli temporali in modo nativo, beneficiando direttamente della presenza del periodo didattico propagato fisicamente durante la stesura dello schema relazionale.
+
+\subsection{Calcolo del tasso di superamento di un insegnamento}
+\label{ssec:calcolo-del-tasso-di-superamento-di-un-insegnamento}
+La query quantifica la percentuale di prove d'esame superate con successo rispetto al volume totale dei tentativi registrati per un determinato insegnamento.
+
+\begin{lstlisting}[language=SQL]
+WITH tentativi_totali (codice_insegnamento, totali) AS (
+    SELECT codice_insegnamento, COUNT(*)
+    FROM esame
+    GROUP BY codice_insegnamento
+),
+tentativi_superati (codice_insegnamento, superati) AS (
+    SELECT codice_insegnamento, COUNT(*) AS superati
+    FROM esame
+    WHERE punteggio >= 18
+    GROUP BY codice_insegnamento
+)
+SELECT i.nome, (ts.superati * 100.0 / tt.totali) AS percentuale_superamento
+FROM tentativi_totali tt
+JOIN tentativi_superati ts ON tt.codice_insegnamento = ts.codice_insegnamento
+JOIN insegnamento i ON tt.codice_insegnamento = i.codice
+WHERE i.nome = 'Logica matematica';
+\end{lstlisting}
+
+Per strutturare questo calcolo statistico in modo pulito e performante, il problema logico è stato scomposto utilizzando due \textit{Common Table Expressions} (\texttt{WITH}).
+La prima tabella temporanea, \texttt{tentativi\_totali}, calcola il divisore aggregando tutte le prove, mentre la seconda, \texttt{tentativi\_superati}, agisce da dividendo filtrando esclusivamente le valutazioni sufficienti ($\ge 18$).
+
+\subsection{Media dei tentativi per gli studenti promossi}
+\label{ssec:media-dei-tentativi-per-gli-studenti-promossi}
+Questa interrogazione analizza l'effettiva complessità didattica di un insegnamento, calcolando il numero medio di tentativi effettuati dagli studenti che sono riusciti a superare con successo la materia.
+
+\begin{lstlisting}[language=SQL]
+WITH tentativi_per_passare (matricola, num_tentativi) AS (
+    SELECT e.matricola, COUNT(*)
+    FROM esame e
+    JOIN insegnamento i ON e.codice_insegnamento = i.codice
+    WHERE i.nome = 'Teoria dei segnali'
+    GROUP BY e.matricola
+    HAVING MAX(e.punteggio) >= 18
+)
+SELECT AVG(num_tentativi) AS media_tentativi
+FROM tentativi_per_passare;
+\end{lstlisting}
+
+\section{Implementazione delle operazioni di modifica}
+\label{sec:implementazione-delle-operazioni-di-modifica}
+
+Le operazioni di aggiornamento e rimozione alterano in modo permanente lo stato della base di dati.
+Tali procedure richiedono l'utilizzo di blocchi transazionali protetti o di sub-query logiche per non compromettere la coerenza referenziale dello schema.
+
+\subsection{Gestione della rinuncia agli studi}
+\label{ssec:gestione-della-rinuncia-agli-studi}
+L'eliminazione dei dati relativi a uno studente in seguito a una rinuncia formale agli studi richiede un'attenzione tecnica specifica e non può risolversi in una singola e semplice istruzione di rimozione.
+
+\begin{lstlisting}[language=SQL]
+BEGIN;
+-- Rimozione preventiva obbligatoria a causa del vincolo RESTRICT
+DELETE FROM esame
+WHERE matricola = 15;
+
+-- Cancellazione del profilo anagrafico (propaga il CASCADE su piano_di_studio)
+DELETE FROM studente
+WHERE matricola = 15;
+COMMIT;
+\end{lstlisting}
+
+Come definito a livello di schema fisico, la tabella \texttt{esame} è rigorosamente protetta dal vincolo \texttt{ON DELETE RESTRICT} per tutelare i registri da cancellazioni accidentali. È quindi obbligatorio incapsulare i comandi all'interno di una transazione. Questa procede prima alla rimozione manuale dello storico dei voti e solo successivamente cancella l'anagrafica dello studente.
+Quest'ultimo comando elimina contestualmente e in modo automatico i record associati all'interno della tabella \texttt{piano\_di\_studio}, per effetto del vincolo \texttt{ON DELETE CASCADE}.
+
+\subsection{Sostituzione in blocco di una cattedra annuale}
+\label{ssec:sostituzione-in-blocco-di-una-cattedra-annuale}
+In caso di necessità organizzative, la segreteria dell'ateneo deve poter trasferire istantaneamente la titolarità delle edizioni annuali da un docente a un nuovo sostituto.
+
+\begin{lstlisting}[language=SQL]
+UPDATE insegnamento_edizione
+SET cf_docente = 'ZCCNTL28S02G280O'
+WHERE cf_docente = 'PTRFBA87S13G935U'
+  AND anno_accademico = '2025/2026'
+  AND EXISTS (
+      SELECT 1
+      FROM abilitazione_docente_insegnamento adi
+      WHERE adi.cf_docente = 'ZCCNTL28S02G280O'
+        AND adi.codice_insegnamento = insegnamento_edizione.codice_insegnamento
+  );
+\end{lstlisting}
+
+Per garantire che l'operazione di \texttt{UPDATE} massivo non assegni cattedre in modo illegittimo o a docenti non qualificati, è stata inserita una rigorosa condizione di validazione tramite la sottoquery \texttt{EXISTS}.
+Il DBMS applicherà le modifiche ai record nella tabella \texttt{insegnamento\_edizione} esclusivamente se il codice fiscale del nuovo docente risulta già formalmente associato all'insegnamento in questione all'interno della tabella di riferimento \texttt{abilitazione\_docente\_insegnamento}, garantendo totale aderenza alle regole dell'ateneo.

@@ -1,10 +1,10 @@
 [
-    {"codice_corso": "70002", "codice_prerequisito": "70001"},
-    {"codice_corso": "70004", "codice_prerequisito": "70002"},
-    {"codice_corso": "70005", "codice_prerequisito": "70004"},
-    {"codice_corso": "50002", "codice_prerequisito": "50001"},
-    {"codice_corso": "50003", "codice_prerequisito": "50001"},
-    {"codice_corso": "60002", "codice_prerequisito": "60001"},
-    {"codice_corso": "90003", "codice_prerequisito": "90002"},
-    {"codice_corso": "92002", "codice_prerequisito": "92005"}
+    {"codice_insegnamento": "70002", "codice_prerequisito": "70001"},
+    {"codice_insegnamento": "70004", "codice_prerequisito": "70002"},
+    {"codice_insegnamento": "70005", "codice_prerequisito": "70004"},
+    {"codice_insegnamento": "50002", "codice_prerequisito": "50001"},
+    {"codice_insegnamento": "50003", "codice_prerequisito": "50001"},
+    {"codice_insegnamento": "60002", "codice_prerequisito": "60001"},
+    {"codice_insegnamento": "90003", "codice_prerequisito": "90002"},
+    {"codice_insegnamento": "92002", "codice_prerequisito": "92005"}
 ]

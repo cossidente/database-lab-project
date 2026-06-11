@@ -1,0 +1,148 @@
+\section{Ristrutturazione dello Schema}
+\label{sec:ristrutturazione-dello-schema}
+
+\subsection{Analisi delle prestazioni e dei volumi}
+\label{ssec:analisi-delle-prestazioni-e-dei-volumi}
+
+La tabella dei volumi costituisce lo strumento quantitativo fondamentale per valutare il costo computazionale delle transazioni e analizzare l'efficienza dello schema. Le occorrenze stimate riflettono lo stato a regime del database, simulando il carico di lavoro complessivo necessario a gestire l'intera popolazione studentesca attiva all'interno della facoltà.
+
+\begin{table}[h!]
+    \centering
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{lcr}
+        \hline
+        \textbf{Concetto} & \textbf{Tipo} & \textbf{Volume} \\
+        \hline
+        Dipartimento & E & \num{8} \\
+        Corso di laurea & E & \num{80} \\
+        Docente & E & \num{700} \\
+        Insegnamento & E & \num{1200} \\
+        Edizione & E & \num{6000} \\
+        Lezione & E & \num{120000} \\
+        Studente & E & \num{16000} \\
+        Esame & E & \num{320000} \\
+        \hline
+        è affiliato a & R & \num{700} \\
+        è iscritto & R & \num{16000} \\
+        nel piano di studio & R & \num{320000} \\
+        sostiene & R & \num{320000} \\
+        prevede & R & \num{320000} \\
+        prerequisito & R & \num{360} \\
+        può insegnare & R & \num{3500} \\
+        è erogato in & R & \num{6000} \\
+        tiene & R & \num{7000} \\
+        si compone di & R & \num{120000} \\
+        \hline
+    \end{tabular}
+    \caption{Tabella dei volumi complessivi stimati per il sistema didattico.}
+    \label{tab:volumi}
+\end{table}
+
+\subsubsection{Derivazione analitica dei volumi}
+\label{sssec:derivazione-analitica-dei-volumi}
+
+\paragraph{Struttura istituzionale e corpo docente}
+Il dimensionamento dell'infrastruttura prende come riferimento la topologia e l'assetto organizzativo dell'Università degli Studi di Udine.
+A partire dagli \num{8} dipartimenti principali e dagli \num{80} corsi di laurea attivi, l'organico del corpo docente viene stimato in \num{700} professori e ricercatori, ciascuno legato al proprio dipartimento di afferenza mediante la relazione \textit{è affiliato a}.
+
+\paragraph{Offerta formativa e pianificazione delle lezioni}
+Il catalogo complessivo della facoltà comprende \num{1200} insegnamenti distinti.
+Considerando l'attivazione dei corsi e la presenza delle edizioni storiche e correnti registrate nel sistema, l'entità \textit{Edizione} e la corrispondente relazione \textit{è erogato in} contano un volume di \num{6000} istanze.
+Assumendo che ogni singola edizione si articoli in media su un ciclo di \num{20} lezioni frontali in aula, si ricavano esattamente \num{120000} tuple per popolare l'entità \textit{Lezione} e l'associazione \textit{si compone di}.
+
+\paragraph{Anagrafica e carriere degli studenti}
+Il sistema gestisce un bacino di \num{16000} studenti regolarmente iscritti ai diversi percorsi di studio.
+Per l'associazione \textit{nel piano di studio}, si ipotizza che la carriera di ogni studente includa un carico didattico standard composto mediamente da \num{20} insegnamenti da sostenere, generando un volume complessivo di \num{320000} record.
+
+\paragraph{Tracciamento dello storico degli esami}
+Per quantificare l'entità \textit{Esame} e le relazioni \textit{Sostiene} e \textit{Prevede}, si è preso in considerazione lo storico complessivo dei voti e delle prove d'esame verbalizzate per ciascuna matricola.
+Considerando che il database memorizza l'intero storico dei tentativi effettuati, comprese le valutazioni insufficienti, si stima una media di \num{20} verbalizzazioni complessive per ciascuna matricola, stabilendo il volume totale a \num{320000} tuple.
+
+\paragraph{Abilitazioni e coperture didattiche}
+Le competenze e le cattedre del personale docente vengono quantificate ipotizzando che ogni professore possieda l'abilitazione formale per insegnare mediamente \num{5} materie affini al proprio settore disciplinare, portando la relazione \textit{può insegnare} a \num{3500} occorrenze.
+Per la relazione \textit{tiene}, il volume sale a \num{7000} record per includere e mappare in modo accurato i casi di co-docenza e la suddivisione dei corsi in moduli coordinati.
+
+\paragraph{Vincoli di propedeuticità}
+L'architettura dei piani formativi viene completata mediante la relazione ricorsiva \textit{prerequisito}.
+Si stima la presenza media di circa \num{4} o \num{5} sbarramenti propedeutici formali per ogni percorso di studio, determinando un valore complessivo e stabile di \num{360} record memorizzati.
+
+\subsection{Analisi dei percorsi ciclici}
+\label{ssec:analisi-dei-percorsi-ciclici}
+
+Lo schema concettuale presenta due percorsi ciclici. Per ciascuno di essi è necessario verificare se i diversi cammini rappresentino informazioni ridondanti oppure dati indipendenti che non possono essere ricostruiti gli uni a partire dagli altri.
+
+\subsubsection{Ciclo della carriera studentesca}
+\label{sssec:ciclo-della-carriera-studentesca}
+
+Il primo ciclo coinvolge le entità \textit{Studente}, \textit{Insegnamento} ed \textit{Esame}. Uno studente risulta collegato a un insegnamento sia attraverso la relazione \textit{nel piano di studio}, sia tramite il percorso \textit{Studente -- Esame -- Insegnamento}.
+
+Per stabilire se sia presente una ridondanza, si verifica se una delle due informazioni possa essere derivata dall'altra. La relazione \textit{nel piano di studio} non può essere ricostruita a partire dagli esami registrati, poiché uno studente può inserire nel proprio piano insegnamenti per i quali non ha ancora sostenuto alcuna prova. Viceversa, gli esami sostenuti non possono essere dedotti dal piano di studi, che non contiene informazioni sui tentativi effettuati né sui relativi esiti.
+
+Poiché nessuno dei due percorsi è derivabile dall'altro, il ciclo non introduce ridondanze informative e viene pertanto mantenuto nello schema.
+
+\subsubsection{Ciclo delle competenze didattiche}
+\label{sssec:ciclo-delle-competenze-didattiche}
+
+Il secondo ciclo coinvolge le entità \textit{Docente}, \textit{Insegnamento} ed \textit{Edizione}. Un docente risulta collegato a un insegnamento sia mediante la relazione \textit{può insegnare}, sia attraverso il percorso \textit{Docente -- Edizione -- Insegnamento}.
+
+Anche in questo caso si analizza la possibilità di derivare un'informazione dall'altra. Le abilitazioni di un docente non possono essere ricostruite osservando esclusivamente le edizioni che egli ha tenuto, poiché un docente può essere qualificato per insegnamenti che non gli sono mai stati assegnati. Analogamente, le assegnazioni effettive alle edizioni non possono essere dedotte dalle sole abilitazioni, che non forniscono alcuna informazione sugli incarichi attribuiti nei diversi anni accademici.
+
+Di conseguenza, i due percorsi rappresentano informazioni indipendenti e il ciclo non determina alcuna ridondanza all'interno dello schema.
+
+\subsection{Analisi delle ridondanze}
+\label{ssec:analisi-delle-ridondanze}
+
+Lo schema concettuale di partenza è strutturato per essere privo di dati duplicati, preservando l'integrità pura del modello ed evitando potenziali anomalie di aggiornamento.
+Tuttavia, l'esame approfondito delle operazioni ricorrenti evidenzia che l'interrogazione della carriera scolastica di uno studente, finalizzata alla visualizzazione del libretto o alla verifica dei requisiti di laurea, rappresenta l'attività con la frequenza più elevata sull'intero sistema.
+Per ottimizzare i tempi di risposta e ridurre il carico computazionale complessivo sul DBMS, si valuta l'opportunità di introdurre una ridondanza controllata inserendo l'attributo \texttt{CreditiAcquisiti} all'interno dell'entità \textit{Studente}.
+Questo campo ha lo scopo di memorizzare in modo permanente la somma dei CFU associati esclusivamente alle prove d'esame superate con successo da ciascuna matricola.
+
+Al fine di stabilire la reale convenienza di questa modifica strutturale, viene condotto uno studio costi-benefici che mette a confronto lo stato attuale del sistema con la variante ottimizzata.
+Il modello di valutazione adotta la convenzione standard secondo cui un accesso in scrittura comporta un costo computazionale doppio rispetto a un accesso in lettura, sintetizzabile nella relazione $1W = 2R$.
+L'intera stima dei costi viene di conseguenza espressa tramite un'unica unità di misura quantificata in numero di accessi complessivi.
+
+Si assume che uno studente sostenga in media \num{20} prove totali nell'entità \textit{Esame}, delle quali il $60\%$ (pari a circa \num{12} verbalizzazioni) ha esito positivo con un voto maggiore o uguale a \num{18}.
+Il carico di lavoro annuo prevede \num{50000} operazioni di lettura della carriera e \num{80000} registrazioni di nuovi esami.
+
+La prima opzione analizzata, denominata \textbf{Strategia A}, prevede il mantenimento dello schema puro senza alcuna ridondanza.
+In questo scenario, ogni volta che si desidera conoscere il saldo dei crediti di una matricola, il DBMS deve calcolare il valore dinamicamente attraverso un'operazione di aggregazione e join.
+Il sistema esegue un primo accesso alla tupla dell'entità \textit{Studente}, esamina tutti i \num{20} record a lui associati nell'entità \textit{Esame} per scartare le insufficienze e infine interroga l'entità \textit{Insegnamento} per recuperare il valore dei crediti dei \num{12} esami effettivamente superati. Questa sequenza comporta un costo fisso di $1 + 20 + 12 = 33$ accessi per ogni singola consultazione, che moltiplicato per il volume delle interrogazioni annuali genera un costo totale di \num{1650000} accessi all'anno.
+Di contro, la fase di inserimento rimane estremamente leggera poiché la registrazione di un nuovo voto si limita alla scrittura di una singola tupla nell'entità \textit{Esame}, corrispondente a \num{2} accessi. Su base annua, questa componente incide per \num{160000} accessi.
+
+La seconda opzione, identificata come \textbf{Strategia B}, prevede l'aggiunta dell'attributo derivato.
+In questo modo la lettura della carriera si risolvesse istantaneamente interrogando il singolo record dell'entità \textit{Studente}, azzerando la necessità di scorrere lo storico degli esami e riducendo il costo a un solo accesso per operazione, per un totale annuo di \num{50000} accessi.
+La fase di scrittura subisce invece un incremento dovuto alla logica dei vincoli attivi. L'inserimento base della tupla nell'entità \textit{Esame} richiede sempre \num{2} accessi, ma l'attivazione del trigger introduce un sovraccarico.
+Il trigger esegue le proprie operazioni soltanto quando il punteggio inserito è sufficiente, circostanza che si verifica nel $60\%$ dei casi. Quando scatta, il trigger deve leggere i crediti dall'entità \textit{Insegnamento} (\num{1} accesso), leggere lo stato corrente della tupla nell'entità \textit{Studente} (\num{1} accesso) e aggiornare il record incrementando i crediti (\num{1} scrittura pari a \num{2} accessi), per un costo parziale del trigger di \num{4} accessi. Considerando la probabilità dell'evento sul volume totale, il costo di scrittura si attesta a \num{352000} accessi annui, derivanti dalla somma dei \num{160000} accessi di inserimento base e dei \num{192000} accessi dovuti alle \num{48000} esecuzioni effettive del trigger.
+
+I risultati complessivi di questo bilancio quantitativo sono sintetizzati nella Tabella~\ref{tab:bilancio_ridondanza}, dove emerge chiaramente come il risparmio ottenuto sulle letture superi di gran lunga il costo aggiuntivo pagato in fase di scrittura.
+
+\begin{table}[h!]
+    \centering
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{lrr}
+        \hline
+        \textbf{Operazione} & \textbf{Strategia A} & \textbf{Strategia B} \\
+        \hline
+        Lettura carriera & \num{1650000} & \num{50000} \\
+        Registrazione esami & \num{160000} & \num{352000} \\
+        \hline
+        \textbf{Accessi totali annui} & \textbf{\num{1810000}} & \textbf{\num{402000}} \\
+        \hline
+    \end{tabular}
+    \caption{Bilancio complessivo degli accessi annui.}
+    \label{tab:bilancio_ridondanza}
+\end{table}
+
+L'introduzione della ridondanza controllata determina un abbattimento dei costi complessivi che scendono da \num{1810000} a \num{402000} accessi all'anno, garantendo un risparmio netto pari a \num{1408000} accessi annui.
+Per questa ragione, si decide formalmente di implementare l'ottimizzazione integrando l'attributo nel modello logico.
+La coerenza del dato verrà preservata mediante un trigger la cui struttura e sintassi verranno dettagliate nella sezione dedicata alla progettazione fisica.
+
+Per verificare la tenuta di questa soluzione a lungo termine e prevenire colli di bottiglia causati da un eventuale aumento massiccio delle iscrizioni agli appelli, viene sviluppato uno studio di scalabilità volto a identificare il punto di pareggio del sistema. Questo limite definisce la quantità critica di registrazioni annuali oltre la quale l'esecuzione ripetuta del trigger renderebbe la Strategia B meno efficiente rispetto al calcolo dinamico della Strategia A.
+Mantenendo stabile il numero di consultazioni della carriera a \num{50000} operazioni all'anno, l'uguaglianza matematica tra i costi delle due opzioni si verifica a una soglia limite di \num{666667} operazioni di scrittura. Poiché il volume reale stimato si attesta su \num{80000} esami all'anno, il sistema si posiziona in un'area di assoluta sicurezza e convenienza prestazionale, dimostrando la piena sostenibilità e la futura scalabilità della scelta architetturale.
+
+% \begin{figure}[h!]
+%     \centering
+%     \includegraphics[width=0.9\textwidth]{img/punto_pareggio_ridondanza_nuovo.pdf}
+%     \caption{Analisi di scalabilità e individuazione del punto di pareggio al variare delle scritture annue.}
+%     \label{fig:punto_pareggio_ridondanza}
+% \end{figure}

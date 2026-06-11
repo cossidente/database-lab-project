@@ -1,22 +1,54 @@
-\documentclass{article}
-\usepackage[italian]{babel}
-\usepackage{array}
-\usepackage[margin=2.5cm]{geometry}
-\usepackage{multirow}
-\usepackage{hyperref}
-\usepackage{pdfpages}
-\usepackage{xcolor}
-\usepackage{subfigure}
-\usepackage{amsmath}
-\usepackage{relsize}
-\usepackage{amsfonts}
-\usepackage{array}
-\usepackage{subcaption}
-\usepackage{graphicx}
-\hypersetup{hidelinks}
+\documentclass[11pt, a4paper]{report}
+
+\usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage{cmap}
+\usepackage[italian]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{relsize}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{pdfpages}
+\usepackage{xcolor}
+\usepackage{subcaption}
+\usepackage{hyperref}
+\usepackage{longtable}
+\usepackage{csquotes}
+\usepackage{siunitx}
+\usepackage{listings}
+\definecolor{codegray}{rgb}{0.96, 0.96, 0.98}
+\definecolor{keywordblue}{rgb}{0.13, 0.29, 0.53}
+\definecolor{stringgreen}{rgb}{0.29, 0.54, 0.13}
+\definecolor{commentrgb}{rgb}{0.50, 0.50, 0.50}
+
+\lstdefinestyle{modernsql}{
+    backgroundcolor=\color{codegray},
+    commentstyle=\color{commentrgb}\itshape,
+    keywordstyle=\color{keywordblue}\bfseries,
+    numberstyle=\tiny\color{commentrgb},
+    stringstyle=\color{stringgreen},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=none,
+    numbersep=8pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    frame=single,
+    rulecolor=\color{codegray},
+    frameround=tttt
+}
+\lstset{style=modernsql}
+\sisetup{locale = IT}
+\hypersetup{hidelinks}
 
 \begin{document}
 
@@ -54,19 +86,33 @@
         \vfill
 
         {\large \textbf{Anno Accademico 2025--2026}}
-        \vspace*{1cm}
+        \vspace*{0.5cm}
     \end{titlepage}
+
     \tableofcontents
     \newpage
 
+    \chapter{Introduzione}
     \input{sections/1_introduction}
-    \input{sections/2_requirements_analysis}
-    \input{sections/3_glossary}
-    \input{sections/4_conceptual_design}
-    \input{sections/5_schema_restructuring}
-    \input{sections/6_logical_design}
-    \input{sections/7_normalization}
-    \input{sections/8_physical_design}
-    \input{sections/9_queries}
 
+    \chapter{Analisi dei requisiti}
+    \input{sections/2_requirements_analysis}
+
+    \chapter{Progettazione concettuale}
+    \input{sections/3_conceptual_design}
+
+    \chapter{Progettazione logica}
+    \input{sections/4_schema_restructuring}
+
+    \input{sections/6_logical_design}
+
+    \chapter{Progettazione fisica}
+    \input{sections/7_physical_design}
+
+    \chapter{Operazioni e interrogazioni}
+    \input{sections/8_queries}
+
+    \appendix
+    \chapter{Glossario}
+    \input{sections/a1_glossary}
 \end{document}

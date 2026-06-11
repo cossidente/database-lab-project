@@ -32,9 +32,9 @@ Questa scelta progettuale centralizza la logica di validazione nel server della 
 
 I vincoli strutturali derivati dalla progettazione logica sono stati mappati sfruttando le clausole native di chiave primaria, chiave esterna, vincoli di unicità e vincoli \texttt{CHECK} locali.
 
-Le chiavi esterne garantiscono la consistenza referenziale tra le relazioni dell'ateneo, regolando le politiche di cancellazione e aggiornamento in cascata per evitare la presenza di puntatori orfani. I vincoli di unicità vengono invece declinati per forzare regole di business non catturabili dalle sole chiavi primarie.
+Le chiavi esterne garantiscono l'integrità referenziale del database: grazie alle regole di aggiornamento e cancellazione in cascata, impediscono la creazione di record orfani. I vincoli di unicità, d'altra parte, permettono di applicare logiche di business specifiche che la sola chiave primaria non basterebbe a gestire.
 
-Un esempio cruciale è rappresentato dalla tabella \texttt{edizione}, all'interno della quale è stato introdotto un indice di unicità composto volto a escludere ridondanze annuali concorrenti:
+Un esempio cruciale è rappresentato dalla tabella \texttt{edizione}, all'interno della quale è stato introdotto un vincolo di unicità composto volto a escludere ridondanze annuali concorrenti:
 
 \begin{lstlisting}[language=SQL]
 CONSTRAINT uq_singola_edizione_annuale
@@ -46,7 +46,7 @@ Questo costrutto garantisce in modo stringente il rispetto della specifica secon
 L'introduzione di questo specifico vincolo si ricollega direttamente alle scelte di strutturazione discusse nella Sezione~\ref{sec:schema-logico}.
 Come precedentemente illustrato, è proprio l'esplicita dichiarazione di questo vincolo di unicità annuale che permette di mantenere l'attributo \texttt{periodo} all'interno della chiave primaria della tabella \texttt{edizione} a fini di ottimizzazione referenziale verso le lezioni. La clausola \texttt{UNIQUE} agisce come sbarramento fisico a livello di DBMS, garantendo che la superchiave composta non minimale scelta per la chiave primaria non si traduca in una violazione del vincolo di unicità annuale.
 
-Ulteriori controlli di consistenza logica sono stati distribuiti tramite espressioni \texttt{CHECK} sulle singole tabelle. Tra i principali si segnalano il blocco preventivo sull'inserimento di valori negativi per i CFU nella tabella \texttt{insegnamento}, l'esclusione di relazioni autoreferenziali nella tabella \texttt{prerequisito} e la verifica che le date di verbalizzazione nella tabella \texttt{esame} appartengano al passato rispetto al tempo di sistema dell'operazione.
+Ulteriori controlli di consistenza logica sono stati distribuiti tramite espressioni \texttt{CHECK} sulle singole tabelle. Tra i principali si segnalano il blocco preventivo sull'inserimento di valori negativi per i CFU nella tabella \texttt{insegnamento}, l'esclusione di relazioni autoreferenziali nella tabella \texttt{prerequisito} e la verifica che le date di verbalizzazione nella tabella \texttt{esame} non siano successive alla data odierna, prevenendo così l'inserimento di esiti d'esame con date future.
 
 \subsection{Analisi delle scelte di indicizzazione e chiavi}
 \label{ssec:analisi-delle-scelte-di-indicizzazione-e-chiavi}
@@ -67,10 +67,10 @@ Per esempio, senza questo vincolo, una riga della tabella \texttt{lezione} potre
 Le regole di business complesse che richiedono l'interrogazione coordinata di più tabelle non sono esprimibili tramite vincoli dichiarativi tradizionali. Per superare questi limiti strutturali, sono stati implementati vincoli procedurali attraverso trigger dedicati associati a funzioni scritte in linguaggio \texttt{PL/pgSQL}.
 
 \paragraph{Controllo delle propedeuticità d'esame}
-Prima di consentire l'inserimento di una nuova riga nella tabella \texttt{esame}, il sistema deve verificare lo stato della carriera dello studente. La funzione \texttt{controlla\_prerequisiti} intercetta l'operazione e verifica se la matricola ha superato tutte le materie definite come propedeutiche per il corso in esame. In caso di esito negativo, la transazione viene interrotta, sollevando un'eccezione che elenca esplicitamente i codici dei corsi mancanti.
+Prima di consentire l'inserimento di una nuova riga nella tabella \texttt{esame}, il sistema deve verificare lo stato della carriera dello studente. La funzione \texttt{controlla\_prerequisiti} intercetta l'operazione e verifica se la matricola ha superato tutte le materie definite come propedeutiche per l'insegnamento in esame. In caso di esito negativo, la transazione viene interrotta, sollevando un'eccezione che elenca esplicitamente i codici dei corsi mancanti.
 
 \paragraph{Automazione della ridondanza del saldo crediti}
-Coerentemente con lo studio costi-benefici formalizzato in precedenza, l'attributo \texttt{crediti\_acquisiti} nella tabella \texttt{studente} viene gestito in modo interamente automatizzato. La procedura \texttt{aggiorna\_crediti\_acquisiti} si attiva in modalità \texttt{AFTER INSERT} sulla tabella \texttt{Esame}. Il trigger agisce in modo condizionale: valuta se il punteggio è sufficiente ($\ge 18$) e controlla che l'insegnamento non sia già stato superato in un appello precedente, scongiurando il rischio amministrativo di un doppio conteggio dei CFU a parità di esame.
+Coerentemente con lo studio costi-benefici formalizzato in precedenza, l'attributo \texttt{crediti\_acquisiti} nella tabella \texttt{studente} viene gestito in modo interamente automatizzato. La procedura \texttt{aggiorna\_crediti\_acquisiti} si attiva in modalità \texttt{AFTER INSERT} sulla tabella \texttt{esame}. Il trigger agisce in modo condizionale: valuta se il punteggio è sufficiente ($\ge 18$) e controlla che l'insegnamento non sia già stato superato in un appello precedente, scongiurando il rischio amministrativo di un doppio conteggio dei CFU a parità di esame.
 
 \paragraph{Validazione delle abilitazioni del corpo docente}
 L'invariante di business emerso dall'analisi dei cicli didattici viene forzato in fase di inserimento nella tabella \texttt{insegnamento\_edizione}. La funzione \texttt{controlla\_abilitazione\_docente} interroga preventivamente la tabella ponte delle competenze stabili, bloccando l'assegnazione della cattedra qualora non vi sia una corrispondenza esatta tra il codice fiscale del docente e l'insegnamento erogato.

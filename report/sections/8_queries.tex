@@ -6,11 +6,9 @@ L'implementazione pratica di queste interrogazioni dimostra la capacità della b
 \section{Implementazione delle operazioni di lettura}
 \label{sec:implementazione-delle-operazioni-di-lettura}
 
-Le operazioni di consultazione estraggono le informazioni necessarie alla pianificazione delle attività didattiche e al monitoraggio dell'andamento dei corsi di studio, sfruttando raggruppamenti e tabelle temporanee isolate per ottimizzare l'esecuzione.
-
 \subsection{Frequenza degli insegnamenti nei piani di studio}
 \label{ssec:frequenza-degli-insegnamenti-nei-piani-di-studio}
-Questa prima query risponde all'esigenza di determinare quale insegnamento compaia più frequentemente all'interno dei piani di studio degli iscritti, fornendo un dato utile per l'allocazione delle aule di maggiore capienza.
+Questa prima query risponde all'esigenza di determinare quale insegnamento compaia più frequentemente all'interno dei piani di studio degli iscritti.
 
 \begin{lstlisting}[language=SQL]
 SELECT i.nome, COUNT(*) AS frequenza
@@ -21,8 +19,8 @@ ORDER BY frequenza DESC
 LIMIT 1;
 \end{lstlisting}
 
-L'operazione esegue un raggruppamento sul codice del corso e ordina i risultati in modo decrescente.
-La combinazione della clausola \texttt{ORDER BY} con \texttt{LIMIT 1} permette di isolare immediatamente e in modo efficiente il singolo record con il conteggio massimo, senza dover ricorrere all'uso più dispendioso di sotto query annidate.
+L'operazione esegue un raggruppamento sul codice dell'insegnamento e ordina i risultati in modo decrescente.
+La combinazione della clausola \texttt{ORDER BY} con \texttt{LIMIT 1} permette di isolare immediatamente e in modo efficiente il singolo record con il conteggio massimo, senza dover ricorrere all'uso più dispendioso di sottoquery annidate.
 
 \subsection{Estrazione del calendario settimanale di un docente}
 \label{ssec:estrazione-del-calendario-settimanale-di-un-docente}
@@ -42,12 +40,12 @@ WHERE d.nome = 'Maria'
     AND l.periodo = '2';
 \end{lstlisting}
 
-L'interrogazione si articola su una catena profonda di \texttt{JOIN} che collega la tabella \texttt{lezione} all'anagrafica del \texttt{docente} tramite la tabella ponte \texttt{insegnamento\_edizione}.
+L'interrogazione si articola su una catena di \texttt{JOIN} che collega la tabella \texttt{lezione} all'anagrafica del \texttt{docente} tramite la tabella ponte \texttt{insegnamento\_edizione}.
 È rilevante notare come i vincoli di giunzione sfruttino l'intera chiave composta: il DBMS esegue i controlli temporali in modo nativo, beneficiando direttamente della presenza del periodo didattico propagato fisicamente durante la stesura dello schema relazionale.
 
 \subsection{Calcolo del tasso di superamento di un insegnamento}
 \label{ssec:calcolo-del-tasso-di-superamento-di-un-insegnamento}
-La query quantifica la percentuale di prove d'esame superate con successo rispetto al volume totale dei tentativi registrati per un determinato corso.
+La query quantifica la percentuale di prove d'esame superate con successo rispetto al volume totale dei tentativi registrati per un determinato insegnamento.
 
 \begin{lstlisting}[language=SQL]
 WITH tentativi_totali (codice_insegnamento, totali) AS (
@@ -130,5 +128,5 @@ WHERE cf_docente = 'PTRFBA87S13G935U'
   );
 \end{lstlisting}
 
-Per garantire che l'operazione di \texttt{UPDATE} massivo non assegni cattedre in modo illegittimo o a docenti non qualificati, è stata inserita una rigorosa condizione di validazione tramite la sotto query \texttt{EXISTS}.
+Per garantire che l'operazione di \texttt{UPDATE} massivo non assegni cattedre in modo illegittimo o a docenti non qualificati, è stata inserita una rigorosa condizione di validazione tramite la sottoquery \texttt{EXISTS}.
 Il DBMS applicherà le modifiche ai record nella tabella \texttt{insegnamento\_edizione} esclusivamente se il codice fiscale del nuovo docente risulta già formalmente associato all'insegnamento in questione all'interno della tabella di riferimento \texttt{abilitazione\_docente\_insegnamento}, garantendo totale aderenza alle regole dell'ateneo.

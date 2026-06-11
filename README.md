@@ -17,6 +17,7 @@ Database Lab project for the Database Systems course at the University of Udine 
 | `src/` | Source code used for interacting with the database |
 | `sql/01_schema.sql` | Table definitions and constraints |
 | `sql/02_triggers.sql` | Triggers and trigger functions |
+| `sql/03_queries.sql` | Queries for testing and demonstration purposes |
 | `src/main.py` | Random data generator for populating the database |
 | `Dockerfile` | PostgreSQL image definition |
 | `docker-compose.yml` | Container configuration |
@@ -50,7 +51,7 @@ This will build the Docker image, start a PostgreSQL container, and initialize t
 
 **3. Populate the database:**
 ```bash
-uv run python src/main.py
+uv run src/main.py
 ```
 
 This will populate every table of the database with random but coherent data.

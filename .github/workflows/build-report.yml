@@ -6,11 +6,13 @@ on:
       - main
     paths:
       - "report/**"
+      - '.github/workflows/build-report.yml'
   pull_request:
     branches:
       - main
     paths:
       - "report/**"
+      - '.github/workflows/build-report.yml'
 
 env:
   docker_image: ghcr.io/xu-cheng/texlive-alpine
@@ -77,8 +79,7 @@ jobs:
 
       - name: Delete old release and tag
         run: |
-          gh release delete latest --yes 2>/dev/null || true
-          git push origin :refs/tags/latest 2>/dev/null || true
+          gh release delete latest --cleanup-tag --yes --repo ${{ github.repository }} 2>/dev/null || true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -86,6 +87,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
+          target_commitish: ${{ github.sha }}
           name: "Database Lab Project Report"
           body: "Latest version of the report."
           files: report/report.pdf

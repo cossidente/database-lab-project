@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/jonasbb/pre-commit-latex-hooks
-    rev: v1.4.0
+    rev: v1.5.0
     hooks:
       - id: american-eg-ie
       - id: cleveref-capitalization
@@ -29,10 +29,31 @@ repos:
         #       "--individual",
         #     ]
       - id: cleveref-instead-of-autoref
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.3.0
+    rev: v6.0.0
     hooks:
       - id: check-merge-conflict
       - id: check-yaml
       - id: trailing-whitespace
         files: ".*\\.(?:tex|py)$"
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: trailing-whitespace
+        files: ".*\\.(?:tex|py|md)$"
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.17
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: https://github.com/executablebooks/mdformat
+    rev: 1.0.0
+    hooks:
+      - id: mdformat

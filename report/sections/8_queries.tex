@@ -43,31 +43,35 @@ WHERE d.nome = 'Maria'
 L'interrogazione si articola su una catena di \texttt{JOIN} che collega la tabella \texttt{lezione} all'anagrafica del \texttt{docente} tramite la tabella ponte \texttt{insegnamento\_edizione}.
 È rilevante notare come i vincoli di giunzione sfruttino l'intera chiave composta: il DBMS esegue i controlli temporali in modo nativo, beneficiando direttamente della presenza del periodo didattico propagato fisicamente durante la stesura dello schema relazionale.
 
-\subsection{Calcolo del tasso di superamento di un insegnamento}
-\label{ssec:calcolo-del-tasso-di-superamento-di-un-insegnamento}
-La query quantifica la percentuale di prove d'esame superate con successo rispetto al volume totale dei tentativi registrati per un determinato insegnamento.
+\subsection{Calcolo del tasso di superamento degli insegnamenti}
+\label{ssec:calcolo-del-tasso-di-superamento-degli-insegnamenti}
+La query quantifica la percentuale di prove d'esame superate con successo rispetto al volume totale dei tentativi registrati per ciascun insegnamento.
 
 \begin{lstlisting}[language=SQL]
-WITH tentativi_totali (codice_insegnamento, totali) AS (
-    SELECT codice_insegnamento, COUNT(*)
+WITH tentativi_totali AS (
+    SELECT codice_insegnamento, COUNT(*) AS totali
     FROM esame
     GROUP BY codice_insegnamento
 ),
-tentativi_superati (codice_insegnamento, superati) AS (
+tentativi_superati AS (
     SELECT codice_insegnamento, COUNT(*) AS superati
     FROM esame
     WHERE punteggio >= 18
     GROUP BY codice_insegnamento
 )
-SELECT i.nome, (ts.superati * 100.0 / tt.totali) AS percentuale_superamento
-FROM tentativi_totali tt
-JOIN tentativi_superati ts ON tt.codice_insegnamento = ts.codice_insegnamento
-JOIN insegnamento i ON tt.codice_insegnamento = i.codice
-WHERE i.nome = 'Logica matematica';
+SELECT
+    i.nome,
+    (COALESCE(ts.superati, 0) * 100.0 / NULLIF(tt.totali, 0)) AS percentuale_superamento
+FROM insegnamento i
+LEFT JOIN tentativi_totali tt ON i.codice = tt.codice_insegnamento
+LEFT JOIN tentativi_superati ts ON i.codice = ts.codice_insegnamento
+ORDER BY percentuale_superamento DESC;
 \end{lstlisting}
 
-Per strutturare questo calcolo statistico in modo pulito e performante, il problema logico è stato scomposto utilizzando due \textit{Common Table Expressions} (\texttt{WITH}).
+Per strutturare questo calcolo statistico in modo pulito e modulare, il problema logico è stato scomposto utilizzando due \textit{Common Table Expressions} (\texttt{WITH}).
 La prima tabella temporanea, \texttt{tentativi\_totali}, calcola il divisore aggregando tutte le prove, mentre la seconda, \texttt{tentativi\_superati}, agisce da dividendo filtrando esclusivamente le valutazioni sufficienti ($\ge 18$).
+
+La query principale parte dalla tabella \texttt{insegnamento} e utilizza delle \texttt{LEFT JOIN} per mantenere tutti i corsi nel risultato finale, compresi quelli per cui non è registrato alcun esame o alcuna promozione. Per gestire correttamente questi casi, la funzione \texttt{COALESCE} trasforma le assenze di superamenti in 0, mentre \texttt{NULLIF} previene il classico errore di divisione per zero nel caso in cui i tentativi totali siano assenti.
 
 \subsection{Media dei tentativi per gli studenti promossi}
 \label{ssec:media-dei-tentativi-per-gli-studenti-promossi}

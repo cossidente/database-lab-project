@@ -21,23 +21,25 @@ WHERE docente.nome = 'Maria'
     AND lezione.periodo = '2';
 
 
--- Dato un insegnamento, calcolare la percentuale di prove superate rispetto al totale dei tentativi registrati
-WITH tentativi_totali (codice_insegnamento, totali) AS (
-    SELECT codice_insegnamento, COUNT(*)
+-- Per ciascun insegnamento, calcolare la percentuale di prove superate rispetto ai tentativi totali
+WITH tentativi_totali AS (
+    SELECT codice_insegnamento, COUNT(*) AS totali
     FROM esame
     GROUP BY codice_insegnamento
 ), 
-tentativi_superati (codice_insegnamento, superati) AS (
+tentativi_superati AS (
     SELECT codice_insegnamento, COUNT(*) AS superati
     FROM esame
     WHERE punteggio >= 18
     GROUP BY codice_insegnamento
 )
-SELECT insegnamento.nome, (tentativi_superati.superati * 100.0 / tentativi_totali.totali) AS percentuale_superamento
-FROM tentativi_totali
-JOIN tentativi_superati ON tentativi_totali.codice_insegnamento = tentativi_superati.codice_insegnamento
-JOIN insegnamento ON tentativi_totali.codice_insegnamento = insegnamento.codice
-WHERE insegnamento.nome = 'Logica matematica';
+SELECT 
+    i.nome, 
+    (COALESCE(ts.superati, 0) * 100.0 / NULLIF(tt.totali, 0)) AS percentuale_superamento
+FROM insegnamento i
+LEFT JOIN tentativi_totali tt ON i.codice = tt.codice_insegnamento
+LEFT JOIN tentativi_superati ts ON i.codice = ts.codice_insegnamento
+ORDER BY percentuale_superamento DESC;
 
 
 -- Dato un insegnamento, determinare la media dei tentativi effettuati dagli studenti che hanno effettivamente superato la prova

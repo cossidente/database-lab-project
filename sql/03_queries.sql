@@ -1,10 +1,13 @@
--- Determinare quale insegnamento compare più frequentemente nei piani di studio
-SELECT insegnamento.nome, COUNT(*) AS frequenza
-FROM piano_di_studio
-JOIN insegnamento ON piano_di_studio.codice_insegnamento = insegnamento.codice
-GROUP BY insegnamento.codice, insegnamento.nome
-ORDER BY frequenza DESC
-LIMIT 1;
+-- Restituisce l'insegnamento più ricorrente nei piani di studio (inclusi eventuali pari merito)
+WITH conteggi_insegnamenti AS (
+    SELECT i.nome, COUNT(*) AS frequenza
+    FROM piano_di_studio pds
+    JOIN insegnamento i ON pds.codice_insegnamento = i.codice
+    GROUP BY i.codice, i.nome
+)
+SELECT nome, frequenza
+FROM conteggi_insegnamenti
+WHERE frequenza = (SELECT MAX(frequenza) FROM conteggi_insegnamenti);
 
 
 -- Dato nome e cognome di un professore, un anno accademico e un periodo didattico restituire il suo calendario settimanale delle lezioni (insegnamento, giorno, fascia oraria, aula)
@@ -21,23 +24,25 @@ WHERE docente.nome = 'Maria'
     AND lezione.periodo = '2';
 
 
--- Dato un insegnamento, calcolare la percentuale di prove superate rispetto al totale dei tentativi registrati
-WITH tentativi_totali (codice_insegnamento, totali) AS (
-    SELECT codice_insegnamento, COUNT(*)
+-- Per ciascun insegnamento, calcolare la percentuale di prove superate rispetto ai tentativi totali
+WITH tentativi_totali AS (
+    SELECT codice_insegnamento, COUNT(*) AS totali
     FROM esame
     GROUP BY codice_insegnamento
 ), 
-tentativi_superati (codice_insegnamento, superati) AS (
+tentativi_superati AS (
     SELECT codice_insegnamento, COUNT(*) AS superati
     FROM esame
     WHERE punteggio >= 18
     GROUP BY codice_insegnamento
 )
-SELECT insegnamento.nome, (tentativi_superati.superati * 100.0 / tentativi_totali.totali) AS percentuale_superamento
-FROM tentativi_totali
-JOIN tentativi_superati ON tentativi_totali.codice_insegnamento = tentativi_superati.codice_insegnamento
-JOIN insegnamento ON tentativi_totali.codice_insegnamento = insegnamento.codice
-WHERE insegnamento.nome = 'Logica matematica';
+SELECT 
+    i.nome, 
+    (COALESCE(ts.superati, 0) * 100.0 / NULLIF(tt.totali, 0)) AS percentuale_superamento
+FROM insegnamento i
+LEFT JOIN tentativi_totali tt ON i.codice = tt.codice_insegnamento
+LEFT JOIN tentativi_superati ts ON i.codice = ts.codice_insegnamento
+ORDER BY percentuale_superamento DESC;
 
 
 -- Dato un insegnamento, determinare la media dei tentativi effettuati dagli studenti che hanno effettivamente superato la prova

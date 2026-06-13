@@ -1,10 +1,13 @@
--- Determinare quale insegnamento compare più frequentemente nei piani di studio
-SELECT insegnamento.nome, COUNT(*) AS frequenza
-FROM piano_di_studio
-JOIN insegnamento ON piano_di_studio.codice_insegnamento = insegnamento.codice
-GROUP BY insegnamento.codice, insegnamento.nome
-ORDER BY frequenza DESC
-LIMIT 1;
+-- Restituisce l'insegnamento più ricorrente nei piani di studio (inclusi eventuali pari merito)
+WITH conteggi_insegnamenti AS (
+    SELECT i.nome, COUNT(*) AS frequenza
+    FROM piano_di_studio pds
+    JOIN insegnamento i ON pds.codice_insegnamento = i.codice
+    GROUP BY i.codice, i.nome
+)
+SELECT nome, frequenza
+FROM conteggi_insegnamenti
+WHERE frequenza = (SELECT MAX(frequenza) FROM conteggi_insegnamenti);
 
 
 -- Dato nome e cognome di un professore, un anno accademico e un periodo didattico restituire il suo calendario settimanale delle lezioni (insegnamento, giorno, fascia oraria, aula)

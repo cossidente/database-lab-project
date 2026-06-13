@@ -137,12 +137,40 @@ L'introduzione della ridondanza controllata determina un abbattimento dei costi 
 Per questa ragione, si decide formalmente di implementare l'ottimizzazione integrando l'attributo nel modello logico.
 La coerenza del dato verrà preservata mediante un trigger la cui struttura e sintassi verranno dettagliate nella sezione dedicata alla progettazione fisica.
 
-Per verificare la tenuta di questa soluzione a lungo termine e prevenire colli di bottiglia causati da un eventuale aumento massiccio delle iscrizioni agli appelli, viene sviluppato uno studio di scalabilità volto a identificare il punto di pareggio del sistema. Questo limite definisce la quantità critica di registrazioni annuali oltre la quale l'esecuzione ripetuta del trigger renderebbe la Strategia B meno efficiente rispetto al calcolo dinamico della Strategia A.
-Mantenendo stabile il numero di consultazioni della carriera a \num{50000} operazioni all'anno, l'uguaglianza matematica tra i costi delle due opzioni si verifica a una soglia limite di \num{666667} operazioni di scrittura. Poiché il volume reale stimato si attesta su \num{80000} esami all'anno, il sistema si posiziona in un'area di assoluta sicurezza e convenienza prestazionale, dimostrando la piena sostenibilità e la futura scalabilità della scelta architetturale.
+Per verificare la sostenibilità della ridondanza al variare del carico di scrittura, viene determinato il punto di pareggio tra le due strategie.
 
-% \begin{figure}[h!]
-%     \centering
-%     \includegraphics[width=0.9\textwidth]{img/punto_pareggio_ridondanza_nuovo.pdf}
-%     \caption{Analisi di scalabilità e individuazione del punto di pareggio al variare delle scritture annue.}
-%     \label{fig:punto_pareggio_ridondanza}
-% \end{figure}
+Indicando con $x$ il numero annuo di registrazioni di esami, il costo della Strategia A può essere espresso come
+
+\[
+C_A(x)=1650000+2x
+\]
+
+poiché ogni nuova verbalizzazione richiede esclusivamente la scrittura della relativa tupla nell'entità \textit{Esame}.
+
+Analogamente, il costo della Strategia B è dato da
+
+\[
+C_B(x)=50000+(2+0.6\cdot4)x
+\]
+
+dove il termine $2x$ rappresenta il costo dell'inserimento base e il termine $0.6\cdot4x$ il costo medio aggiuntivo dovuto all'esecuzione del trigger nel $60\%$ dei casi.
+
+Il punto di pareggio si ottiene imponendo l'uguaglianza tra le due funzioni di costo:
+
+\[
+1650000+2x = 50000+4.4x
+\]
+
+da cui
+
+\[
+1600000 = 2.4x \Rightarrow x = \frac{1600000}{2.4} \approx 666667
+\]
+
+Pertanto, soltanto oltre circa \num{666667} registrazioni di esami all'anno la Strategia B cesserebbe di essere conveniente. Poiché il volume operativo stimato è pari a \num{80000} scritture annue, il sistema si colloca ampiamente al di sotto della soglia critica, confermando la convenienza della ridondanza introdotta.
+
+\begin{figure}[h!]
+     \centering
+     \includegraphics[width=0.7\textwidth]{img/redundancy_analysis.pdf}
+     \caption{Analisi di scalabilità e individuazione del punto di pareggio.}
+\label{fig:punto_pareggio_ridondanza} \end{figure}

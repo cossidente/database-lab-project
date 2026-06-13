@@ -18,7 +18,7 @@ WEEKDAYS = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì"]
 TIMESLOTS = ["1", "2", "3", "4"]
 ACADEMIC_YEARS = ["2023/2024", "2024/2025", "2025/2026"]
 ENROLLMENT_YEARS = [2020, 2021, 2022, 2023, 2024, 2025]
-POSITIONS = ['Professore ordinario', 'Professore associato', 'Ricercatore']
+POSITIONS = ["Professore ordinario", "Professore associato", "Ricercatore"]
 
 
 def load_json(filename):
@@ -35,38 +35,44 @@ def add_courses(engine, metadata, fake):
         description = fake.paragraph(nb_sentences=2)
         course["descrizione"] = f"Corso di {course['nome']}. {description}"
 
-    bulk_insert(engine, metadata.tables['insegnamento'], courses)
+    bulk_insert(engine, metadata.tables["insegnamento"], courses)
+
 
 def add_editions(engine, metadata):
     # Get all courses
     with engine.connect() as conn:
-        courses = conn.execute(metadata.tables['insegnamento'].select()).fetchall()
+        courses = conn.execute(metadata.tables["insegnamento"].select()).fetchall()
 
     editions = []
 
     for course in courses:
         num_editions = random.randint(1, len(ACADEMIC_YEARS))
-        selected_years = random.sample(ACADEMIC_YEARS, num_editions) # Without repetitions
+        selected_years = random.sample(
+            ACADEMIC_YEARS, num_editions
+        )  # Without repetitions
 
         for ay in selected_years:
-            editions.append({
-                "codice_insegnamento": course.codice,
-                "anno_accademico": ay,
-                "periodo": random.choice(PERIODS)
-            })
+            editions.append(
+                {
+                    "codice_insegnamento": course.codice,
+                    "anno_accademico": ay,
+                    "periodo": random.choice(PERIODS),
+                }
+            )
 
-    bulk_insert(engine, metadata.tables['edizione'], editions)
+    bulk_insert(engine, metadata.tables["edizione"], editions)
+
 
 def add_lectures(engine, metadata):
     with engine.connect() as conn:
-        editions = conn.execute(metadata.tables['edizione'].select()).fetchall()
+        editions = conn.execute(metadata.tables["edizione"].select()).fetchall()
 
     lectures = []
     occupied_slots = set()
 
     for edition in editions:
         lectures_assigned = 0
-        max_attempts = 50 # Safeguard to prevent infinite loops if rooms run out
+        max_attempts = 50  # Safeguard to prevent infinite loops if rooms run out
 
         # Try to assign exactly 2 lectures per edition
         while lectures_assigned < 2 and max_attempts > 0:
@@ -79,21 +85,23 @@ def add_lectures(engine, metadata):
 
             # Check if the room is already taken at that specific time
             if slot_signature not in occupied_slots:
-                occupied_slots.add(slot_signature) # Mark as occupied
+                occupied_slots.add(slot_signature)  # Mark as occupied
 
-                lectures.append({
-                    "codice_insegnamento": edition.codice_insegnamento,
-                    "anno_accademico": edition.anno_accademico,
-                    "periodo": edition.periodo,
-                    "giorno": day,
-                    "fascia_oraria": slot,
-                    "aula": room
-                })
+                lectures.append(
+                    {
+                        "codice_insegnamento": edition.codice_insegnamento,
+                        "anno_accademico": edition.anno_accademico,
+                        "periodo": edition.periodo,
+                        "giorno": day,
+                        "fascia_oraria": slot,
+                        "aula": room,
+                    }
+                )
                 lectures_assigned += 1
 
             max_attempts -= 1
 
-    bulk_insert(engine, metadata.tables['lezione'], lectures)
+    bulk_insert(engine, metadata.tables["lezione"], lectures)
 
 
 def add_teachers(n, engine, metadata, fake):
@@ -101,25 +109,28 @@ def add_teachers(n, engine, metadata, fake):
 
     # Get all departments codes
     with engine.connect() as conn:
-        result = conn.execute(metadata.tables['dipartimento'].select())
+        result = conn.execute(metadata.tables["dipartimento"].select())
         department_codes = [row[0] for row in result]
 
     for _ in range(n):
-        teachers.append({
-            "cf": fake.ssn(),
-            "nome": fake.first_name(),
-            "cognome": fake.last_name(),
-            "titolo": random.choice(POSITIONS),
-            "dipartimento": random.choice(department_codes)
-        })
+        teachers.append(
+            {
+                "cf": fake.ssn(),
+                "nome": fake.first_name(),
+                "cognome": fake.last_name(),
+                "titolo": random.choice(POSITIONS),
+                "dipartimento": random.choice(department_codes),
+            }
+        )
 
-    bulk_insert(engine, metadata.tables['docente'], teachers)
+    bulk_insert(engine, metadata.tables["docente"], teachers)
+
 
 def add_teacher_qualifications(engine, metadata):
     # Get all teachers and courses to create random associations
     with engine.connect() as conn:
-        teachers = conn.execute(metadata.tables['docente'].select()).fetchall()
-        courses = conn.execute(metadata.tables['insegnamento'].select()).fetchall()
+        teachers = conn.execute(metadata.tables["docente"].select()).fetchall()
+        courses = conn.execute(metadata.tables["insegnamento"].select()).fetchall()
 
     qualifications = []
     # Assign each to teacher 1-3 random courses they are "qualified" for
@@ -127,18 +138,22 @@ def add_teacher_qualifications(engine, metadata):
         num_courses = random.randint(1, 3)
         assigned_courses = random.sample(courses, num_courses)
         for course in assigned_courses:
-            qualifications.append({
-                "cf_docente": teacher.cf,
-                "codice_insegnamento": course.codice
-            })
+            qualifications.append(
+                {"cf_docente": teacher.cf, "codice_insegnamento": course.codice}
+            )
 
-    bulk_insert(engine, metadata.tables['abilitazione_docente_insegnamento'], qualifications)
+    bulk_insert(
+        engine, metadata.tables["abilitazione_docente_insegnamento"], qualifications
+    )
+
 
 def add_editions_teachings(engine, metadata):
     # Get qualifications and editions to consider only qualified teachers
     with engine.connect() as conn:
-        qualifications = conn.execute(metadata.tables['abilitazione_docente_insegnamento'].select()).fetchall()
-        editions = conn.execute(metadata.tables['edizione'].select()).fetchall()
+        qualifications = conn.execute(
+            metadata.tables["abilitazione_docente_insegnamento"].select()
+        ).fetchall()
+        editions = conn.execute(metadata.tables["edizione"].select()).fetchall()
 
     # Build a dict: course_code -> list of qualified teacher CFs
     qualified_teachers_map = {}
@@ -162,14 +177,16 @@ def add_editions_teachings(engine, metadata):
         assigned_teachers = random.sample(available_teachers, num_teachers)
 
         for teacher_cf in assigned_teachers:
-            teachings.append({
-                "cf_docente": teacher_cf,
-                "codice_insegnamento": edition.codice_insegnamento,
-                "anno_accademico": edition.anno_accademico,
-                "periodo": edition.periodo
-            })
+            teachings.append(
+                {
+                    "cf_docente": teacher_cf,
+                    "codice_insegnamento": edition.codice_insegnamento,
+                    "anno_accademico": edition.anno_accademico,
+                    "periodo": edition.periodo,
+                }
+            )
 
-    bulk_insert(engine, metadata.tables['insegnamento_edizione'], teachings)
+    bulk_insert(engine, metadata.tables["insegnamento_edizione"], teachings)
 
 
 def add_students(n, engine, metadata, fake):
@@ -177,52 +194,58 @@ def add_students(n, engine, metadata, fake):
 
     # Get all degree programs codes
     with engine.connect() as conn:
-        result = conn.execute(metadata.tables['corso_di_laurea'].select())
+        result = conn.execute(metadata.tables["corso_di_laurea"].select())
         degree_program = [row[0] for row in result]
 
     for _ in range(n):
         year = random.choice(ENROLLMENT_YEARS)
         ay = f"{year}/{year + 1}"
 
-        students.append({
-            "nome": fake.first_name(),
-            "cognome": fake.last_name(),
-            "telefono": fake.numerify(text="3#########"),
-            "aa_immatricolazione": ay,
-            "corso_di_laurea": random.choice(degree_program),
-            "crediti_acquisiti": 0
-        })
+        students.append(
+            {
+                "nome": fake.first_name(),
+                "cognome": fake.last_name(),
+                "telefono": fake.numerify(text="3#########"),
+                "aa_immatricolazione": ay,
+                "corso_di_laurea": random.choice(degree_program),
+                "crediti_acquisiti": 0,
+            }
+        )
 
-    bulk_insert(engine, metadata.tables['studente'], students)
+    bulk_insert(engine, metadata.tables["studente"], students)
+
 
 def add_study_plans(engine, metadata):
     # Get all students and all courses
     with engine.connect() as conn:
-        students = conn.execute(metadata.tables['studente'].select()).fetchall()
-        courses = conn.execute(metadata.tables['insegnamento'].select()).fetchall()
+        students = conn.execute(metadata.tables["studente"].select()).fetchall()
+        courses = conn.execute(metadata.tables["insegnamento"].select()).fetchall()
 
     study_plans = []
 
     for student in students:
-        num_courses = random.randint(5, 10) # num courses in the study plan
+        num_courses = random.randint(5, 10)  # num courses in the study plan
 
         selected_courses = random.sample(courses, num_courses)
 
         for course in selected_courses:
-            study_plans.append({
-                "matricola": student.matricola,
-                "codice_insegnamento": course.codice
-            })
+            study_plans.append(
+                {"matricola": student.matricola, "codice_insegnamento": course.codice}
+            )
 
-    bulk_insert(engine, metadata.tables['piano_di_studio'], study_plans)
+    bulk_insert(engine, metadata.tables["piano_di_studio"], study_plans)
 
 
 def add_exams(engine, metadata):
     # Get all students, their study plans and the prerequisites for their courses
     with engine.connect() as conn:
-        students = conn.execute(metadata.tables['studente'].select()).fetchall()
-        study_plans = conn.execute(metadata.tables['piano_di_studio'].select()).fetchall()
-        prerequisites = conn.execute(metadata.tables['prerequisito'].select()).fetchall()
+        students = conn.execute(metadata.tables["studente"].select()).fetchall()
+        study_plans = conn.execute(
+            metadata.tables["piano_di_studio"].select()
+        ).fetchall()
+        prerequisites = conn.execute(
+            metadata.tables["prerequisito"].select()
+        ).fetchall()
 
     # Build a dict: matricola -> courses in the study plan
     student_courses_map = {}
@@ -256,7 +279,9 @@ def add_exams(engine, metadata):
                 if course not in passed_exams:
                     course_reqs = req_map.get(course, [])
                     if all(req in passed_exams for req in course_reqs):
-                        available_courses.append(course) # Student can take this course bc has passed all the prerequisites
+                        available_courses.append(
+                            course
+                        )  # Student can take this course bc has passed all the prerequisites
 
             if not available_courses:
                 break
@@ -267,14 +292,17 @@ def add_exams(engine, metadata):
             if score >= 18:
                 passed_exams.add(chosen_course)
 
-            exams_to_insert.append({
-                "matricola": student.matricola,
-                "codice_insegnamento": chosen_course,
-                "data_esame": get_random_past_date(),
-                "punteggio": score
-            })
+            exams_to_insert.append(
+                {
+                    "matricola": student.matricola,
+                    "codice_insegnamento": chosen_course,
+                    "data_esame": get_random_past_date(),
+                    "punteggio": score,
+                }
+            )
 
-    bulk_insert(engine, metadata.tables['esame'], exams_to_insert)
+    bulk_insert(engine, metadata.tables["esame"], exams_to_insert)
+
 
 def get_random_past_date(start_year=2020):
     start_date = date(start_year, 1, 1)
@@ -314,15 +342,19 @@ def main():
     metadata = MetaData()
     metadata.reflect(bind=engine)
 
-    fake = Faker('it_IT')
+    fake = Faker("it_IT")
 
     # Adding accessory data
-    bulk_insert(engine, metadata.tables['dipartimento'], load_json("departments.json"))
-    bulk_insert(engine, metadata.tables['corso_di_laurea'], load_json("degree_programs.json"))
+    bulk_insert(engine, metadata.tables["dipartimento"], load_json("departments.json"))
+    bulk_insert(
+        engine, metadata.tables["corso_di_laurea"], load_json("degree_programs.json")
+    )
 
     # Adding courses, their prerequisites, editions and lectures
     add_courses(engine, metadata, fake)
-    bulk_insert(engine, metadata.tables['prerequisito'], load_json("prerequisites.json"))
+    bulk_insert(
+        engine, metadata.tables["prerequisito"], load_json("prerequisites.json")
+    )
     add_editions(engine, metadata)
     add_lectures(engine, metadata)
 
@@ -337,6 +369,7 @@ def main():
 
     # Adding taken exams
     add_exams(engine, metadata)
+
 
 if __name__ == "__main__":
     main()

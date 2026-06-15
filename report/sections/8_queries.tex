@@ -138,3 +138,36 @@ WHERE insegnamento_edizione.cf_docente = 'SDDGLM43R23E271L'
 
 Per garantire che l'operazione di \texttt{UPDATE} massivo non assegni cattedre in modo illegittimo o a docenti non qualificati, è stata inserita una rigorosa condizione di validazione tramite la sottoquery \texttt{EXISTS}.
 Il DBMS applicherà le modifiche ai record nella tabella \texttt{insegnamento\_edizione} esclusivamente se il codice fiscale del nuovo docente risulta già formalmente associato all'insegnamento in questione all'interno della tabella di riferimento \texttt{abilitazione\_docente\_insegnamento}, garantendo totale aderenza alle regole dell'ateneo.
+
+\section{Implementazione delle operazioni di inserimento}
+\label{sec:implementazione-delle-operazioni-di-inserimento}
+
+Le operazioni di inserimento popolano e ampliano lo stato della base di dati, introducendo in modo permanente nuove istanze informative.
+Tali procedure richiedono il rispetto dei vincoli di dominio e l'utilizzo di blocchi transazionali per garantire l'atomicità dei dati, preservando al contempo l'integrità referenziale dello schema.
+
+\subsection{Inserimento di un nuovo insegnamento e assegnazione della cattedra}
+\label{ssec:istituzione-di-un-nuovo-insegnamento-e-assegnazione-della-cattedra}
+Al fine di ampliare l'offerta formativa dell'ateneo, l'istituzione di un nuovo insegnamento richiede una procedura progressiva per garantirne l'attivazione a sistema, l'abilitazione del personale preposto e l'assegnazione finale della didattica.
+
+\begin{lstlisting}[language=SQL]
+BEGIN;
+-- Inserimento del nuovo insegnamento
+INSERT INTO insegnamento (codice, nome, crediti, descrizione)
+VALUES ('67967', 'Machine learning', 9, 'Supervised, unsupervised e reinforcement learning');
+
+-- Creazione dell'edizione per l'anno accademico corrente
+INSERT INTO edizione (codice_insegnamento, anno_accademico, periodo)
+VALUES ('67967', '2025/2026', '1');
+
+-- Abilitazione di un docente esistente a insegnare questo insegnamento
+INSERT INTO abilitazione_docente_insegnamento (cf_docente, codice_insegnamento)
+VALUES ('BNNGDI98L11M104F', '67967');
+
+-- Assegnazione effettiva della cattedra al docente per l'edizione appena creata
+INSERT INTO insegnamento_edizione (cf_docente, codice_insegnamento, anno_accademico, periodo)
+VALUES ('BNNGDI98L11M104F', '67967', '2025/2026', '1');
+COMMIT;
+\end{lstlisting}
+
+Per garantire che l'inserimento multiplo non generi stati inconsistenti o tuple orfane all'interno della base di dati, l'intera sequenza operativa è incapsulata all'interno di un blocco transazionale tramite le direttive \texttt{BEGIN} e \texttt{COMMIT}.
+Il DBMS applicherà le modifiche seguendo un ordine gerarchico strettamente dettato dai vincoli di integrità referenziale: la creazione del record primario in \texttt{insegnamento} risulta infatti propedeutica all'apertura dell'\texttt{edizione} e alla registrazione in \texttt{abilitazione\_docente\_insegnamento}, condizioni a loro volta necessarie per legittimare l'inserimento conclusivo nella tabella \texttt{insegnamento\_edizione}. Qualsiasi violazione dei vincoli in una di queste fasi provocherebbe il rigetto dell'intera transazione, preservando in modo assoluto la correttezza strutturale dello schema.

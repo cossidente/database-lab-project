@@ -84,23 +84,21 @@ WHERE insegnamento_edizione.cf_docente = 'SDDGLM43R23E271L'
   );
 
 
--- Inserimento di un nuovo corso, della sua edizione e assegnazione a un docente
+-- Inserimento di un nuovo insegnamento, della sua edizione e assegnazione a un docente
 BEGIN;
-
--- Inserimento del nuovo corso
-INSERT INTO corso (codice, nome, crediti, descrizione)
+-- Inserimento del nuovo insegnamento
+INSERT INTO insegnamento (codice, nome, crediti, descrizione)
 VALUES ('67967', 'Machine learning', 9, 'Supervised, unsupervised e reinforcement learning');
 
 -- Creazione dell'edizione per l'anno accademico corrente
-INSERT INTO edizione (codice_corso, anno_accademico, periodo)
+INSERT INTO edizione (codice_insegnamento, anno_accademico, periodo)
 VALUES ('67967', '2025/2026', '1');
 
--- Abilitazione di un docente esistente a insegnare questo corso
-INSERT INTO abilitazione_docente_corso (cf_docente, codice_corso)
+-- Abilitazione di un docente esistente a insegnare questo insegnamento
+INSERT INTO abilitazione_docente_insegnamento (cf_docente, codice_insegnamento)
 VALUES ('BNNGDI98L11M104F', '67967');
 
 -- Assegnazione effettiva della cattedra al docente per l'edizione appena creata
-INSERT INTO insegnamento_edizione (cf_docente, codice_corso, anno_accademico, periodo)
+INSERT INTO insegnamento_edizione (cf_docente, codice_insegnamento, anno_accademico, periodo)
 VALUES ('BNNGDI98L11M104F', '67967', '2025/2026', '1');
-
 COMMIT;

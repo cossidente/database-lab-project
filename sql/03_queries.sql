@@ -72,13 +72,13 @@ COMMIT;
 
 -- Dato un professore e l'anno accademico, si vuole gestire la sostituzione delle sue cattedre
 UPDATE insegnamento_edizione
-SET cf_docente = 'ZCCNTL28S02G280O'
-WHERE insegnamento_edizione.cf_docente = 'PTRFBA87S13G935U'
+SET cf_docente = 'BNNGDI98L11M104F'
+WHERE insegnamento_edizione.cf_docente = 'SDDGLM43R23E271L'
   AND insegnamento_edizione.anno_accademico = '2025/2026'
   AND EXISTS (
       -- Verifica abilitazione nuovo docente
       SELECT 1 
       FROM abilitazione_docente_insegnamento
-      WHERE abilitazione_docente_insegnamento.cf_docente = 'ZCCNTL28S02G280O' 
+      WHERE abilitazione_docente_insegnamento.cf_docente = 'BNNGDI98L11M104F' 
         AND abilitazione_docente_insegnamento.codice_insegnamento = insegnamento_edizione.codice_insegnamento
   );

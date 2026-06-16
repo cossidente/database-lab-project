@@ -59,7 +59,7 @@ EXECUTE FUNCTION aggiorna_crediti_acquisiti();
 
 CREATE OR REPLACE FUNCTION blocca_modifica_esame() RETURNS TRIGGER AS $$
 BEGIN
-    RAISE EXCEPTION 'Un esame registrato non può essere modificato o eliminato.';
+    RAISE EXCEPTION 'Un esame registrato non può essere modificato.';
 END;
 $$ LANGUAGE plpgsql;
 

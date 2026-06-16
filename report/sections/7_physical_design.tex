@@ -61,6 +61,9 @@ Se il \texttt{periodo} non facesse parte della chiave esterna, il database potre
 
 Per esempio, senza questo vincolo, una riga della tabella \texttt{lezione} potrebbe essere registrata per errore con il campo \texttt{periodo} impostato su \texttt{'2'} (secondo periodo), pur essendo collegata a un record della tabella \texttt{edizione} attivato esclusivamente nel \texttt{'1'} (primo periodo). Includendo il periodo all'interno della foreign key, il DBMS intercetta e rifiuta automaticamente inserimenti disallineati di questo tipo, garantendo l'integrità del calendario senza dover gravare sul sistema con trigger o controlli aggiuntivi.
 
+\subsection{Indici secondari}
+\label{ssec:indici-secondari}
+
 A completamento dell'analisi sulle chiavi, sono stati introdotti ulteriori indici secondari (definiti nel file \texttt{sql/04\_indexes.sql}) per ottimizzare le operazioni più frequenti, distinguendo due categorie di necessità.
 
 La prima categoria riguarda i filtri di ricerca utilizzati dalle interrogazioni presentate nel Capitolo~\ref{chap:operazioni-e-interrogazioni}. In particolare, \texttt{idx\_docente\_cognome\_nome} accelera la ricerca di un docente per nome e cognome (operazione di Sezione~\ref{ssec:estrazione-del-calendario-settimanale-di-un-docente}), \texttt{idx\_insegnamento\_nome} velocizza il filtro per nome di un insegnamento (operazione di Sezione~\ref{ssec:media-dei-tentativi-per-gli-studenti-promossi}), mentre \texttt{idx\_insegnamento\_edizione\_ricerca} supporta la giunzione tra \texttt{lezione} ed \texttt{edizione} tramite la tabella \texttt{insegnamento\_edizione}, sfruttata nella medesima operazione.

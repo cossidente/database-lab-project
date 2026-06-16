@@ -15,8 +15,8 @@ Sebbene il vincolo di unicità annuale imponga che per uno stesso insegnamento n
 L'inclusione del periodo nella chiave evita inoltre la duplicazione dell'attributo nelle relazioni dipendenti senza adeguati vincoli di consistenza e semplifica la definizione di vincoli operativi relativi all'occupazione delle aule e alla pianificazione del calendario didattico. La presenza del vincolo di unicità sulla coppia \texttt{(codice\_insegnamento, anno\_accademico)} garantisce comunque che non possano essere create più edizioni dello stesso insegnamento all'interno del medesimo anno accademico.
 
 \paragraph{Traduzione delle associazioni}
-\footnote{Per chiarezza terminologica, in questo documento si utilizza il termine \textit{associazione} per indicare le relazioni dello schema concettuale (modello ER), riservando il termine \textit{relazione} alle tabelle del modello logico relazionale.}
-Le associazioni molti-a-molti presenti nello schema concettuale sono state trasformate in relazioni dedicate.
+Le associazioni{\footnotemark} molti-a-molti presenti nello schema concettuale sono state trasformate in relazioni dedicate.
+\footnotetext{Per chiarezza terminologica, in questo documento si utilizza il termine \textit{associazione} per indicare le relazioni dello schema concettuale (modello ER), riservando il termine \textit{relazione} alle tabelle del modello logico relazionale.}
 
 L'associazione ricorsiva \textit{prerequisito} è stata tradotta mediante una relazione contenente due riferimenti a \textit{insegnamento}, consentendo di rappresentare le dipendenze tra essi. Le associazioni \textit{piano\_di\_studio}, \textit{abilitazione\_docente\_insegnamento} e \textit{insegnamento\_edizione} sono state implementate come relazioni associative, la cui chiave primaria è costituita dalla combinazione delle chiavi esterne delle entità partecipanti.
 
@@ -27,7 +27,7 @@ In seguito all'analisi delle ridondanze effettuata durante la fase di ristruttur
 
 Il diagramma relazionale risultante è riportato in Figura~\ref{fig:logical_model}.
 
-\begin{figure}[h!]
+\begin{figure}[ht]
 \centering
     \includegraphics[width=\textwidth]{img/logical_model.pdf}
     \caption{Schema logico relazionale per la gestione della didattica.}

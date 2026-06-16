@@ -27,6 +27,7 @@ BEFORE INSERT ON esame
 FOR EACH ROW
 EXECUTE FUNCTION controlla_prerequisiti();
 
+-- See issue #27
 CREATE OR REPLACE FUNCTION aggiorna_crediti_acquisiti() RETURNS TRIGGER AS $$
 BEGIN
     IF NEW.punteggio >= 18 THEN
@@ -53,6 +54,7 @@ AFTER INSERT ON esame
 FOR EACH ROW
 EXECUTE FUNCTION aggiorna_crediti_acquisiti();
 
+-- Incongruente con la query della rununcia agli studi
 CREATE OR REPLACE FUNCTION blocca_modifica_esame() RETURNS TRIGGER AS $$
 BEGIN
     RAISE EXCEPTION 'Un esame registrato non può essere modificato o eliminato.';

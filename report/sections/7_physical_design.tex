@@ -13,7 +13,7 @@ In particolare, sono stati formalizzati i tipi \texttt{titolo\_enum}, \texttt{pe
 Parallelamente, sono stati introdotti domini dedicati per vincolare gli attributi soggetti a restrizioni specifiche.
 Il dominio \texttt{codice\_fiscale} verifica la correttezza formale del dato tramite un'espressione regolare strutturata per essere perfettamente corrispondente alla codifica standard ministeriale italiana di sedici caratteri alfanumerici, mentre \texttt{telefono\_dom} limita rigorosamente il formato dei recapiti a una stringa fissa di dieci cifre numeriche.
 
-Un'attenzione particolare è stata riservata al dominio \texttt{anno\_accademico}. Oltre a validare la formattazione testuale nella configurazione \texttt{YYYY/YYYY}, la clausola di controllo estrae e converte le due componenti annuali per verificare che l'anno di chiusura sia esattamente successivo a quello di inizio, prevenendo l'inserimento di intervalli temporali incongruenti.
+Un'attenzione particolare è stata riservata al dominio \texttt{anno\_accademico}. Oltre a validare la formattazione testuale nella configurazione \texttt{YYYY/YYYY}, la clausola di controllo estrae e converte le due componenti annuali per verificare che l'anno di chiusura sia esattamente successivo a quello di apertura, prevenendo l'inserimento di intervalli temporali incongruenti.
 Analogamente, il dominio \texttt{punteggio} limita i voti d'esame all'intervallo discreto compreso tra 0 e 30.
 
 L'implementazione fisica del dominio relativo all'anno accademico è stata realizzata attraverso la seguente struttura:
@@ -44,7 +44,8 @@ CONSTRAINT uq_singola_edizione_annuale
 Questo costrutto garantisce in modo stringente il rispetto della specifica secondo cui per un dato insegnamento non può essere attivata più di una singola edizione all'interno dello stesso anno accademico.
 
 L'introduzione di questo specifico vincolo si ricollega direttamente alle scelte di strutturazione discusse nella Sezione~\ref{sec:schema-logico}.
-Come precedentemente illustrato, è proprio l'esplicita dichiarazione di questo vincolo di unicità annuale che permette di mantenere l'attributo \texttt{periodo} all'interno della chiave primaria della tabella \texttt{edizione} a fini di ottimizzazione referenziale verso le lezioni. La clausola \texttt{UNIQUE} agisce come sbarramento fisico a livello di DBMS, garantendo che la superchiave composta non minimale scelta per la chiave primaria non si traduca in una violazione del vincolo di unicità annuale.
+Come precedentemente illustrato, è proprio l'esplicita dichiarazione di questo vincolo di unicità annuale che permette di mantenere l'attributo \texttt{periodo} all'interno della chiave primaria della tabella \texttt{edizione} a fini di ottimizzazione referenziale verso le lezioni. % "a fini di ottimizzazione referenziale verso le lezioni" è sus idk
+La clausola \texttt{UNIQUE} agisce come sbarramento fisico a livello di DBMS, garantendo che la superchiave composta non minimale scelta per la chiave primaria non si traduca in una violazione del vincolo di unicità annuale.
 
 Ulteriori controlli di consistenza logica sono stati distribuiti tramite espressioni \texttt{CHECK} sulle singole tabelle. Tra i principali si segnalano il blocco preventivo sull'inserimento di valori negativi per i CFU nella tabella \texttt{insegnamento}, l'esclusione di relazioni autoreferenziali nella tabella \texttt{prerequisito} e la verifica che le date di verbalizzazione nella tabella \texttt{esame} non siano successive alla data odierna, prevenendo così l'inserimento di esiti d'esame con date future.
 
@@ -73,6 +74,7 @@ Prima di consentire l'inserimento di una nuova riga nella tabella \texttt{esame}
 Coerentemente con lo studio costi-benefici formalizzato in precedenza, l'attributo \texttt{crediti\_acquisiti} nella tabella \texttt{studente} viene gestito in modo interamente automatizzato. La procedura \texttt{aggiorna\_crediti\_acquisiti} si attiva in modalità \texttt{AFTER INSERT} sulla tabella \texttt{esame}. Il trigger agisce in modo condizionale: valuta se il punteggio è sufficiente ($\ge 18$) e controlla che l'insegnamento non sia già stato superato in un appello precedente, scongiurando il rischio amministrativo di un doppio conteggio dei CFU a parità di esame.
 
 \paragraph{Validazione delle abilitazioni del corpo docente}
+% WTF significa la prima frase
 L'invariante di business emerso dall'analisi dei cicli didattici viene forzato in fase di inserimento nella tabella \texttt{insegnamento\_edizione}. La funzione \texttt{controlla\_abilitazione\_docente} interroga preventivamente la tabella ponte delle competenze stabili, bloccando l'assegnazione della cattedra qualora non vi sia una corrispondenza esatta tra il codice fiscale del docente e l'insegnamento erogato.
 
 \paragraph{Prevenzione dei cicli nelle propedeuticità}

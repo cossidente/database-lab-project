@@ -50,8 +50,8 @@ Tale parametro è infatti strettamente limitato a quattro blocchi temporali pred
 
 \paragraph{Restrizioni sui giorni di lezione}
 Per garantire la coerenza del calendario didattico, la programmazione settimanale esclude i fine settimana.
-Di conseguenza, il valore relativo al giorno in cui si svolge una lezione è rigorosamente limitato all'insieme testuale \{Lunedì, Martedì, Mercoledì, Giovedì, Venerdì\}.
+Di conseguenza, il valore relativo al giorno in cui si svolge una lezione è rigorosamente limitato all'insieme \{Lunedì, Martedì, Mercoledì, Giovedì, Venerdì\}.
 
 \paragraph{Restrizioni sul titolo accademico}
-Mentre il dipartimento di afferenza è gestito tramite un'entità dedicata, il titolo del docente è modellato come un dominio vincolato. Questa scelta dipende dalla natura statica del dato, che cambia molto raramente nel tempo.
-Il titolo appartiene quindi all'elenco $\{Ricercatore, Professore Associato, Professore Ordinario\}$.
+Il titolo del docente viene modellato come un dominio vincolato. Questa scelta è motiviata dalla scrasa probabilità che tale campo cambi nel corso del tempo.
+Il titolo deve quindi apartenere all'insieme $\{Ricercatore, Professore Associato, Professore Ordinario\}$.

@@ -27,7 +27,8 @@ BEFORE INSERT ON esame
 FOR EACH ROW
 EXECUTE FUNCTION controlla_prerequisiti();
 
--- See issue #27
+
+
 CREATE OR REPLACE FUNCTION aggiorna_crediti_acquisiti() RETURNS TRIGGER AS $$
 BEGIN
     IF NEW.punteggio >= 18 THEN
@@ -54,7 +55,8 @@ AFTER INSERT ON esame
 FOR EACH ROW
 EXECUTE FUNCTION aggiorna_crediti_acquisiti();
 
--- Incongruente con la query della rununcia agli studi
+
+
 CREATE OR REPLACE FUNCTION blocca_modifica_esame() RETURNS TRIGGER AS $$
 BEGIN
     RAISE EXCEPTION 'Un esame registrato non può essere modificato o eliminato.';
@@ -62,9 +64,11 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trigger_blocca_modifica_esame
-BEFORE UPDATE OR DELETE ON esame
+BEFORE UPDATE ON esame
 FOR EACH ROW
 EXECUTE FUNCTION blocca_modifica_esame();
+
+
 
 CREATE OR REPLACE FUNCTION controlla_abilitazione_docente()
 RETURNS TRIGGER AS $$
@@ -87,6 +91,8 @@ CREATE TRIGGER trigger_controlla_abilitazione_docente
 BEFORE INSERT ON insegnamento_edizione
 FOR EACH ROW
 EXECUTE FUNCTION controlla_abilitazione_docente();
+
+
 
 CREATE OR REPLACE FUNCTION controlla_ciclo_prerequisiti()
 RETURNS TRIGGER AS $$
@@ -113,6 +119,8 @@ CREATE TRIGGER trigger_controlla_ciclo_prerequisiti
 BEFORE INSERT ON prerequisito
 FOR EACH ROW
 EXECUTE FUNCTION controlla_ciclo_prerequisiti();
+
+
 
 CREATE OR REPLACE FUNCTION controlla_insegnamento_in_piano()
 RETURNS TRIGGER AS $$

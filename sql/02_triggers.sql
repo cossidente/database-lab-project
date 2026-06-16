@@ -88,7 +88,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trigger_controlla_abilitazione_docente
-BEFORE INSERT ON insegnamento_edizione
+BEFORE INSERT OR UPDATE ON insegnamento_edizione
 FOR EACH ROW
 EXECUTE FUNCTION controlla_abilitazione_docente();
 

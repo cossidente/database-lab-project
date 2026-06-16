@@ -102,7 +102,7 @@ $$ LANGUAGE plpgsql;
 
 \paragraph{Protezione dell'immutabilità dello storico esami}
 Poiché la verbalizzazione di un voto costituisce un atto formale concluso, la base di dati protegge l'integrità dello storico mediante il trigger \texttt{trigger\_blocca\_modifica\_esame}.
-Qualsiasi tentativo di eseguire operazioni di \texttt{UPDATE} o \texttt{DELETE} sulla tabella \texttt{esame} viene intercettato in modalità \texttt{BEFORE}, sollevando un'eccezione irreversibile che congela lo stato della carriera studentesca.
+Qualsiasi tentativo di eseguire operazioni di \texttt{UPDATE} sulla tabella \texttt{esame} viene intercettato in modalità \texttt{BEFORE}, sollevando un'eccezione irreversibile che congela lo stato della carriera studentesca.
 
 \paragraph{Verifica di conformità al piano di studi}
 Infine, l'allineamento tra la fase di pianificazione e la verbalizzazione viene garantito dalla procedura \texttt{controlla\_insegnamento\_in\_piano}.

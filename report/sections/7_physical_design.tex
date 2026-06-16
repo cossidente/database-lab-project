@@ -44,8 +44,8 @@ CONSTRAINT uq_singola_edizione_annuale
 Questo costrutto garantisce in modo stringente il rispetto della specifica secondo cui per un dato insegnamento non può essere attivata più di una singola edizione all'interno dello stesso anno accademico.
 
 L'introduzione di questo specifico vincolo si ricollega direttamente alle scelte di strutturazione discusse nella Sezione~\ref{sec:schema-logico}.
-Come precedentemente illustrato, è proprio l'esplicita dichiarazione di questo vincolo di unicità annuale che permette di mantenere l'attributo \texttt{periodo} all'interno della chiave primaria della tabella \texttt{edizione} a fini di ottimizzazione referenziale verso le lezioni. % "a fini di ottimizzazione referenziale verso le lezioni" è sus idk
-La clausola \texttt{UNIQUE} agisce come sbarramento fisico a livello di DBMS, garantendo che la superchiave composta non minimale scelta per la chiave primaria non si traduca in una violazione del vincolo di unicità annuale.
+Come precedentemente illustrato, è proprio l'esplicita dichiarazione di questo vincolo di unicità annuale che permette di mantenere l'attributo \texttt{periodo} all'interno della chiave primaria della tabella \texttt{edizione}, al fine di favorirne la propagazione come chiave esterna verso la tabella \texttt{lezioni} e ottimizzare le successive operazioni di filtraggio.
+La clausola \texttt{UNIQUE} agisce come un vincolo d'integrità a livello di DBMS, garantendo che la superchiave composta non minimale scelta per la chiave primaria non causi la violazione del vincolo di unicità annuale.
 
 Ulteriori controlli di consistenza logica sono stati distribuiti tramite espressioni \texttt{CHECK} sulle singole tabelle. Tra i principali si segnalano il blocco preventivo sull'inserimento di valori negativi per i CFU nella tabella \texttt{insegnamento}, l'esclusione di relazioni autoreferenziali nella tabella \texttt{prerequisito} e la verifica che le date di verbalizzazione nella tabella \texttt{esame} non siano successive alla data odierna, prevenendo così l'inserimento di esiti d'esame con date future.
 

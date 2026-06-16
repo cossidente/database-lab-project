@@ -10,15 +10,14 @@ Le entità \textit{dipartimento}, \textit{corso\_di\_laurea}, \textit{docente}, 
 L'entità \textit{edizione} è stata tradotta mediante una relazione identificata dalla combinazione di \texttt{codice\_insegnamento}, \texttt{anno\_accademico} e \texttt{periodo}, in accordo con il significato semantico dell'entità nel dominio applicativo. Analogamente, l'entità \textit{lezione} è stata rappresentata mediante una relazione la cui chiave primaria comprende l'identificativo dell'edizione di appartenenza e gli attributi necessari a distinguere univocamente le diverse lezioni previste dal calendario didattico.
 
 \paragraph{Scelte di identificazione delle edizioni}
-
 Sebbene il vincolo di unicità annuale imponga che per uno stesso insegnamento non possano esistere più edizioni nel medesimo anno accademico, l'attributo \texttt{periodo} è stato mantenuto all'interno della chiave primaria di \textit{edizione}. Questa scelta consente di propagare direttamente l'informazione del periodo didattico alle relazioni dipendenti, in particolare a \textit{lezione}, preservando il legame semantico tra una lezione e il periodo in cui essa viene erogata.
 
 L'inclusione del periodo nella chiave evita inoltre la duplicazione dell'attributo nelle relazioni dipendenti senza adeguati vincoli di consistenza e semplifica la definizione di vincoli operativi relativi all'occupazione delle aule e alla pianificazione del calendario didattico. La presenza del vincolo di unicità sulla coppia \texttt{(codice\_insegnamento, anno\_accademico)} garantisce comunque che non possano essere create più edizioni dello stesso insegnamento all'interno del medesimo anno accademico.
 
-\paragraph{Traduzione delle associazioni} % Dato che non è un termine standard mi pare, forse aggiungerei una nota che con associazioni intendiamo le relazioni dell'ER ma la usiamo per non fare confusione con le relazioni del modello relazionale (tabelle)
-Le associazioni molti-a-molti presenti nello schema concettuale sono state trasformate in relazioni dedicate.
-% Anche pk poi qua si usa relazione (dell'ER) e non associazione ma subito dopo di usa relazione (tabella), sec me va fatta chiarezza
-La relazione ricorsiva \textit{prerequisito} è stata tradotta mediante una relazione contenente due riferimenti a \textit{insegnamento}, consentendo di rappresentare le dipendenze tra insegnamenti. Le associazioni \textit{piano\_di\_studio}, \textit{abilitazione\_docente\_insegnamento} e \textit{insegnamento\_edizione} sono state implementate come relazioni associative, la cui chiave primaria è costituita dalla combinazione delle chiavi delle entità partecipanti.
+\paragraph{Traduzione delle associazioni\footnote{Per chiarezza terminologica, in questo documento si utilizza il termine \textit{associazione} per indicare le relazioni dello schema concettuale (modello ER), riservando il termine \textit{relazione} alle tabelle del modello logico relazionale.}}
+Le associazioni molti-a-molti presenti nello schema concettuale sono state trasformate in relazioni dedicate. 
+
+L'associazione ricorsiva \textit{prerequisito} è stata tradotta mediante una relazione contenente due riferimenti a \textit{insegnamento}, consentendo di rappresentare le dipendenze tra essi. Le associazioni \textit{piano\_di\_studio}, \textit{abilitazione\_docente\_insegnamento} e \textit{insegnamento\_edizione} sono state implementate come relazioni associative, la cui chiave primaria è costituita dalla combinazione delle chiavi esterne delle entità partecipanti.
 
 Le associazioni uno-a-molti sono state invece implementate tramite l'introduzione di opportune chiavi esterne nelle relazioni corrispondenti.
 

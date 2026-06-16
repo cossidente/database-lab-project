@@ -52,7 +52,7 @@ Ulteriori controlli di consistenza logica sono stati distribuiti tramite espress
 \subsection{Analisi delle scelte di indicizzazione e chiavi}
 \label{ssec:analisi-delle-scelte-di-indicizzazione-e-chiavi}
 
-Come anticipato nella progettazione logica, la scelta di includere l'attributo \texttt{periodo} all'interno della chiave primaria della tabella \texttt{edizione}, nonostante il vincolo \texttt{UNIQUE(codice\_insegnamento, anno\_accademico)} sia già sufficiente a identificare univocamente ogni riga, risponde a una precisa strategia di ottimizzazione fisica.
+Come anticipato nella progettazione logica, la scelta di includere l'attributo \texttt{periodo} all'interno della chiave primaria di \texttt{edizione}, nonostante il vincolo \texttt{UNIQUE(codice\_insegnamento, anno\_accademico)} sia già sufficiente a identificare univocamente ogni riga, risponde a una precisa strategia di ottimizzazione fisica.
 
 Questa configurazione permette di propagare automaticamente il \texttt{periodo} come chiave esterna verso le tabelle dipendenti, come \texttt{lezione} e \texttt{insegnamento\_edizione}, portando un immediato vantaggio prestazionale.
 Il DBMS ha sempre l'informazione sul periodo didattico localmente a disposizione all'interno di queste strutture, azzerando la necessità di eseguire continui e costosi \texttt{JOIN} con la tabella padre \texttt{edizione} ogni volta che si deve consultare il calendario settimanale o verificare la disponibilità di un'aula.
@@ -76,6 +76,25 @@ Qualora il controllo riscontri un superamento pregresso, l'operazione viene abor
 
 \paragraph{Automazione della ridondanza del saldo crediti}
 Coerentemente con lo studio costi-benefici formalizzato in precedenza, l'attributo \texttt{crediti\_acquisiti} nella tabella \texttt{studente} viene gestito in modo interamente automatizzato. La procedura \texttt{aggiorna\_crediti\_acquisiti} si attiva in modalità \texttt{AFTER INSERT} sulla tabella \texttt{esame} solo a fronte di un punteggio sufficiente ($\ge 18$).
+
+Specularmente, per garantire la consistenza del saldo anche a fronte di rimozioni di record inseriti per errore o rettifiche, è stata implementata una logica di decremento speculare.
+Per evitare conflitti con l'operazione di eliminazione a cascata (\texttt{ON DELETE CASCADE}) definita sulla chiave esterna verso la tabella \texttt{studente}, si è scelto di non bloccare la \texttt{DELETE} a monte.
+Al contrario, la funzione \texttt{aggiorna\_crediti\_post\_delete()} agisce in modalità \texttt{AFTER DELETE} aggiornando il saldo solo se l'entità padre è ancora presente nel sistema, garantendo così una perfetta convivenza tra i vincoli dichiarativi e quelli procedurali.
+
+L'implementazione fisica della procedura è stata strutturata come segue:
+
+\begin{lstlisting}[language=SQL]
+CREATE OR REPLACE FUNCTION aggiorna_crediti_post_delete()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE studente
+    SET crediti_acquisiti = crediti_acquisiti - OLD.crediti_esame
+    WHERE matricola = OLD.matricola;
+
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+\end{lstlisting}
 
 \paragraph{Validazione delle abilitazioni del corpo docente}
 Il vincolo secondo cui un docente può tenere solo gli insegnamenti per cui è abilitato viene fatto rispettare in fase di inserimento nella tabella \texttt{insegnamento\_edizione}. La funzione \texttt{controlla\_abilitazione\_docente} interroga preventivamente la tabella ponte delle competenze stabili, bloccando l'assegnazione della cattedra qualora non vi sia una corrispondenza esatta tra il codice fiscale del docente e l'insegnamento erogato.

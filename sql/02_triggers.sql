@@ -159,3 +159,20 @@ CREATE TRIGGER trigger_controlla_esame_gia_superato
 BEFORE INSERT ON esame
 FOR EACH ROW
 EXECUTE FUNCTION controlla_esame_gia_superato();
+
+
+CREATE OR REPLACE FUNCTION aggiorna_crediti_post_delete()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE studente 
+    SET crediti_acquisiti = crediti_acquisiti - OLD.crediti_esame
+    WHERE matricola = OLD.matricola;
+    
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_aggiorna_crediti_post_delete
+AFTER DELETE ON esame
+FOR EACH ROW
+EXECUTE FUNCTION aggiorna_crediti_post_delete();

@@ -4,7 +4,7 @@
 \subsection{Analisi delle prestazioni e dei volumi}
 \label{ssec:analisi-delle-prestazioni-e-dei-volumi}
 
-La tabella dei volumi costituisce lo strumento quantitativo fondamentale per valutare il costo computazionale delle transazioni e analizzare l'efficienza dello schema. Le occorrenze stimate riflettono lo stato a regime del database, simulando il carico di lavoro complessivo necessario a gestire l'intera popolazione studentesca attiva all'interno della facoltà.
+La tabella dei volumi costituisce lo strumento quantitativo fondamentale per valutare il costo computazionale delle operazioni e analizzare l'efficienza dello schema. Le occorrenze stimate riflettono lo stato a regime del database, simulando il carico di lavoro complessivo necessario a gestire l'intera popolazione studentesca attiva all'interno della facoltà.
 
 \begin{table}[h!]
     \centering
@@ -55,7 +55,7 @@ Il sistema gestisce un bacino di \num{16000} studenti regolarmente iscritti ai d
 Per l'associazione \textit{nel piano di studio}, si ipotizza che la carriera di ogni studente includa un carico didattico standard composto mediamente da \num{20} insegnamenti da sostenere, generando un volume complessivo di \num{320000} record.
 
 \paragraph{Tracciamento dello storico degli esami}
-Per quantificare l'entità \textit{Esame} e le relazioni \textit{Sostiene} e \textit{Prevede}, si è preso in considerazione lo storico complessivo dei voti e delle prove d'esame verbalizzate per ciascuna matricola.
+Per quantificare l'entità \textit{Esame} e le relazioni \textit{sostiene} e \textit{prevede}, si è preso in considerazione lo storico complessivo dei voti e delle prove d'esame verbalizzate per ciascuna matricola.
 Considerando che il database memorizza l'intero storico dei tentativi effettuati, comprese le valutazioni insufficienti, si stima una media di \num{20} verbalizzazioni complessive per ciascuna matricola, stabilendo il volume totale a \num{320000} tuple.
 
 \paragraph{Abilitazioni e coperture didattiche}
@@ -105,12 +105,12 @@ Si assume che uno studente sostenga in media \num{20} prove totali nell'entità 
 Il carico di lavoro annuo prevede \num{50000} operazioni di lettura della carriera e \num{80000} registrazioni di nuovi esami.
 
 La prima opzione analizzata, denominata \textbf{Strategia A}, prevede il mantenimento dello schema puro senza alcuna ridondanza.
-In questo scenario, ogni volta che si desidera conoscere il saldo dei crediti di una matricola, il DBMS deve calcolare il valore dinamicamente attraverso un'operazione di aggregazione e join.
+In questo scenario, ogni volta che si desidera conoscere il saldo dei crediti di uno studente, il DBMS deve calcolare il valore dinamicamente attraverso un'operazione di aggregazione e join.
 Il sistema esegue un primo accesso alla tupla dell'entità \textit{Studente}, esamina tutti i \num{20} record a lui associati nell'entità \textit{Esame} per scartare le insufficienze e infine interroga l'entità \textit{Insegnamento} per recuperare il valore dei crediti dei \num{12} esami effettivamente superati. Questa sequenza comporta un costo fisso di $1 + 20 + 12 = 33$ accessi per ogni singola consultazione, che moltiplicato per il volume delle interrogazioni annuali genera un costo totale di \num{1650000} accessi all'anno.
 Di contro, la fase di inserimento rimane estremamente leggera poiché la registrazione di un nuovo voto si limita alla scrittura di una singola tupla nell'entità \textit{Esame}, corrispondente a \num{2} accessi. Su base annua, questa componente incide per \num{160000} accessi.
 
 La seconda opzione, identificata come \textbf{Strategia B}, prevede l'aggiunta dell'attributo derivato.
-In questo modo la lettura della carriera si risolvesse istantaneamente interrogando il singolo record dell'entità \textit{Studente}, azzerando la necessità di scorrere lo storico degli esami e riducendo il costo a un solo accesso per operazione, per un totale annuo di \num{50000} accessi.
+In questo scenario la lettura del saldo dei crediti consiste nell'interrogazione del singolo record dell'entità \textit{Studente}, azzerando la necessità di scorrere lo storico degli esami e riducendo il costo a un solo accesso per operazione, per un totale annuo di \num{50000} accessi.
 La fase di scrittura subisce invece un incremento dovuto alla logica dei vincoli attivi. L'inserimento base della tupla nell'entità \textit{Esame} richiede sempre \num{2} accessi, ma l'attivazione del trigger introduce un sovraccarico.
 Il trigger esegue le proprie operazioni soltanto quando il punteggio inserito è sufficiente, circostanza che si verifica nel $60\%$ dei casi. Quando scatta, il trigger deve leggere i crediti dall'entità \textit{Insegnamento} (\num{1} accesso), leggere lo stato corrente della tupla nell'entità \textit{Studente} (\num{1} accesso) e aggiornare il record incrementando i crediti (\num{1} scrittura pari a \num{2} accessi), per un costo parziale del trigger di \num{4} accessi. Considerando la probabilità dell'evento sul volume totale, il costo di scrittura si attesta a \num{352000} accessi annui, derivanti dalla somma dei \num{160000} accessi di inserimento base e dei \num{192000} accessi dovuti alle \num{48000} esecuzioni effettive del trigger.
 
@@ -173,14 +173,14 @@ Pertanto, soltanto oltre circa \num{666667} registrazioni di esami all'anno la S
      \centering
      \includegraphics[width=0.7\textwidth]{img/redundancy_analysis.pdf}
      \caption{Analisi di scalabilità e individuazione del punto di pareggio.}
-\label{fig:punto_pareggio_ridondanza} 
+\label{fig:punto_pareggio_ridondanza}
 \end{figure}
 
 Alla luce dei risultati emersi dall'analisi costi-benefici, lo schema concettuale iniziale è stato formalmente ristrutturato. L'attributo derivato \texttt{CreditiAcquisiti} è stato integrato all'interno dell'entità \textit{Studente}, delineando così la versione definitiva e ottimizzata del modello, presentata nella Figura~\ref{fig:er_ristrutturato}.
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=\textwidth]{img/restructured_er.pdf} 
+    \includegraphics[width=0.85\textwidth]{img/restructured_er.pdf}
     \caption{Modello Entità-Relazione ristrutturato con l'introduzione della ridondanza controllata sull'entità Studente.}
 \label{fig:er_ristrutturato}
 \end{figure}

@@ -13,7 +13,7 @@ In particolare, sono stati formalizzati i tipi \texttt{titolo\_enum}, \texttt{pe
 Parallelamente, sono stati introdotti domini dedicati per vincolare gli attributi soggetti a restrizioni specifiche.
 Il dominio \texttt{codice\_fiscale} verifica la correttezza formale del dato tramite un'espressione regolare strutturata per essere perfettamente corrispondente alla codifica standard ministeriale italiana di sedici caratteri alfanumerici, mentre \texttt{telefono\_dom} limita rigorosamente il formato dei recapiti a una stringa fissa di dieci cifre numeriche.
 
-Un'attenzione particolare è stata riservata al dominio \texttt{anno\_accademico}. Oltre a validare la formattazione testuale nella configurazione \texttt{YYYY/YYYY}, la clausola di controllo estrae e converte le due componenti annuali per verificare che l'anno di chiusura sia esattamente successivo a quello di inizio, prevenendo l'inserimento di intervalli temporali incongruenti.
+Un'attenzione particolare è stata riservata al dominio \texttt{anno\_accademico}. Oltre a validare la formattazione testuale nella configurazione \texttt{YYYY/YYYY}, la clausola di controllo estrae e converte le due componenti annuali per verificare che l'anno di chiusura sia esattamente successivo a quello di apertura, prevenendo l'inserimento di intervalli temporali incongruenti.
 Analogamente, il dominio \texttt{punteggio} limita i voti d'esame all'intervallo discreto compreso tra 0 e 30.
 
 L'implementazione fisica del dominio relativo all'anno accademico è stata realizzata attraverso la seguente struttura:
@@ -44,7 +44,8 @@ CONSTRAINT uq_singola_edizione_annuale
 Questo costrutto garantisce in modo stringente il rispetto della specifica secondo cui per un dato insegnamento non può essere attivata più di una singola edizione all'interno dello stesso anno accademico.
 
 L'introduzione di questo specifico vincolo si ricollega direttamente alle scelte di strutturazione discusse nella Sezione~\ref{sec:schema-logico}.
-Come precedentemente illustrato, è proprio l'esplicita dichiarazione di questo vincolo di unicità annuale che permette di mantenere l'attributo \texttt{periodo} all'interno della chiave primaria della tabella \texttt{edizione} a fini di ottimizzazione referenziale verso le lezioni. La clausola \texttt{UNIQUE} agisce come sbarramento fisico a livello di DBMS, garantendo che la superchiave composta non minimale scelta per la chiave primaria non si traduca in una violazione del vincolo di unicità annuale.
+Come precedentemente illustrato, è proprio l'esplicita dichiarazione di questo vincolo di unicità annuale che permette di mantenere l'attributo \texttt{periodo} all'interno della chiave primaria della tabella \texttt{edizione}, al fine di favorirne la propagazione come chiave esterna verso la tabella \texttt{lezioni} e ottimizzare le successive operazioni di filtraggio.
+La clausola \texttt{UNIQUE} agisce come un vincolo d'integrità a livello di DBMS, garantendo che la superchiave composta non minimale scelta per la chiave primaria non causi la violazione del vincolo di unicità annuale.
 
 Ulteriori controlli di consistenza logica sono stati distribuiti tramite espressioni \texttt{CHECK} sulle singole tabelle. Tra i principali si segnalano il blocco preventivo sull'inserimento di valori negativi per i CFU nella tabella \texttt{insegnamento}, l'esclusione di relazioni autoreferenziali nella tabella \texttt{prerequisito} e la verifica che le date di verbalizzazione nella tabella \texttt{esame} non siano successive alla data odierna, prevenendo così l'inserimento di esiti d'esame con date future.
 
@@ -76,13 +77,17 @@ La seconda categoria riguarda invece le foreign key che corrispondono alla secon
 Le regole di business complesse che richiedono l'interrogazione coordinata di più tabelle non sono esprimibili tramite vincoli dichiarativi tradizionali. Per superare questi limiti strutturali, sono stati implementati vincoli procedurali attraverso trigger dedicati associati a funzioni scritte in linguaggio \texttt{PL/pgSQL}.
 
 \paragraph{Controllo delle propedeuticità d'esame}
-Prima di consentire l'inserimento di una nuova riga nella tabella \texttt{esame}, il sistema deve verificare lo stato della carriera dello studente. La funzione \texttt{controlla\_prerequisiti} intercetta l'operazione e verifica se la matricola ha superato tutte le materie definite come propedeutiche per l'insegnamento in esame. In caso di esito negativo, la transazione viene interrotta, sollevando un'eccezione che elenca esplicitamente i codici dei corsi mancanti.
+Prima di consentire l'inserimento di una nuova riga nella tabella \texttt{esame}, il sistema deve verificare lo stato della carriera dello studente. La funzione \texttt{controlla\_prerequisiti} intercetta l'operazione in modalità \texttt{BEFORE INSERT} e verifica se la matricola ha superato tutte le materie definite come propedeutiche per l'insegnamento in esame. In caso di esito negativo, l'operazione viene interrotta, sollevando un'eccezione che elenca esplicitamente i codici dei corsi mancanti.
+
+\paragraph{Prevenzione di tentativi di esame duplicati}
+Per garantire l'integrità dello storico delle carriere ed evitare la ridondanza di record logicamente conclusi, è stato introdotto il vincolo procedurale \texttt{controlla\_esame\_gia\_superato}. Attivandosi come trigger \texttt{BEFORE INSERT} sulla tabella \texttt{esame}, la procedura intercetta i tentativi di inserimento e verifica se per la medesima combinazione di matricola e insegnamento esista già un tentativo con esito positivo ($\ge 18$).
+Qualora il controllo riscontri un superamento pregresso, l'operazione viene abortita mediante un'eccezione, impedendo la scrittura di record ridondanti sul database.
 
 \paragraph{Automazione della ridondanza del saldo crediti}
-Coerentemente con lo studio costi-benefici formalizzato in precedenza, l'attributo \texttt{crediti\_acquisiti} nella tabella \texttt{studente} viene gestito in modo interamente automatizzato. La procedura \texttt{aggiorna\_crediti\_acquisiti} si attiva in modalità \texttt{AFTER INSERT} sulla tabella \texttt{esame}. Il trigger agisce in modo condizionale: valuta se il punteggio è sufficiente ($\ge 18$) e controlla che l'insegnamento non sia già stato superato in un appello precedente, scongiurando il rischio amministrativo di un doppio conteggio dei CFU a parità di esame.
+Coerentemente con lo studio costi-benefici formalizzato in precedenza, l'attributo \texttt{crediti\_acquisiti} nella tabella \texttt{studente} viene gestito in modo interamente automatizzato. La procedura \texttt{aggiorna\_crediti\_acquisiti} si attiva in modalità \texttt{AFTER INSERT} sulla tabella \texttt{esame} solo a fronte di un punteggio sufficiente ($\ge 18$).
 
 \paragraph{Validazione delle abilitazioni del corpo docente}
-L'invariante di business emerso dall'analisi dei cicli didattici viene forzato in fase di inserimento nella tabella \texttt{insegnamento\_edizione}. La funzione \texttt{controlla\_abilitazione\_docente} interroga preventivamente la tabella ponte delle competenze stabili, bloccando l'assegnazione della cattedra qualora non vi sia una corrispondenza esatta tra il codice fiscale del docente e l'insegnamento erogato.
+Il vincolo secondo cui un docente può tenere solo gli insegnamenti per cui è abilitato viene fatto rispettare in fase di inserimento nella tabella \texttt{insegnamento\_edizione}. La funzione \texttt{controlla\_abilitazione\_docente} interroga preventivamente la tabella ponte delle competenze stabili, bloccando l'assegnazione della cattedra qualora non vi sia una corrispondenza esatta tra il codice fiscale del docente e l'insegnamento erogato.
 
 \paragraph{Prevenzione dei cicli nelle propedeuticità}
 Per preservare la coerenza logica dell'offerta formativa, viene impedita la creazione di relazioni di propedeuticità circolari all'interno della tabella \texttt{prerequisito}. Il controllo viene eseguito mediante una query ricorsiva che esplora l'intero grafo diretto dei prerequisiti prima di autorizzare la transazione, implementata come segue:
@@ -110,7 +115,7 @@ $$ LANGUAGE plpgsql;
 
 \paragraph{Protezione dell'immutabilità dello storico esami}
 Poiché la verbalizzazione di un voto costituisce un atto formale concluso, la base di dati protegge l'integrità dello storico mediante il trigger \texttt{trigger\_blocca\_modifica\_esame}.
-Qualsiasi tentativo di eseguire operazioni di \texttt{UPDATE} o \texttt{DELETE} sulla tabella \texttt{esame} viene intercettato in modalità \texttt{BEFORE}, sollevando un'eccezione irreversibile che congela lo stato della carriera studentesca.
+Qualsiasi tentativo di eseguire operazioni di \texttt{UPDATE} sulla tabella \texttt{esame} viene intercettato in modalità \texttt{BEFORE}, sollevando un'eccezione.
 
 \paragraph{Verifica di conformità al piano di studi}
 Infine, l'allineamento tra la fase di pianificazione e la verbalizzazione viene garantito dalla procedura \texttt{controlla\_insegnamento\_in\_piano}.

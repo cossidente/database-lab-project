@@ -29,22 +29,16 @@ EXECUTE FUNCTION controlla_prerequisiti();
 
 
 
-CREATE OR REPLACE FUNCTION aggiorna_crediti_acquisiti() RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION aggiorna_crediti_acquisiti() 
+RETURNS TRIGGER AS $$
 BEGIN
+    -- Se l'esame è superato, aggiungo i crediti (il controllo sul superamento precedente è già stato fatto)
     IF NEW.punteggio >= 18 THEN
-        IF NOT EXISTS (
-            SELECT 1 FROM esame
-            WHERE matricola = NEW.matricola
-              AND codice_insegnamento = NEW.codice_insegnamento
-              AND punteggio >= 18
-              AND data_esame <> NEW.data_esame
-        ) THEN
-            UPDATE studente
-            SET crediti_acquisiti = crediti_acquisiti + (
-                SELECT crediti FROM insegnamento WHERE codice = NEW.codice_insegnamento
-            )
-            WHERE matricola = NEW.matricola;
-        END IF;
+        UPDATE studente
+        SET crediti_acquisiti = crediti_acquisiti + (
+            SELECT crediti FROM insegnamento WHERE codice = NEW.codice_insegnamento
+        )
+        WHERE matricola = NEW.matricola;
     END IF;
     RETURN NEW;
 END;
@@ -142,3 +136,26 @@ CREATE TRIGGER trigger_controlla_insegnamento_in_piano
 BEFORE INSERT ON esame
 FOR EACH ROW
 EXECUTE FUNCTION controlla_insegnamento_in_piano();
+
+
+CREATE OR REPLACE FUNCTION controlla_esame_gia_superato() 
+RETURNS TRIGGER AS $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM esame
+        WHERE matricola = NEW.matricola
+          AND codice_insegnamento = NEW.codice_insegnamento
+          AND punteggio >= 18
+    ) THEN
+        RAISE EXCEPTION 'Lo studente % ha già superato l''insegnamento %.', 
+            NEW.matricola, NEW.codice_insegnamento;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_controlla_esame_gia_superato
+BEFORE INSERT ON esame
+FOR EACH ROW
+EXECUTE FUNCTION controlla_esame_gia_superato();

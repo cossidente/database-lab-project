@@ -79,9 +79,10 @@ Coerentemente con lo studio costi-benefici formalizzato in precedenza, l'attribu
 
 Specularmente, per garantire la consistenza del saldo anche a fronte di rimozioni di record inseriti per errore o rettifiche, è stata implementata una logica di decremento speculare.
 Per evitare conflitti con l'operazione di eliminazione a cascata (\texttt{ON DELETE CASCADE}) definita sulla chiave esterna verso la tabella \texttt{studente}, si è scelto di non bloccare la \texttt{DELETE} a monte.
-Al contrario, la funzione \texttt{aggiorna\_crediti\_post\_delete()} agisce in modalità \texttt{AFTER DELETE} aggiornando il saldo solo se l'entità padre è ancora presente nel sistema, garantendo così una perfetta convivenza tra i vincoli dichiarativi e quelli procedurali.
+Al contrario, la funzione \texttt{aggiorna\_crediti\_post\_delete()} agisce in modalità \texttt{AFTER DELETE} aggiornando il saldo solo se l'entità padre è ancora presente nel sistema.
+Inoltre, grazie alla clausola \texttt{WHEN} applicata direttamente al trigger, il decremento viene eseguito esclusivamente se l'esame rimosso presentava un esito sufficiente ($\ge 18$), prevenendo la sottrazione di crediti mai acquisiti.
 
-L'implementazione fisica della procedura è stata strutturata come segue:
+L'implementazione fisica della procedura e del relativo trigger è stata strutturata come segue:
 
 \begin{lstlisting}[language=SQL]
 CREATE OR REPLACE FUNCTION aggiorna_crediti_post_delete()
@@ -94,6 +95,14 @@ BEGIN
     RETURN OLD;
 END;
 $$ LANGUAGE plpgsql;
+\end{lstlisting}
+
+\begin{lstlisting}[language=SQL]
+CREATE TRIGGER trigger_aggiorna_crediti_post_delete
+AFTER DELETE ON esame
+FOR EACH ROW
+WHEN (OLD.punteggio >= 18)
+EXECUTE FUNCTION aggiorna_crediti_post_delete();
 \end{lstlisting}
 
 \paragraph{Validazione delle abilitazioni del corpo docente}

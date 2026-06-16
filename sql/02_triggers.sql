@@ -175,4 +175,5 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER trigger_aggiorna_crediti_post_delete
 AFTER DELETE ON esame
 FOR EACH ROW
+WHEN (OLD.punteggio >= 18)
 EXECUTE FUNCTION aggiorna_crediti_post_delete();

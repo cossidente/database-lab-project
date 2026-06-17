@@ -70,19 +70,36 @@ WHERE matricola = 15;
 COMMIT;
 
 
--- Dato un professore e l'anno accademico, si vuole gestire la sostituzione delle sue cattedre
+BEGIN;
+
+-- Verifica che il nuovo docente sia abilitato a tutti gli insegnamenti
+-- del docente da sostituire nell'anno accademico indicato.
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM insegnamento_edizione ie
+        WHERE ie.cf_docente = 'SDDGLM43R23E271L'
+          AND ie.anno_accademico = '2025/2026'
+          AND NOT EXISTS (
+              SELECT 1
+              FROM abilitazione_docente_insegnamento adi
+              WHERE adi.cf_docente = 'BNNGDI98L11M104F'
+                AND adi.codice_insegnamento = ie.codice_insegnamento
+          )
+    ) THEN
+        RAISE EXCEPTION
+            'Il nuovo docente non è abilitato per tutte le cattedre del docente da sostituire.';
+    END IF;
+END $$;
+
+-- Se il controllo è superato, aggiorna tutte le cattedre.
 UPDATE insegnamento_edizione
 SET cf_docente = 'BNNGDI98L11M104F'
-WHERE insegnamento_edizione.cf_docente = 'SDDGLM43R23E271L'
-  AND insegnamento_edizione.anno_accademico = '2025/2026'
-  AND EXISTS (
-      -- Verifica abilitazione nuovo docente
-      SELECT 1 
-      FROM abilitazione_docente_insegnamento
-      WHERE abilitazione_docente_insegnamento.cf_docente = 'BNNGDI98L11M104F' 
-        AND abilitazione_docente_insegnamento.codice_insegnamento = insegnamento_edizione.codice_insegnamento
-  );
+WHERE cf_docente = 'SDDGLM43R23E271L'
+  AND anno_accademico = '2025/2026';
 
+COMMIT;
 
 -- Inserimento di un nuovo insegnamento, della sua edizione e assegnazione a un docente
 BEGIN;

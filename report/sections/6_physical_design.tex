@@ -62,6 +62,15 @@ Se il \texttt{periodo} non facesse parte della chiave esterna, il database potre
 
 Per esempio, senza questo vincolo, una riga della tabella \texttt{lezione} potrebbe essere registrata per errore con il campo \texttt{periodo} impostato su \texttt{'2'} (secondo periodo), pur essendo collegata a un record della tabella \texttt{edizione} attivato esclusivamente nel \texttt{'1'} (primo periodo). Includendo il periodo all'interno della foreign key, il DBMS intercetta e rifiuta automaticamente inserimenti disallineati di questo tipo, garantendo l'integrità del calendario senza dover gravare sul sistema con trigger o controlli aggiuntivi.
 
+\subsection{Indici secondari}
+\label{ssec:indici-secondari}
+
+A completamento dell'analisi sulle chiavi, sono stati introdotti ulteriori indici secondari (definiti nel file \texttt{sql/04\_indexes.sql}) per ottimizzare le operazioni più frequenti, distinguendo due categorie di necessità.
+
+La prima categoria riguarda i filtri di ricerca utilizzati dalle interrogazioni presentate nel Capitolo~\ref{chap:operazioni-e-interrogazioni}. In particolare, \texttt{idx\_docente\_cognome\_nome} accelera la ricerca di un docente per nome e cognome (operazione di Sezione~\ref{ssec:estrazione-del-calendario-settimanale-di-un-docente}), \texttt{idx\_insegnamento\_nome} velocizza il filtro per nome di un insegnamento (operazione di Sezione~\ref{ssec:media-dei-tentativi-per-gli-studenti-promossi}), mentre \texttt{idx\_insegnamento\_edizione\_ricerca} supporta la giunzione tra \texttt{lezione} ed \texttt{edizione} tramite la tabella \texttt{insegnamento\_edizione}, sfruttata nella medesima operazione.
+
+La seconda categoria riguarda invece le foreign key che corrispondono alla seconda colonna di una chiave primaria composta, e che quindi non beneficiano dell'indice automaticamente creato sulla chiave primaria. È il caso di \texttt{esame.codice\_insegnamento} e \texttt{piano\_di\_studio.codice\_insegnamento}, entrambe protette da un vincolo \texttt{ON DELETE RESTRICT} verso \texttt{insegnamento}: senza un indice dedicato, ogni cancellazione di un insegnamento richiederebbe una scansione completa di queste tabelle (rispettivamente \num{320000} e \num{320000} tuple secondo la Tabella~\ref{tab:volumi}) per verificarne l'assenza di riferimenti. Gli indici \texttt{idx\_esame\_insegnamento} e \texttt{idx\_piano\_di\_studio\_insegnamento} riducono tale controllo a un accesso diretto.
+
 \section{Trigger e vincoli procedurali}
 \label{sec:trigger-e-vincoli-procedurali}
 
@@ -111,4 +120,3 @@ Qualsiasi tentativo di eseguire operazioni di \texttt{UPDATE} sulla tabella \tex
 \paragraph{Verifica di conformità al piano di studi}
 Infine, l'allineamento tra la fase di pianificazione e la verbalizzazione viene garantito dalla procedura \texttt{controlla\_insegnamento\_in\_piano}.
 Il trigger si attiva prima di registrare un voto nella tabella \texttt{esame}, respingendo le transazioni relative a insegnamenti che la matricola non ha preventivamente inserito all'interno della tabella \texttt{piano\_di\_studio}.
-

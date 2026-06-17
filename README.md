@@ -18,7 +18,8 @@ ______________________________________________________________________
 | `src/` | Source code used for interacting with the database |
 | `sql/01_schema.sql` | Table definitions and constraints |
 | `sql/02_triggers.sql` | Triggers and trigger functions |
-| `sql/03_queries.sql` | Queries for testing and demonstration purposes |
+| `sql/03_indexes.sql` | Index definitions |
+| `sql/04_queries.sql` | Queries for testing and demonstration purposes |
 | `src/populate.py` | Generates and inserts random but coherent data into the database |
 | `src/redundancy_analysis.py` | Reproduces the redundancy cost analysis and scalability study presented in the report |
 | `Dockerfile` | PostgreSQL image definition |

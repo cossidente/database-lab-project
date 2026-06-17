@@ -62,14 +62,38 @@ Se il \texttt{periodo} non facesse parte della chiave esterna, il database potre
 
 Per esempio, senza questo vincolo, una riga della tabella \texttt{lezione} potrebbe essere registrata per errore con il campo \texttt{periodo} impostato su \texttt{'2'} (secondo periodo), pur essendo collegata a un record della tabella \texttt{edizione} attivato esclusivamente nel \texttt{'1'} (primo periodo). Includendo il periodo all'interno della foreign key, il DBMS intercetta e rifiuta automaticamente inserimenti disallineati di questo tipo, garantendo l'integrità del calendario senza dover gravare sul sistema con trigger o controlli aggiuntivi.
 
-\subsection{Indici secondari}
-\label{ssec:indici-secondari}
+\subsection{Ottimizzazione tramite indici}
+\label{ssec:ottimizzazione-tramite-indici}
 
-A completamento dell'analisi sulle chiavi, sono stati introdotti ulteriori indici secondari (definiti nel file \texttt{sql/04\_indexes.sql}) per ottimizzare le operazioni più frequenti, distinguendo due categorie di necessità.
+A completamento dell'analisi sulle chiavi, sono stati introdotti ulteriori indici (definiti nel file \texttt{sql/04\_indexes.sql}) per ottimizzare le operazioni più frequenti, distinguendo tre categorie di necessità.
 
-La prima categoria riguarda i filtri di ricerca utilizzati dalle interrogazioni presentate nel Capitolo~\ref{chap:operazioni-e-interrogazioni}. In particolare, \texttt{idx\_docente\_cognome\_nome} accelera la ricerca di un docente per nome e cognome (operazione di Sezione~\ref{ssec:estrazione-del-calendario-settimanale-di-un-docente}), \texttt{idx\_insegnamento\_nome} velocizza il filtro per nome di un insegnamento (operazione di Sezione~\ref{ssec:media-dei-tentativi-per-gli-studenti-promossi}), mentre \texttt{idx\_insegnamento\_edizione\_ricerca} supporta la giunzione tra \texttt{lezione} ed \texttt{edizione} tramite la tabella \texttt{insegnamento\_edizione}, sfruttata nella medesima operazione.
+\begin{lstlisting}[language=SQL]
+-- Indici per i filtri di ricerca (Query)
+CREATE INDEX idx_docente_cognome_nome
+    ON docente (cognome, nome);
+CREATE INDEX idx_insegnamento_nome
+    ON insegnamento (nome);
+CREATE INDEX idx_insegnamento_edizione_ricerca
+    ON insegnamento_edizione (codice_insegnamento, anno_accademico, periodo);
+CREATE INDEX idx_abilitazione_insegnamento
+    ON abilitazione_docente_insegnamento (codice_insegnamento);
 
-La seconda categoria riguarda invece le foreign key che corrispondono alla seconda colonna di una chiave primaria composta, e che quindi non beneficiano dell'indice automaticamente creato sulla chiave primaria. È il caso di \texttt{esame.codice\_insegnamento} e \texttt{piano\_di\_studio.codice\_insegnamento}, entrambe protette da un vincolo \texttt{ON DELETE RESTRICT} verso \texttt{insegnamento}: senza un indice dedicato, ogni cancellazione di un insegnamento richiederebbe una scansione completa di queste tabelle (rispettivamente \num{320000} e \num{320000} tuple secondo la Tabella~\ref{tab:volumi}) per verificarne l'assenza di riferimenti. Gli indici \texttt{idx\_esame\_insegnamento} e \texttt{idx\_piano\_di\_studio\_insegnamento} riducono tale controllo a un accesso diretto.
+-- Indici per le seconde colonne di PK composite (Query + FK)
+CREATE INDEX idx_piano_di_studio_insegnamento
+    ON piano_di_studio (codice_insegnamento);
+CREATE INDEX idx_esame_insegnamento
+    ON esame (codice_insegnamento);
+
+-- Navigazione inversa dei prerequisiti (CTE ricorsiva nel trigger)
+CREATE INDEX idx_prerequisito_prerequisito
+    ON prerequisito (codice_prerequisito);
+\end{lstlisting}
+
+La prima categoria riguarda i filtri di ricerca utilizzati dalle interrogazioni presentate nella Sezione~\ref{sec:operazioni}. In particolare, \texttt{idx\_do\-cen\-te\_co\-gno\-me\_no\-me} accelera la ricerca di un docente per nome e cognome (Sezione~\ref{ssec:estrazione-del-calendario-settimanale-di-un-docente}), \texttt{idx\_in\-seg\-na\-men\-to\_no\-me} velocizza il filtro per nome di un insegnamento (Sezione~\ref{ssec:media-dei-tentativi-per-gli-studenti-promossi}), mentre \texttt{idx\_in\-seg\-na\-men\-to\_e\-di\-zio\-ne\_ri\-cer\-ca} supporta la giunzione tra \texttt{le\-zio\-ne} ed \texttt{e\-di\-zio\-ne} tramite la tabella \texttt{in\-seg\-na\-men\-to\_e\-di\-zio\-ne}, sfruttata nella medesima operazione. A questi si aggiunge \texttt{idx\_a\-bi\-li\-ta\-zio\-ne\_in\-seg\-na\-men\-to} su \texttt{a\-bi\-li\-ta\-zio\-ne\_do\-cen\-te\_in\-seg\-na\-men\-to\-.co\-di\-ce\_in\-seg\-na\-men\-to}, utilizzato sia dal trigger \texttt{con\-trol\-la\_a\-bi\-li\-ta\-zio\-ne\_do\-cen\-te} sia dalla query di sostituzione cattedre (Sezione~\ref{ssec:sostituzione-in-blocco-di-una-cattedra-annuale}), che ricercano le abilitazioni per insegnamento anziché per docente.
+
+La seconda categoria riguarda le foreign key che corrispondono alla seconda colonna di una chiave primaria composta, e che quindi non beneficiano dell'indice automaticamente creato sulla chiave primaria. È il caso di \texttt{e\-sa\-me\-.co\-di\-ce\_in\-seg\-na\-men\-to} e \texttt{pia\-no\_di\_stu\-dio\-.co\-di\-ce\_in\-seg\-na\-men\-to}, entrambe protette da un vincolo \texttt{ON~DELETE~RESTRICT} verso \texttt{in\-seg\-na\-men\-to}: senza un indice dedicato, ogni cancellazione di un insegnamento richiederebbe una scansione completa di queste tabelle (rispettivamente \num{320000} e \num{320000} tuple secondo la Tabella~\ref{tab:volumi}) per verificarne l'assenza di riferimenti. Gli indici \texttt{idx\_e\-sa\-me\_in\-seg\-na\-men\-to} e \texttt{idx\_pia\-no\_di\_stu\-dio\_in\-seg\-na\-men\-to} riducono tale controllo a un accesso diretto.
+
+La terza categoria riguarda la navigazione inversa nella tabella \texttt{pre\-re\-qui\-si\-to}. Il trigger \texttt{con\-trol\-la\_ci\-clo\_pre\-re\-qui\-si\-ti} esegue una CTE ricorsiva che, a partire dal nuovo \texttt{co\-di\-ce\_pre\-re\-qui\-si\-to} inserito, risale la catena dei prerequisiti seguendo la colonna \texttt{co\-di\-ce\_pre\-re\-qui\-si\-to} stessa. Poiché la chiave primaria di \texttt{pre\-re\-qui\-si\-to} è definita su \texttt{(co\-di\-ce\_in\-seg\-na\-men\-to,\allowbreak\ co\-di\-ce\_pre\-re\-qui\-si\-to)}, le ricerche per \texttt{co\-di\-ce\_pre\-re\-qui\-si\-to} non sono coperte da alcun indice automatico: l'indice \texttt{idx\_pre\-re\-qui\-si\-to\_pre\-re\-qui\-si\-to} colma questa lacuna, rendendo ogni passo della ricorsione un accesso diretto anziché una scansione sequenziale.
 
 \section{Trigger e vincoli procedurali}
 \label{sec:trigger-e-vincoli-procedurali}

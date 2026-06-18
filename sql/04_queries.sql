@@ -70,7 +70,7 @@ WHERE matricola = 15;
 COMMIT;
 
 
--- Dato un professore e un insegnamento, si vuole gestire la sostituzione della cattedra dell'insegnamento dato nell'anno corrente
+-- Dato un professore e un insegnamento, si vuole gestire la sostituzione della cattedra nell'anno corrente dell'insegnamento dato
 UPDATE insegnamento_edizione
 SET cf_docente = 'BNNGDI98L11M104F'
 WHERE insegnamento_edizione.cf_docente = 'SDDGLM43R23E271L'

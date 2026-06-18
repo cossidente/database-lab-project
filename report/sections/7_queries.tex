@@ -119,25 +119,35 @@ COMMIT;
 Come definito a livello di schema fisico, la tabella \texttt{esame} è rigorosamente protetta dal vincolo \texttt{ON DELETE RESTRICT} per tutelare i registri da cancellazioni accidentali. È quindi obbligatorio incapsulare i comandi all'interno di una transazione. Questa procede prima alla rimozione manuale dello storico dei voti e solo successivamente cancella l'anagrafica dello studente.
 Quest'ultimo comando elimina contestualmente e in modo automatico i record associati all'interno della tabella \texttt{piano\_di\_studio}, per effetto del vincolo \texttt{ON DELETE CASCADE}.
 
-\subsection{Sostituzione in blocco di una cattedra annuale}
-\label{ssec:sostituzione-in-blocco-di-una-cattedra-annuale}
-In caso di necessità organizzative, la segreteria dell'ateneo deve poter trasferire istantaneamente la titolarità delle edizioni annuali da un docente a un nuovo sostituto.
+\subsection{Sostituzione di una cattedra}
+\label{ssec:sostituzione-di-una-cattedra}
+In caso di necessità organizzative, la segreteria dell'ateneo deve poter trasferire istantaneamente la titolarità di un'edizione di un insegnamento da un docente a un nuovo sostituto.
 
 \begin{lstlisting}[language=SQL]
 UPDATE insegnamento_edizione
 SET cf_docente = 'BNNGDI98L11M104F'
 WHERE insegnamento_edizione.cf_docente = 'SDDGLM43R23E271L'
-  AND insegnamento_edizione.anno_accademico = '2025/2026'
+  AND insegnamento_edizione.codice_insegnamento = '20004'
+  AND insegnamento_edizione.anno_accademico = (
+      -- Calcolo dell'anno accademico corrente (inizio a ottobre)
+      CASE 
+          WHEN EXTRACT(MONTH FROM CURRENT_DATE) >= 10 
+          THEN EXTRACT(YEAR FROM CURRENT_DATE) || '/' || (EXTRACT(YEAR FROM CURRENT_DATE) + 1)
+          ELSE (EXTRACT(YEAR FROM CURRENT_DATE) - 1) || '/' || EXTRACT(YEAR FROM CURRENT_DATE)
+      END
+  )
   AND EXISTS (
-      SELECT 1
+      -- Verifica abilitazione nuovo docente
+      SELECT 1 
       FROM abilitazione_docente_insegnamento
-      WHERE abilitazione_docente_insegnamento.cf_docente = 'BNNGDI98L11M104F'
+      WHERE abilitazione_docente_insegnamento.cf_docente = 'BNNGDI98L11M104F' 
         AND abilitazione_docente_insegnamento.codice_insegnamento = insegnamento_edizione.codice_insegnamento
   );
 \end{lstlisting}
 
-Per garantire che l'operazione di \texttt{UPDATE} massivo non assegni cattedre in modo illegittimo o a docenti non qualificati, è stata inserita una rigorosa condizione di validazione tramite la sottoquery \texttt{EXISTS}.
+Per garantire che l'operazione di \texttt{UPDATE} non assegni cattedre in modo illegittimo o a docenti non qualificati, è stata inserita una condizione di validazione tramite la sottoquery \texttt{EXISTS}.
 Il DBMS applicherà le modifiche ai record nella tabella \texttt{insegnamento\_edizione} esclusivamente se il codice fiscale del nuovo docente risulta già formalmente associato all'insegnamento in questione all'interno della tabella di riferimento \texttt{abilitazione\_docente\_insegnamento}, garantendo totale aderenza alle regole dell'ateneo.
+Inoltre, l'anno accademico dell'edizione da aggiornare viene calcolato dinamicamente: questo vincola la sostituzione all'anno in corso, impedendo la modifica retroattiva della titolarità di cattedre passate.
 
 \section{Implementazione delle operazioni di inserimento}
 \label{sec:implementazione-delle-operazioni-di-inserimento}

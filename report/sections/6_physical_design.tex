@@ -98,51 +98,39 @@ La terza categoria riguarda la navigazione inversa nella tabella \texttt{pre\-re
 \section{Trigger e vincoli procedurali}
 \label{sec:trigger-e-vincoli-procedurali}
 
-Le regole di business complesse che richiedono l'interrogazione coordinata di più tabelle non sono esprimibili tramite vincoli dichiarativi tradizionali. Per superare questi limiti strutturali, sono stati implementati vincoli procedurali attraverso trigger dedicati associati a funzioni scritte in linguaggio \texttt{PL/pgSQL}.
+Le regole di business complesse che richiedono l'interrogazione coordinata di più tabelle non sono esprimibili tramite vincoli dichiarativi tradizionali. Per superare questi limiti strutturali, sono stati implementati vincoli procedurali attraverso trigger dedicati associati a funzioni scritte in linguaggio \texttt{PL/pgSQL}. Di seguito vengono discussi i trigger più significativi, direttamente derivanti dalle scelte progettuali illustrate nei capitoli precedenti; la lista completa è disponibile nella repository GitHub del progetto all'indirizzo \url{https://github.com/cossidente/database-lab-project/blob/main/sql/02_triggers.sql}.
 
 \paragraph{Controllo delle propedeuticità d'esame}
-Prima di consentire l'inserimento di una nuova riga nella tabella \texttt{esame}, il sistema deve verificare lo stato della carriera dello studente. La funzione \texttt{controlla\_prerequisiti} intercetta l'operazione in modalità \texttt{BEFORE INSERT} e verifica se la matricola ha superato tutte le materie definite come propedeutiche per l'insegnamento in esame. In caso di esito negativo, l'operazione viene interrotta, sollevando un'eccezione che elenca esplicitamente i codici dei corsi mancanti.
-
-\paragraph{Prevenzione di tentativi di esame duplicati}
-Per garantire l'integrità dello storico delle carriere ed evitare la ridondanza di record logicamente conclusi, è stato introdotto il vincolo procedurale \texttt{controlla\_esame\_gia\_superato}. Attivandosi come trigger \texttt{BEFORE INSERT} sulla tabella \texttt{esame}, la procedura intercetta i tentativi di inserimento e verifica se per la medesima combinazione di matricola e insegnamento esista già un tentativo con esito positivo ($\ge 18$).
-Qualora il controllo riscontri un superamento pregresso, l'operazione viene abortita mediante un'eccezione, impedendo la scrittura di record ridondanti sul database.
-
-\paragraph{Automazione della ridondanza del saldo crediti}
-Coerentemente con lo studio costi-benefici formalizzato in precedenza, l'attributo \texttt{crediti\_acquisiti} nella tabella \texttt{studente} viene gestito in modo interamente automatizzato. La procedura \texttt{aggiorna\_crediti\_acquisiti} si attiva in modalità \texttt{AFTER INSERT} sulla tabella \texttt{esame} solo a fronte di un punteggio sufficiente ($\ge 18$).
-
-Specularmente, per garantire la consistenza del saldo anche a fronte di rimozioni di record inseriti per errore o rettifiche, è stata implementata una logica di decremento speculare.
-Per evitare conflitti con l'operazione di eliminazione a cascata (\texttt{ON DELETE CASCADE}) definita sulla chiave esterna verso la tabella \texttt{studente}, si è scelto di non bloccare la \texttt{DELETE} a monte.
-Al contrario, la funzione \texttt{aggiorna\_crediti\_post\_delete()} agisce in modalità \texttt{AFTER DELETE} aggiornando il saldo solo se l'entità padre è ancora presente nel sistema.
-Inoltre, grazie alla clausola \texttt{WHEN} applicata direttamente al trigger, il decremento viene eseguito esclusivamente se l'esame rimosso presentava un esito sufficiente ($\ge 18$), prevenendo la sottrazione di crediti mai acquisiti.
-
-L'implementazione fisica della procedura e del relativo trigger è stata strutturata come segue:
+Prima di consentire l'inserimento di una nuova riga nella tabella \texttt{esame}, il sistema deve verificare lo stato della carriera dello studente. La funzione \texttt{controlla\_prerequisiti} intercetta l'operazione in modalità \texttt{BEFORE INSERT} e verifica se la matricola ha superato tutte le materie definite come propedeutiche per l'insegnamento in esame. In caso di esito negativo, l'operazione viene interrotta sollevando un'eccezione che elenca esplicitamente i codici dei corsi mancanti.
 
 \begin{lstlisting}[language=SQL]
-CREATE OR REPLACE FUNCTION aggiorna_crediti_post_delete()
+CREATE OR REPLACE FUNCTION controlla_prerequisiti()
 RETURNS TRIGGER AS $$
+DECLARE
+    mancanti TEXT;
 BEGIN
-    UPDATE studente
-    SET crediti_acquisiti = crediti_acquisiti - OLD.crediti_esame
-    WHERE matricola = OLD.matricola;
+    SELECT string_agg(p.codice_prerequisito, ', ')
+    INTO mancanti
+    FROM prerequisito p
+    WHERE p.codice_insegnamento = NEW.codice_insegnamento
+      AND NOT EXISTS (
+          SELECT 1 FROM esame e
+          WHERE e.matricola = NEW.matricola
+            AND e.codice_insegnamento = p.codice_prerequisito
+            AND e.punteggio >= 18
+      );
 
-    RETURN OLD;
+    IF mancanti IS NOT NULL THEN
+        RAISE EXCEPTION 'Prerequisiti mancanti: %', mancanti;
+    END IF;
+
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 \end{lstlisting}
 
-\begin{lstlisting}[language=SQL]
-CREATE TRIGGER trigger_aggiorna_crediti_post_delete
-AFTER DELETE ON esame
-FOR EACH ROW
-WHEN (OLD.punteggio >= 18)
-EXECUTE FUNCTION aggiorna_crediti_post_delete();
-\end{lstlisting}
-
-\paragraph{Validazione delle abilitazioni del corpo docente}
-Il vincolo secondo cui un docente può tenere solo gli insegnamenti per cui è abilitato viene fatto rispettare in fase di inserimento nella tabella \texttt{insegnamento\_edizione}. La funzione \texttt{controlla\_abilitazione\_docente} interroga preventivamente la tabella ponte delle competenze stabili, bloccando l'assegnazione della cattedra qualora non vi sia una corrispondenza esatta tra il codice fiscale del docente e l'insegnamento erogato.
-
 \paragraph{Prevenzione dei cicli nelle propedeuticità}
-Per preservare la coerenza logica dell'offerta formativa, viene impedita la creazione di relazioni di propedeuticità circolari all'interno della tabella \texttt{prerequisito}. Il controllo viene eseguito mediante una query ricorsiva che esplora l'intero grafo diretto dei prerequisiti prima di autorizzare la transazione, implementata come segue:
+Per preservare la coerenza logica dell'offerta formativa, viene impedita la creazione di relazioni di propedeuticità circolari all'interno della tabella \texttt{prerequisito}. Il controllo viene eseguito mediante una query ricorsiva che esplora l'intero grafo diretto dei prerequisiti prima di autorizzare la transazione.
 
 \begin{lstlisting}[language=SQL]
 CREATE OR REPLACE FUNCTION controlla_ciclo_prerequisiti()
@@ -158,18 +146,43 @@ BEGIN
         )
         SELECT 1 FROM raggiungibili WHERE codice = NEW.codice_insegnamento
     ) THEN
-        RAISE EXCEPTION 'Inserimento creerebbe un ciclo nei prerequisiti';
+        RAISE EXCEPTION 'Inserimento creerebbe un ciclo nei prerequisiti tra % e %',
+            NEW.codice_insegnamento, NEW.codice_prerequisito;
     END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 \end{lstlisting}
 
-\paragraph{Protezione dell'immutabilità dello storico esami}
-Poiché la verbalizzazione di un voto costituisce un atto formale concluso, la base di dati protegge l'integrità dello storico mediante il trigger \texttt{trigger\_blocca\_modifica\_esame}.
-Qualsiasi tentativo di eseguire operazioni di \texttt{UPDATE} sulla tabella \texttt{esame} viene intercettato in modalità \texttt{BEFORE}, sollevando un'eccezione.
-Eventuali rettifiche non vengono gestite tramite modifiche dirette, ma devono essere effettuate attraverso l'eliminazione del record errato e la successiva reinserzione con i dati corretti.
+\paragraph{Automazione della ridondanza del saldo crediti}
+Coerentemente con lo studio costi-benefici formalizzato in precedenza, l'attributo \texttt{crediti\_acquisiti} nella tabella \texttt{studente} viene gestito in modo interamente automatizzato. La funzione \texttt{aggiorna\_crediti\_acquisiti} si attiva in modalità \texttt{AFTER INSERT} sulla tabella \texttt{esame} incrementando il saldo solo a fronte di un punteggio sufficiente ($\ge 18$).
 
-\paragraph{Verifica di conformità al piano di studi}
-Infine, l'allineamento tra la fase di pianificazione e la verbalizzazione viene garantito dalla procedura \texttt{controlla\_insegnamento\_in\_piano}.
-Il trigger si attiva prima di registrare un voto nella tabella \texttt{esame}, respingendo le transazioni relative a insegnamenti che la matricola non ha preventivamente inserito all'interno della tabella \texttt{piano\_di\_studio}.
+\begin{lstlisting}[language=SQL]
+CREATE OR REPLACE FUNCTION aggiorna_crediti_acquisiti()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.punteggio >= 18 THEN
+        UPDATE studente
+        SET crediti_acquisiti = crediti_acquisiti + (
+            SELECT crediti FROM insegnamento WHERE codice = NEW.codice_insegnamento
+        )
+        WHERE matricola = NEW.matricola;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+\end{lstlisting}
+
+Specularmente, per garantire la consistenza del saldo anche a fronte di rimozioni di record, la funzione \texttt{aggiorna\_crediti\_post\_delete} agisce in modalità \texttt{AFTER DELETE} decrementando i crediti solo se l'esame rimosso presentava un esito sufficiente ($\ge 18$), grazie alla clausola \texttt{WHEN} applicata direttamente al trigger.
+
+\begin{lstlisting}[language=SQL]
+CREATE OR REPLACE FUNCTION aggiorna_crediti_post_delete()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE studente
+    SET crediti_acquisiti = crediti_acquisiti - OLD.crediti_esame
+    WHERE matricola = OLD.matricola;
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+\end{lstlisting}

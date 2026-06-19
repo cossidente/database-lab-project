@@ -155,7 +155,27 @@ $$ LANGUAGE plpgsql;
 \end{lstlisting}
 
 \paragraph{Automazione della ridondanza del saldo crediti}
-Coerentemente con lo studio costi-benefici formalizzato in precedenza, l'attributo \texttt{crediti\_acquisiti} nella tabella \texttt{studente} viene gestito in modo interamente automatizzato. La funzione \texttt{aggiorna\_crediti\_acquisiti} si attiva in modalità \texttt{AFTER INSERT} sulla tabella \texttt{esame} incrementando il saldo solo a fronte di un punteggio sufficiente ($\ge 18$).
+Coerentemente con lo studio costi-benefici formalizzato in precedenza, l'attributo \texttt{crediti\_acquisiti} nella tabella \texttt{studente} viene gestito in modo interamente automatizzato. La correttezza di questo meccanismo dipende però da un invariante fondamentale: uno studente non deve poter registrare un secondo esame superato per lo stesso insegnamento, altrimenti i crediti verrebbero sommati più volte. Questo vincolo è garantito dal trigger \texttt{controlla\_esame\_gia\_superato}, che intercetta ogni \texttt{INSERT} sulla tabella \texttt{esame} e blocca l'operazione se esiste già un tentativo con punteggio $\ge 18$ per la medesima combinazione di matricola e insegnamento.
+
+\begin{lstlisting}[language=SQL]
+CREATE OR REPLACE FUNCTION controlla_esame_gia_superato()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM esame
+        WHERE matricola = NEW.matricola
+          AND codice_insegnamento = NEW.codice_insegnamento
+          AND punteggio >= 18
+    ) THEN
+        RAISE EXCEPTION 'Lo studente % ha gia superato l''insegnamento %.',
+            NEW.matricola, NEW.codice_insegnamento;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+\end{lstlisting}
+
+Solo una volta garantito questo invariante, la funzione \texttt{aggiorna\_crediti\_acquisiti} può incrementare il saldo in modo sicuro ad ogni inserimento con esito sufficiente ($\ge 18$).
 
 \begin{lstlisting}[language=SQL]
 CREATE OR REPLACE FUNCTION aggiorna_crediti_acquisiti()

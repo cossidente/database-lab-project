@@ -1,0 +1,58 @@
+\begin{table}[htbp]
+\centering
+\small
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{>{\raggedright\arraybackslash}p{5.5cm} >{\raggedright\arraybackslash}p{4.2cm} >{\raggedright\arraybackslash}p{4.5cm}}
+\hline
+\textbf{Requisito funzionale} & \textbf{Schema E/R} & \textbf{Schema relazionale} \\
+\hline
+
+Gestire l'anagrafica degli studenti &
+Entità \emph{Studente} &
+\texttt{studente} \\
+
+Gestire il corpo docente &
+Entità \emph{Docente} &
+\texttt{docente} \\
+
+Gestire i dipartimenti e i corsi di laurea &
+Entità \emph{Dipartimento}, \emph{Corso di Laurea}; relazioni di afferenza e iscrizione &
+\texttt{dipartimento}, \texttt{corso\_di\_laurea}, FK in \texttt{docente} e \texttt{studente} \\
+
+Gestire gli insegnamenti &
+Entità \emph{Insegnamento} &
+\texttt{insegnamento} \\
+
+Gestire le edizioni annuali degli insegnamenti &
+Entità \emph{Edizione} &
+\texttt{edizione} \\
+
+Associare i docenti alle edizioni degli insegnamenti &
+Relazione \emph{tiene} &
+\texttt{insegnamento\_edizione} \\
+
+Gestire il calendario delle lezioni &
+Entità \emph{Lezione}; relazione \emph{si compone di} &
+\texttt{lezione} \\
+
+Gestire il piano di studio degli studenti &
+Relazione \emph{nel piano di studio} &
+\texttt{piano\_di\_studio} \\
+
+Registrare gli esami sostenuti &
+Entità \emph{Esame}; relazione \emph{sostiene} &
+\texttt{esame} \\
+
+Gestire le propedeuticità tra insegnamenti &
+Relazione \emph{prerequisito} &
+\texttt{prerequisito} \\
+
+Gestire le abilitazioni dei docenti agli insegnamenti &
+Relazione \emph{può insegnare} &
+\texttt{abilitazione\_\allowbreak docente\_\allowbreak insegnamento} \\
+\hline
+
+\end{tabular}
+\caption{Tracciabilità dei requisiti tra analisi, progettazione concettuale e progettazione logica.}
+\label{tab:tracciabilita}
+\end{table}

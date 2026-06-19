@@ -1,0 +1,24 @@
+Il presente progetto ha affrontato la progettazione e l'implementazione di una base di dati relazionale per la gestione della didattica universitaria, seguendo in modo sistematico le fasi canoniche del ciclo di sviluppo: dall'analisi dei requisiti fino alla progettazione fisica e all'implementazione concreta su DBMS PostgreSQL.
+
+\section{Scelte progettuali significative}
+\label{sec:scelte-progettuali-significative}
+
+Nel corso delle diverse fasi di progettazione sono emerse alcune decisioni che hanno influenzato in modo determinante la struttura finale del sistema. La distinzione terminologica tra \textit{insegnamento} ed \textit{edizione} ha permesso di separare con precisione la dimensione astratta e permanente di un corso dalla sua istanza temporale annuale, eliminando ogni ambiguità con il concetto di \textit{corso di laurea}. Analogamente, la separazione tra \textit{abilitazione} e \textit{assegnazione} del corpo docente ha consentito di modellare con fedeltà la realtà organizzativa dell'ateneo, disaccoppiando le competenze stabili di un professore dagli incarichi effettivamente attribuiti anno per anno.
+
+Sul versante della progettazione logica, l'inclusione dell'attributo \texttt{periodo} all'interno della chiave primaria dell'entità \texttt{edizione} ha risposto a una precisa strategia di ottimizzazione fisica, consentendo la propagazione automatica dell'informazione verso le tabelle dipendenti e prevenendo a livello strutturale qualsiasi incongruenza temporale tra lezioni ed edizioni.
+
+L'analisi costi-benefici condotta nella fase di ristrutturazione ha motivato formalmente l'introduzione della ridondanza controllata \texttt{crediti\_acquisiti} sull'entità \texttt{studente}, determinando un abbattimento degli accessi annui da \num{1810000} a \num{402000}, con un margine di convenienza che rimane solido fino a circa \num{666667} registrazioni di esami all'anno.
+
+\section{Implementazione e riproducibilità}
+\label{sec:implementazione-e-riproducibilita}
+
+Al fine di garantire la piena riproducibilità dell'ambiente di esecuzione, l'intera infrastruttura è stata containerizzata tramite Docker e Docker Compose. Questo approccio permette il deploy immediato del DBMS PostgreSQL senza richiedere configurazioni manuali, applicando un'inizializzazione modulare che separa rigorosamente la definizione dello schema, l'implementazione dei trigger e la creazione degli indici in script SQL dedicati.
+
+Per la gestione dell'ambiente Python e delle relative dipendenze si è scelto di adottare \textbf{uv}, un tool moderno che assicura un setup rapido e deterministico. Il popolamento della base di dati è stato automatizzato mediante lo script \texttt{populate.py}, progettato per generare e inserire un volume significativo di dati casuali ma strettamente coerenti con i vincoli logici e di dominio imposti dal sistema.
+
+A ulteriore supporto della validazione quantitativa delle scelte architetturali, l'infrastruttura include lo script \texttt{redundancy\_analysis.py}. Questo strumento permette di riprodurre in modo automatizzato l'analisi dei costi e il calcolo del punto di pareggio discussi nella fase di ristrutturazione (Sezione 4.1.3), confermando empiricamente la scalabilità della ridondanza implementata. L'intero codice sorgente e la documentazione operativa sono liberamente consultabili nella repository GitHub del progetto all'indirizzo \url{https://github.com/cossidente/database-lab-project/}.
+
+\section{Limiti e possibili estensioni}
+\label{sec:limiti-e-possibili-estensioni}
+
+Il modello realizzato copre integralmente i requisiti specificati nella traccia, ma presenta margini di estensione che potrebbero arricchirne le potenzialità in un contesto reale. Non è attualmente modellata la distinzione tra prove scritte e orali all'interno dello storico degli esami, né la gestione di corsi integrati con più moduli coordinati da docenti differenti. Un'evoluzione naturale del sistema potrebbe inoltre prevedere la storicizzazione dei piani di studio, registrando le variazioni apportate dallo studente nel corso degli anni.

@@ -98,10 +98,10 @@ La terza categoria riguarda la navigazione inversa nella tabella \texttt{pre\-re
 \section{Trigger e vincoli procedurali}
 \label{sec:trigger-e-vincoli-procedurali}
 
-Le regole di business complesse che richiedono l'interrogazione coordinata di più tabelle non sono esprimibili tramite vincoli dichiarativi tradizionali. Per superare questi limiti strutturali, sono stati implementati vincoli procedurali attraverso trigger dedicati associati a funzioni scritte in linguaggio \texttt{PL/pgSQL}. Di seguito vengono discussi i trigger più significativi, direttamente derivanti dalle scelte progettuali illustrate nei capitoli precedenti; la lista completa è disponibile nella repository GitHub del progetto all'indirizzo \url{https://github.com/cossidente/database-lab-project/blob/main/sql/02_triggers.sql}.
+Alcuni vincoli di integrità non possono essere espressi mediante i tradizionali vincoli dichiarativi, poiché richiedono verifiche che coinvolgono più tabelle. Per questo motivo sono stati implementati trigger dedicati associati a funzioni scritte in linguaggio \texttt{PL/pgSQL}. Nel seguito vengono illustrati quelli maggiormente rappresentativi, mentre l'implementazione completa è disponibile nella repository GitHub del progetto all'indirizzo \url{https://github.com/cossidente/database-lab-project/blob/main/sql/02_triggers.sql}.
 
 \paragraph{Controllo delle propedeuticità d'esame}
-Prima di consentire l'inserimento di una nuova riga nella tabella \texttt{esame}, il sistema deve verificare lo stato della carriera dello studente. La funzione \texttt{controlla\_prerequisiti} intercetta l'operazione in modalità \texttt{BEFORE INSERT} e verifica se la matricola ha superato tutte le materie definite come propedeutiche per l'insegnamento in esame. In caso di esito negativo, l'operazione viene interrotta sollevando un'eccezione che elenca esplicitamente i codici dei corsi mancanti.
+Prima di consentire l'inserimento di un nuovo record nella tabella \texttt{esame}, il sistema deve verificare lo stato della carriera dello studente. La funzione \texttt{controlla\_prerequisiti} intercetta l'operazione in modalità \texttt{BEFORE INSERT} e verifica se lo studente ha superato tutte le materie definite come propedeutiche per l'insegnamento in esame. In caso di esito negativo, l'operazione viene interrotta sollevando un'eccezione che elenca esplicitamente i codici dei corsi mancanti.
 
 \begin{lstlisting}[language=SQL]
 CREATE OR REPLACE FUNCTION controlla_prerequisiti()

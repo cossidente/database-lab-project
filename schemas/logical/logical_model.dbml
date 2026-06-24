@@ -1,0 +1,161 @@
+Table "dipartimento" {
+  "codice" VARCHAR(10) [pk]
+  "nome" VARCHAR(100) [not null]
+}
+
+Table "corso_di_laurea" {
+  "codice" VARCHAR(10) [pk]
+  "nome" VARCHAR(100) [not null]
+}
+
+Table "docente" {
+  "cf" CHAR(16) [pk]
+  "nome" VARCHAR(40) [not null]
+  "cognome" VARCHAR(40) [not null]
+  "titolo" VARCHAR(30) [not null]
+  "dipartimento" VARCHAR(10) [not null]
+
+  Checks {
+    `titolo IN ('Professore ordinario', 'Professore associato', 'Ricercatore')` [name: 'ck_titolo']
+  }
+}
+
+Table "studente" {
+  "matricola" INTEGER [pk]
+  "nome" VARCHAR(40) [not null]
+  "cognome" VARCHAR(40) [not null]
+  "telefono" CHAR(10)
+  "aa_immatricolazione" CHAR(9) [not null]
+  "corso_di_laurea" VARCHAR(10) [not null]
+  "crediti_acquisiti" INTEGER [not null, default: 0]
+}
+
+Table "insegnamento" {
+  "codice" CHAR(5) [pk]
+  "nome" VARCHAR(50) [not null]
+  "crediti" INTEGER [not null]
+  "descrizione" VARCHAR(500)
+
+  Checks {
+    `crediti > 0` [name: 'ck_crediti']
+  }
+}
+
+Table "edizione" {
+  "codice_insegnamento" CHAR(5)
+  "anno_accademico" CHAR(9)
+  "periodo" CHAR(1)
+
+  Checks {
+    `periodo IN ('1', '2', '3')` [name: 'ck_periodo']
+  }
+
+  Indexes {
+    (codice_insegnamento, anno_accademico, periodo) [pk]
+    (codice_insegnamento, anno_accademico) [unique, name: "uq_singola_edizione_annuale"]
+  }
+}
+
+Table "lezione" {
+  "codice_insegnamento" CHAR(5)
+  "anno_accademico" CHAR(9)
+  "periodo" CHAR(1)
+  "giorno" VARCHAR(10)
+  "fascia_oraria" CHAR(1)
+  "aula" VARCHAR(20) [not null]
+
+  Checks {
+    `giorno IN ('Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì')` [name: 'ck_giorno']
+    `fascia_oraria IN ('1', '2', '3', '4')` [name: 'ck_fascia_oraria']
+  }
+
+  Indexes {
+    (codice_insegnamento, anno_accademico, periodo, giorno, fascia_oraria, aula) [pk]
+    (anno_accademico, periodo, giorno, fascia_oraria, aula) [unique, name: "uq_occupazione_aula"]
+  }
+}
+
+Table "esame" {
+  "matricola" INTEGER
+  "codice_insegnamento" CHAR(5)
+  "data_esame" DATE
+  "punteggio" INTEGER
+
+  Checks {
+    `punteggio >= 0 AND punteggio <= 30` [name: 'ck_punteggio']
+  }
+
+  Indexes {
+    (matricola, codice_insegnamento, data_esame) [pk]
+  }
+}
+
+Table "piano_di_studio" {
+  "matricola" INTEGER
+  "codice_insegnamento" CHAR(5)
+
+  Indexes {
+    (matricola, codice_insegnamento) [pk]
+  }
+}
+
+Table "prerequisito" {
+  "codice_insegnamento" CHAR(5)
+  "codice_prerequisito" CHAR(5)
+
+  Checks {
+    `codice_insegnamento <> codice_prerequisito` [name: 'ck_prerequisito']
+  }
+
+  Indexes {
+    (codice_insegnamento, codice_prerequisito) [pk]
+  }
+}
+
+Table "abilitazione_docente_insegnamento" {
+  "cf_docente" CHAR(16)
+  "codice_insegnamento" CHAR(5)
+
+  Indexes {
+    (cf_docente, codice_insegnamento) [pk]
+  }
+}
+
+Table "insegnamento_edizione" {
+  "cf_docente" CHAR(16)
+  "codice_insegnamento" CHAR(5)
+  "anno_accademico" CHAR(9)
+  "periodo" CHAR(1)
+
+  Indexes {
+    (cf_docente, codice_insegnamento, anno_accademico) [pk]
+  }
+}
+
+Ref:"dipartimento"."codice" < "docente"."dipartimento"
+
+Ref:"corso_di_laurea"."codice" < "studente"."corso_di_laurea"
+
+Ref:"insegnamento"."codice" < "edizione"."codice_insegnamento"
+
+Ref:"edizione".("codice_insegnamento", "anno_accademico", "periodo") < "lezione".("codice_insegnamento", "anno_accademico", "periodo")
+
+Ref:"studente"."matricola" < "esame"."matricola"
+
+Ref:"insegnamento"."codice" < "esame"."codice_insegnamento"
+
+Ref:"studente"."matricola" < "piano_di_studio"."matricola"
+
+Ref:"insegnamento"."codice" < "piano_di_studio"."codice_insegnamento"
+
+Ref:"insegnamento"."codice" < "prerequisito"."codice_insegnamento"
+
+Ref:"insegnamento"."codice" < "prerequisito"."codice_prerequisito"
+
+Ref:"docente"."cf" < "abilitazione_docente_insegnamento"."cf_docente"
+
+Ref:"insegnamento"."codice" < "abilitazione_docente_insegnamento"."codice_insegnamento"
+
+Ref:"docente"."cf" < "insegnamento_edizione"."cf_docente"
+
+Ref:"edizione".("codice_insegnamento", "anno_accademico", "periodo") < "insegnamento_edizione".("codice_insegnamento", "anno_accademico", "periodo")

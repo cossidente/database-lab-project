@@ -130,17 +130,17 @@ WHERE insegnamento_edizione.cf_docente = 'SDDGLM43R23E271L'
   AND insegnamento_edizione.codice_insegnamento = '20004'
   AND insegnamento_edizione.anno_accademico = (
       -- Calcolo dell'anno accademico corrente (inizio a ottobre)
-      CASE 
-          WHEN EXTRACT(MONTH FROM CURRENT_DATE) >= 10 
+      CASE
+          WHEN EXTRACT(MONTH FROM CURRENT_DATE) >= 10
           THEN EXTRACT(YEAR FROM CURRENT_DATE) || '/' || (EXTRACT(YEAR FROM CURRENT_DATE) + 1)
           ELSE (EXTRACT(YEAR FROM CURRENT_DATE) - 1) || '/' || EXTRACT(YEAR FROM CURRENT_DATE)
       END
   )
   AND EXISTS (
       -- Verifica abilitazione nuovo docente
-      SELECT 1 
+      SELECT 1
       FROM abilitazione_docente_insegnamento
-      WHERE abilitazione_docente_insegnamento.cf_docente = 'BNNGDI98L11M104F' 
+      WHERE abilitazione_docente_insegnamento.cf_docente = 'BNNGDI98L11M104F'
         AND abilitazione_docente_insegnamento.codice_insegnamento = insegnamento_edizione.codice_insegnamento
   );
 \end{lstlisting}

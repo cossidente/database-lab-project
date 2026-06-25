@@ -4,7 +4,7 @@
 \subsection{Analisi delle prestazioni e dei volumi}
 \label{ssec:analisi-delle-prestazioni-e-dei-volumi}
 
-La tabella dei volumi costituisce lo strumento quantitativo fondamentale per valutare il costo computazionale delle operazioni e analizzare l'efficienza dello schema. Le occorrenze stimate riflettono lo stato a regime del database, simulando il carico di lavoro complessivo necessario a gestire l'intera popolazione studentesca attiva all'interno della facoltà.
+La tabella dei volumi costituisce lo strumento quantitativo fondamentale per valutare il costo computazionale delle operazioni e analizzare l'efficienza dello schema. Le occorrenze stimate riflettono il volume di dati atteso in condizioni operative normali, simulando il carico di lavoro complessivo necessario a gestire l'intera popolazione studentesca attiva all'interno della facoltà.
 
 \begin{table}[h!]
     \centering
@@ -46,8 +46,8 @@ Il dimensionamento dell'infrastruttura prende come riferimento la topologia e l'
 A partire dagli \num{8} dipartimenti principali e dagli \num{80} corsi di laurea attivi, l'organico del corpo docente viene stimato in \num{700} professori e ricercatori, ciascuno legato al proprio dipartimento di afferenza mediante la relazione \textit{è affiliato a}.
 
 \paragraph{Offerta formativa e pianificazione delle lezioni}
-Il catalogo complessivo della facoltà comprende \num{1200} insegnamenti distinti.
-Considerando l'attivazione dei corsi e la presenza delle edizioni storiche e correnti registrate nel sistema, l'entità \textit{Edizione} e la corrispondente relazione \textit{è erogato in} contano un volume di \num{6000} istanze.
+Il catalogo complessivo della facoltà comprende \num{1200} insegnamenti distinti. Considerando la coesistenza nel sistema sia delle edizioni correnti sia dello storico delle edizioni passate per ciascun corso, si assume un fattore di moltiplicazione medio pari a \num{5} edizioni complessive per ogni singolo insegnamento.
+Di conseguenza, l'entità \textit{Edizione} e la corrispondente relazione \textit{è erogato in} contano un volume di \num{6000} istanze.
 Assumendo che ogni singola edizione si articoli in media su un ciclo di \num{20} lezioni frontali in aula, si ricavano esattamente \num{120000} tuple per popolare l'entità \textit{Lezione} e l'associazione \textit{si compone di}.
 
 \paragraph{Anagrafica e carriere degli studenti}

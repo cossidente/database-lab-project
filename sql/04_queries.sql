@@ -42,7 +42,7 @@ SELECT
 FROM insegnamento i
 LEFT JOIN tentativi_totali tt ON i.codice = tt.codice_insegnamento
 LEFT JOIN tentativi_superati ts ON i.codice = ts.codice_insegnamento
-ORDER BY percentuale_superamento DESC;
+ORDER BY percentuale_superamento DESC NULLS LAST;
 
 
 -- Dato un insegnamento, determinare la media dei tentativi effettuati dagli studenti che hanno effettivamente superato la prova

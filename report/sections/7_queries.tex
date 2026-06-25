@@ -69,7 +69,7 @@ SELECT
 FROM insegnamento i
 LEFT JOIN tentativi_totali tt ON i.codice = tt.codice_insegnamento
 LEFT JOIN tentativi_superati ts ON i.codice = ts.codice_insegnamento
-ORDER BY percentuale_superamento DESC;
+ORDER BY percentuale_superamento DESC NULLS LAST;
 \end{lstlisting}
 
 Per strutturare questo calcolo statistico in modo pulito e modulare, il problema logico è stato scomposto utilizzando due \textit{Common Table Expressions} (\texttt{WITH}).

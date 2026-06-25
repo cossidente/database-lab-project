@@ -164,10 +164,11 @@ EXECUTE FUNCTION controlla_esame_gia_superato();
 CREATE OR REPLACE FUNCTION aggiorna_crediti_post_delete()
 RETURNS TRIGGER AS $$
 BEGIN
-    UPDATE studente 
-    SET crediti_acquisiti = crediti_acquisiti - OLD.crediti_esame
+    UPDATE studente
+    SET crediti_acquisiti = crediti_acquisiti - (
+        SELECT crediti FROM insegnamento WHERE codice = OLD.codice_insegnamento
+    )
     WHERE matricola = OLD.matricola;
-    
     RETURN OLD;
 END;
 $$ LANGUAGE plpgsql;

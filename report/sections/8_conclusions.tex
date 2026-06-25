@@ -3,7 +3,8 @@ Il presente progetto ha affrontato la progettazione e l'implementazione di una b
 \section{Scelte progettuali significative}
 \label{sec:scelte-progettuali-significative}
 
-Nel corso delle diverse fasi di progettazione sono emerse alcune decisioni che hanno influenzato in modo determinante la struttura finale del sistema. L'adozione del termine \textit{insegnamento} in luogo del generico \enquote{corso} ha eliminato alla radice ogni ambiguità con il concetto di \textit{corso di laurea}. Inoltre, la separazione logica tra \textit{insegnamento} ed \textit{edizione} ha permesso di distinguere con precisione la dimensione astratta e permanente della materia dalla sua istanza temporale annuale.
+Nel corso delle diverse fasi di progettazione sono emerse alcune decisioni che hanno influenzato in modo determinante la struttura finale del sistema. L'adozione del termine \textit{insegnamento} ha eliminato alla radice ogni ambiguità con il concetto di \textit{corso di laurea}.
+Inoltre, la separazione logica tra \textit{insegnamento} ed \textit{edizione} ha permesso di distinguere con precisione la dimensione astratta e permanente della materia dalla sua istanza temporale annuale.
 Analogamente, la separazione tra \textit{abilitazione} e \textit{assegnazione} del corpo docente ha consentito di modellare con fedeltà la realtà organizzativa dell'ateneo, disaccoppiando le competenze stabili di un professore dagli incarichi effettivamente attribuiti anno per anno.
 
 Sul versante della progettazione logica, l'inclusione dell'attributo \texttt{periodo} all'interno della chiave primaria dell'entità \texttt{edizione} ha risposto a una precisa strategia di ottimizzazione fisica, consentendo la propagazione automatica dell'informazione verso le tabelle dipendenti e prevenendo a livello strutturale qualsiasi incongruenza temporale tra lezioni ed edizioni.

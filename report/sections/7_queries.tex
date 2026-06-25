@@ -22,7 +22,7 @@ FROM conteggi_insegnamenti
 WHERE frequenza = (SELECT MAX(frequenza) FROM conteggi_insegnamenti);
 \end{lstlisting}
 
-L'operazione esegue inizialmente un raggruppamento per calcolare le occorrenze di ogni corso tramite una \textit{Common Table Expression} (\texttt{CTE}) denominata \texttt{conteggi\_insegnamenti}.
+L'operazione esegue inizialmente un raggruppamento per calcolare le occorrenze di ogni insegnamento tramite una \textit{Common Table Expression} (\texttt{CTE}) denominata \texttt{conteggi\_insegnamenti}.
 Successivamente, la query principale interroga questa tabella temporanea filtrando i risultati: tramite una sottoquery, vengono estratti e mostrati esclusivamente i record la cui frequenza coincide con il valore massimo assoluto.
 
 
@@ -152,7 +152,7 @@ Inoltre, l'anno accademico dell'edizione da aggiornare viene calcolato dinamicam
 \section{Implementazione delle operazioni di inserimento}
 \label{sec:implementazione-delle-operazioni-di-inserimento}
 
-Le operazioni di inserimento popolano e ampliano lo stato della base di dati, introducendo in modo permanente nuove istanze informative.
+Le operazioni di inserimento popolano e ampliano lo stato della base di dati, introducendo in modo permanente nuovi dati.
 Tali procedure richiedono il rispetto dei vincoli di dominio e l'utilizzo di blocchi transazionali per garantire l'atomicità dei dati, preservando al contempo l'integrità referenziale dello schema.
 
 \subsection{Inserimento di un nuovo insegnamento e assegnazione della cattedra}

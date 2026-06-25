@@ -1,6 +1,6 @@
 # database-lab-project
 
-![Status](https://img.shields.io/badge/status-WIP-orange.svg)
+![Status](https://img.shields.io/badge/status-completed-brightgreen.svg)
 ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=flat&logo=docker&logoColor=white)
 ![uv](https://img.shields.io/badge/uv-Astral-5A67D8?logo=uv&logoColor=white)
 

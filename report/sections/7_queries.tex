@@ -38,8 +38,8 @@ JOIN insegnamento_edizione ie ON l.codice_insegnamento = ie.codice_insegnamento
     AND l.anno_accademico = ie.anno_accademico
     AND l.periodo = ie.periodo
 JOIN docente d ON ie.cf_docente = d.cf
-WHERE d.nome = 'Maria'
-    AND d.cognome = 'Gozzi'
+WHERE d.nome = 'Alphons'
+    AND d.cognome = 'Beffa'
     AND l.anno_accademico = '2024/2025'
     AND l.periodo = '2';
 \end{lstlisting}

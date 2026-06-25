@@ -11,17 +11,17 @@ WHERE frequenza = (SELECT MAX(frequenza) FROM conteggi_insegnamenti);
 
 
 -- Dato nome e cognome di un professore, un anno accademico e un periodo didattico restituire il suo calendario settimanale delle lezioni (insegnamento, giorno, fascia oraria, aula)
-SELECT insegnamento.nome, lezione.giorno, lezione.fascia_oraria, lezione.aula
-FROM lezione
-JOIN insegnamento ON lezione.codice_insegnamento = insegnamento.codice
-JOIN insegnamento_edizione ON lezione.codice_insegnamento = insegnamento_edizione.codice_insegnamento 
-    AND lezione.anno_accademico = insegnamento_edizione.anno_accademico 
-    AND lezione.periodo = insegnamento_edizione.periodo
-JOIN docente ON insegnamento_edizione.cf_docente = docente.cf
-WHERE docente.nome = 'Maria' 
-    AND docente.cognome = 'Gozzi' 
-    AND lezione.anno_accademico = '2024/2025' 
-    AND lezione.periodo = '2';
+SELECT i.nome, l.giorno, l.fascia_oraria, l.aula
+FROM lezione l
+JOIN insegnamento i ON l.codice_insegnamento = i.codice
+JOIN insegnamento_edizione ie ON l.codice_insegnamento = ie.codice_insegnamento
+    AND l.anno_accademico = ie.anno_accademico
+    AND l.periodo = ie.periodo
+JOIN docente d ON ie.cf_docente = d.cf
+WHERE d.nome = 'Alphons'
+    AND d.cognome = 'Beffa'
+    AND l.anno_accademico = '2024/2025'
+    AND l.periodo = '2';
 
 
 -- Per ciascun insegnamento, calcolare la percentuale di prove superate rispetto ai tentativi totali
